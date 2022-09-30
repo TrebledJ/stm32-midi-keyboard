@@ -112,16 +112,19 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  TIM3->ARR = 1000;    //set the timer1 auto-reload counter
+  TIM3->PSC = 84;    //set the timer1 prescaler value
+//  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
   while (1)
   {
 	  uint8_t value = 0; // the value for the duty cycle
 	  while (value<255)
 	  {
-	    htim3.Instance->CCR1 = 0; // vary the duty cycle
-	    value += 20; // increase the duty cycle by 20
+		  TIM3->CCR1 = 500; //set the compare value of timer1 channel1
+		  value += 20; // increase the duty cycle by 20
 //		  gpio_toggle(BUZZER);
 		gpio_toggle(LED3);
-	    HAL_Delay (500); // wait for 500 ms
+		HAL_Delay (500); // wait for 500 ms
 	  }
 	  value = 0;
     /* USER CODE END WHILE */
@@ -318,6 +321,7 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 0 */
 
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
   TIM_MasterConfigTypeDef sMasterConfig = {0};
   TIM_OC_InitTypeDef sConfigOC = {0};
 
@@ -330,6 +334,15 @@ static void MX_TIM3_Init(void)
   htim3.Init.Period = 255-1;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
   if (HAL_TIM_PWM_Init(&htim3) != HAL_OK)
   {
     Error_Handler();
