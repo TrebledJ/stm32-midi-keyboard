@@ -1,6 +1,7 @@
 #MicroXplorer Configuration settings - do not modify
 ADC1.Channel-4\#ChannelRegularConversion=ADC_CHANNEL_1
-ADC1.IPParameters=Rank-4\#ChannelRegularConversion,master,Channel-4\#ChannelRegularConversion,SamplingTime-4\#ChannelRegularConversion,NbrOfConversionFlag
+ADC1.ContinuousConvMode=ENABLE
+ADC1.IPParameters=Rank-4\#ChannelRegularConversion,master,Channel-4\#ChannelRegularConversion,SamplingTime-4\#ChannelRegularConversion,NbrOfConversionFlag,ContinuousConvMode
 ADC1.NbrOfConversionFlag=1
 ADC1.Rank-4\#ChannelRegularConversion=1
 ADC1.SamplingTime-4\#ChannelRegularConversion=ADC_SAMPLETIME_3CYCLES
@@ -74,6 +75,7 @@ Mcu.UserConstants=
 Mcu.UserName=STM32F405RGTx
 MxCube.Version=6.3.0
 MxDb.Version=DB.6.0.30
+NVIC.ADC_IRQn=true\:0\:0\:false\:false\:true\:true\:true
 NVIC.BusFault_IRQn=true\:0\:0\:false\:false\:true\:false\:false
 NVIC.DebugMonitor_IRQn=true\:0\:0\:false\:false\:true\:false\:false
 NVIC.ForceEnableDMAVector=true
