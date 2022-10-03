@@ -5,7 +5,7 @@
 if (NOT MCU_STARTUP_FILE)
 	# usually the startup file is here but who knows!?
 	set(MCU_STARTUP_SEARCH_DIRS
-		"." "./MDK-ARM" "./Core/Startup")
+		"." "./Core/Startup")
 	message("Looking for Startup Assembly in ${MCU_STARTUP_SEARCH_DIRS}")
 	# search for startup_ followed by some variation of the stm32 model no.
 	find_file(MCU_STARTUP_FILE "startup_${stm32fxxx}.s" ${MCU_STARTUP_SEARCH_DIRS}
