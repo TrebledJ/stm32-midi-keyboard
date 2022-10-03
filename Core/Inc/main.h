@@ -33,6 +33,7 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#include <stdint.h>
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -47,6 +48,15 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
+
+#define gpio_set(p) HAL_GPIO_WritePin(p##_GPIO_Port, p##_Pin,1)
+#define gpio_reset(p) HAL_GPIO_WritePin(p##_GPIO_Port, p##_Pin,0)
+#define gpio_read(p) HAL_GPIO_ReadPin(p##_GPIO_Port, p##_Pin)
+#define gpio_toggle(p) HAL_GPIO_TogglePin(p##_GPIO_Port, p##_Pin)
+#define delay(t) HAL_Delay(t);
+#define get_ticks() HAL_GetTick()
+#define row_set(p) HAL_GPIO_WritePin(row##p##_GPIO_Port, row##p##_Pin,1);
+
 
 /* USER CODE END EM */
 
