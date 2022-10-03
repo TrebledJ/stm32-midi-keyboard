@@ -1,0 +1,40 @@
+##############################################################################################################################################################################
+
+## Compiler Toolchain Definitions
+
+set(CMAKE_SYSTEM_NAME Generic)
+set(CMAKE_SYSTEM_PROCESSOR ${GCC_CPU})
+set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
+set(CMAKE_CROSSCOMPILING TRUE)
+# FIXME:c++ doesn't get found unless you do some linking, will get to the bottom of it later
+# TODO: Works on windows??
+execute_process(COMMAND arm-none-eabi-gcc --print-sysroot OUTPUT_VARIABLE ARM_SYSROOT)
+get_filename_component(CMAKE_SYSROOT ${ARM_SYSROOT} ABSOLUTE)
+string(REGEX REPLACE "\n$" "" CMAKE_SYSROOT "${CMAKE_SYSROOT}")
+# TODO: more needed?  https://interrupt.memfault.com/blog/arm-cortexm-with-llvm-clang#example-project
+execute_process(COMMAND arm-none-eabi-gcc --print-multi-directory OUTPUT_VARIABLE ARM_LIB_MULTI_DIR)
+string(REGEX REPLACE "\n$" "" ARM_LIB_MULTI_DIR "${ARM_LIB_MULTI_DIR}")
+execute_process(COMMAND arm-none-eabi-gcc --print-libgcc-file-name OUTPUT_VARIABLE ARM_LIBGCC)
+get_filename_component(ARM_LIBGCC ${ARM_LIBGCC} ABSOLUTE)
+string(REGEX REPLACE "\n$" "" ARM_LIBGCC "${ARM_LIBGCC}")
+set(CMAKE_EXE_LINKER_FLAGS "-nostdlib -L${CMAKE_SYSROOT}/lib/${ARM_LIB_MULTI_DIR} ${ARM_LIBGCC} -lc -lm")
+
+set(triple arm-none-eabi)
+
+SET(CMAKE_C_COMPILER clang)
+SET(CMAKE_CXX_COMPILER clang++)
+SET(CMAKE_ASM_COMPILER arm-none-eabi-gcc)
+find_program(AS ${triple}-as)
+find_program(AR ${triple}-ar)
+find_program(OBJCOPY ${triple}-objcopy)
+find_program(OBJDUMP ${triple}-objdump)
+find_program(OBJSIZE ${triple}-size)
+
+set(CMAKE_C_COMPILER_TARGET ${triple})
+set(CMAKE_CXX_COMPILER_TARGET ${triple})
+
+# TODO: WTF?
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
