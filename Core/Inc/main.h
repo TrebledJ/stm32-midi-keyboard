@@ -49,8 +49,8 @@ extern "C" {
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
 
-#define gpio_set(p)    HAL_GPIO_WritePin(p##_GPIO_Port, p##_Pin, 1)
-#define gpio_reset(p)  HAL_GPIO_WritePin(p##_GPIO_Port, p##_Pin, 0)
+#define gpio_set(p)    HAL_GPIO_WritePin(p##_GPIO_Port, p##_Pin, GPIO_PIN_SET)
+#define gpio_reset(p)  HAL_GPIO_WritePin(p##_GPIO_Port, p##_Pin, GPIO_PIN_RESET)
 #define gpio_read(p)   HAL_GPIO_ReadPin(p##_GPIO_Port, p##_Pin)
 #define gpio_toggle(p) HAL_GPIO_TogglePin(p##_GPIO_Port, p##_Pin)
 #define delay(t)       HAL_Delay(t);

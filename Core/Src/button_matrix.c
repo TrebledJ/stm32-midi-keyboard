@@ -3,9 +3,16 @@
 #include "main.h"
 
 
+static GPIO_TypeDef* BTN_row_Port[] = {btn_table(row_port)};
+static const uint16_t BTN_row_Pin[] = {btn_table(row_pin)};
+
+static GPIO_TypeDef* BTN_col_Port[] = {btn_table(col_port)};
+static const uint16_t BTN_col_Pin[] = {btn_table(col_pin)};
+
 uint8_t delta_t_pressed[29] = {0};
 ButtonState key_state[29] = {0};
 uint8_t delta_t_released[29] = {0};
+
 uint64_t detect_key_matrix()
 {
     uint64_t result = 0;

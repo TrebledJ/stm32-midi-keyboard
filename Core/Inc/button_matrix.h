@@ -92,11 +92,6 @@ typedef enum {
     X(6)             \
     X(7)
 
-static const GPIO_TypeDef* BTN_row_Port[] = {btn_table(row_port)};
-static const uint16_t BTN_row_Pin[] = {btn_table(row_pin)};
-
-static const GPIO_TypeDef* BTN_col_Port[] = {btn_table(col_port)};
-static const uint16_t BTN_col_Pin[] = {btn_table(col_pin)};
 uint64_t detect_key_matrix();
 #define read_key_matrix(btn) (btn_matrix >> btn) & 1
 

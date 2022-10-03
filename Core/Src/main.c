@@ -22,7 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "button_matrix.h"
+#include "app.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -51,55 +51,6 @@ TIM_HandleTypeDef htim3;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-
-volatile uint32_t last_ticks;
-float get_volume()
-{
-    uint32_t knob_reading = 0;
-    HAL_ADC_PollForConversion(&hadc1, 100);
-    knob_reading = HAL_ADC_GetValue(&hadc1);
-    return knob_reading / 1.0;
-}
-void beeper_high()
-{
-    TIM3->ARR = 1000; // set the timer1 auto-reload counter
-    TIM3->PSC = 120;  // set the timer1 prescaler value
-    TIM3->CCR1 = 500; // set the compare value of timer1 channel1
-}
-void beeper_low()
-{
-    TIM3->ARR = 1000; // set the timer1 auto-reload counter
-    TIM3->PSC = 168;  // set the timer1 prescaler value
-    TIM3->CCR1 = 500; // set the compare value of timer1 channel1
-}
-void beeper_off()
-{
-    TIM3->ARR = 1000; // set the timer1 auto-reload counter
-    TIM3->PSC = 84;   // set the timer1 prescaler value
-    TIM3->CCR1 = 0;   // set the compare value of timer1 channel1
-}
-float metronome_beeper(int bpm, int idk_what_it_call)
-{
-    float b2b_time = 1 / (bpm / 60.0f) * 1000;
-    static uint16_t count = 0;
-    static uint8_t buzz_offed = 0;
-    if (HAL_GetTick() - last_ticks > b2b_time) {
-        last_ticks = HAL_GetTick();
-        buzz_offed = 0;
-        if (!(count % idk_what_it_call)) {
-            beeper_high();
-        } else {
-            beeper_low();
-        }
-        count++;
-        gpio_toggle(LED2);
-    }
-    if (HAL_GetTick() - last_ticks > 5 && !buzz_offed) {
-        beeper_off();
-        buzz_offed = 1;
-        last_ticks = HAL_GetTick();
-    }
-}
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -112,7 +63,6 @@ static void MX_DAC_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_SPI2_Init(void);
 /* USER CODE BEGIN PFP */
-uint32_t raw = 0;
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -157,38 +107,13 @@ int main(void)
     /* USER CODE BEGIN 2 */
 
     //  HAL_ADC_Start(&hadc1);
+    app_init();
     /* USER CODE END 2 */
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
-    TIM3->ARR = 1000; // set the timer1 auto-reload counter
-    TIM3->PSC = 84;   // set the timer1 prescaler value
-    TIM3->CCR1 = 500; // set the compare value of timer1 channel1
-    uint64_t btn_matrix = 0;
-    uint8_t last_btn = 0;
-    float volume = 0;
-    //  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);//too noist
-    last_ticks = HAL_GetTick();
+    app_run();
     while (1) {
-        metronome_beeper(80, 3);
-        btn_matrix = detect_key_matrix();
-        if (read_key_matrix(BTN_1_U)) {
-            gpio_reset(LED0);
-        } else {
-            gpio_set(LED0);
-        }
-        if (read_key_matrix(BTN_1_D)) {
-            gpio_reset(LED1);
-        } else {
-            gpio_set(LED1);
-        }
-        //	  gpio_toggle(LED2);
-        //	  delay(499);
-        //	volume = get_volume();
-        HAL_ADC_Start(&hadc1);
-        HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-        raw = HAL_ADC_GetValue(&hadc1);
-        HAL_ADC_Stop(&hadc1);
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
