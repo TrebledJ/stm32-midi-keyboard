@@ -94,21 +94,6 @@ add_executable(${PROJECT_NAME} ${MCU_STARTUP_FILE} ${SOURCE_FILES})
 	set(LIST_CMAKE_EXE_LINKER_FLAGS_RELEASE ${LINKER_OPT_FLAGS})
 	set(LIST_CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO ${LINKER_INFO_FLAGS})
 
-	message("Debug Opt Flags")
-	message("${DEBUG_OPT_FLAGS}")
-
-	message("\nCompiler Info Flags")
-	message("${COMPILER_INFO_FLAGS}")
-
-	message("\nTime Opt Flags")
-	message("${TIME_OPT_FLAGS}")
-
-	message("\nCompiler Flags")
-	message("${COMPILER_FLAGS}")
-
-	message("\nCPP Flags")
-	message("${CPP_FLAGS}")
-
 	# target_sources(${PROJECT_NAME} PUBLIC ${LINKER_SCRIPT})
 
 	# get_target_property(_cur_link_deps ${PROJECT_NAME} LINK_DEPENDS)
