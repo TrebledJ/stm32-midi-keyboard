@@ -14,7 +14,7 @@ add_executable(${PROJECT_NAME} ${MCU_STARTUP_FILE} ${SOURCE_FILES})
 
 	set(COMP_DEFINES -D__pure=__attribute__\(\(const\)\) -D__forceinline=__attribute__\(\(always_inline\)\) -D__value_in_regs= -D__weak=__attribute__\(\(weak\)\) -D__packed=__attribute__\(\(__packed__\)\))
 
-	set(COMPILER_INFO_FLAGS -g)
+	set(COMPILER_INFO_FLAGS -g3)
 	set(TIME_OPT_FLAGS -O3) 
 	if(USE_LTO)
 		list(APPEND TIME_OPT_FLAGS -flto -Wl,--undefined=vTaskSwitchContext)
@@ -23,7 +23,7 @@ add_executable(${PROJECT_NAME} ${MCU_STARTUP_FILE} ${SOURCE_FILES})
 	if(USE_OFAST)
 		list(APPEND TIME_OPT_FLAGS -Ofast)
 	endif()
-	set(SPACE_OPT_FLAGS -Os)
+	set(SPACE_OPT_FLAGS -Os -s)
 	set(DEBUG_OPT_FLAGS -Og)
 
 	set(COMMON_FLAGS -mcpu=${GCC_CPU} -mthumb -fno-math-errno -fdiagnostics-color)
@@ -55,17 +55,6 @@ add_executable(${PROJECT_NAME} ${MCU_STARTUP_FILE} ${SOURCE_FILES})
     else()
         list(APPEND GCC_WARN_FLAGS -Werror=implicit-fallthrough=3) # FIXME: Only in GCC
     endif()
-	if (DEFINED STFU_GCC AND STFU_GCC EQUAL 1)
-		list(APPEND GCC_WARN_FLAGS -w)
-	elseif(DEFINED WHINE_GCC AND WHINE_GCC EQUAL 1)
-		list(APPEND GCC_WARN_FLAGS_C -Wstrict-prototypes)
-		list(APPEND GCC_WARN_FLAGS 
-			-Wextra -Wno-missing-field-initializers -Wcast-align
-			-Wfloat-equal -Wunreachable-code -Wundef 
-			-Wwrite-strings -Wswitch-default -Wswitch-enum
-            -fanalyzer 
-			-Wuninitialized -Winit-self -Wtype-limits) #-Wconversion
-	endif()
 	if (GCC_FATAL_ERRORS)
 		list(APPEND GCC_WARN_FLAGS -Wfatal-errors)
 	endif()
@@ -104,6 +93,21 @@ add_executable(${PROJECT_NAME} ${MCU_STARTUP_FILE} ${SOURCE_FILES})
 	set(LIST_CMAKE_EXE_LINKER_FLAGS_MINSIZEREL )
 	set(LIST_CMAKE_EXE_LINKER_FLAGS_RELEASE ${LINKER_OPT_FLAGS})
 	set(LIST_CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO ${LINKER_INFO_FLAGS})
+
+	message("Debug Opt Flags")
+	message("${DEBUG_OPT_FLAGS}")
+
+	message("\nCompiler Info Flags")
+	message("${COMPILER_INFO_FLAGS}")
+
+	message("\nTime Opt Flags")
+	message("${TIME_OPT_FLAGS}")
+
+	message("\nCompiler Flags")
+	message("${COMPILER_FLAGS}")
+
+	message("\nCPP Flags")
+	message("${CPP_FLAGS}")
 
 	# target_sources(${PROJECT_NAME} PUBLIC ${LINKER_SCRIPT})
 

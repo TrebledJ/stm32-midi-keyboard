@@ -11,5 +11,8 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${OBJDUMP} -d -S -marmv7 ${PROJECT_NAME}.elf > ${PROJECT_NAME}.s
     COMMENT "Dumping Assembly Listing")
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${OBJSIZE} ${PROJECT_NAME}.elf
+    COMMENT "Object Size:")
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${OBJSIZE} -A -d ${PROJECT_NAME}.elf
     COMMENT "Object Size:")
