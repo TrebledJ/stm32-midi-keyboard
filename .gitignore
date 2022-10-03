@@ -51,5 +51,11 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+# macOS trash
 .DS_Store
+
+# CMake generated build files
 build/
+
+# STM32CubeIDE generated build files
+Debug/
