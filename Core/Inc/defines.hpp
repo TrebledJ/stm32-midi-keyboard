@@ -7,7 +7,7 @@ extern "C" {
 #include "gpio.hpp"
 
 
-// We need to hardcode the ports because we can't pass pointer values as template parameters 
+// We need to hardcode the ports because we can't pass pointer values as template parameters
 // and also STMCubeMX's code gen is rather inflexible.
 using LED0 = led<PB, 0>;
 using LED1 = led<PC, 4>;

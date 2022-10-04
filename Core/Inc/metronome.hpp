@@ -1,7 +1,7 @@
 #pragma once
 
 extern "C" {
-    #include "main.h"
+#include "main.h"
 }
 
 // extern TIM_HandleTypeDef htim3;
@@ -9,14 +9,16 @@ extern "C" {
 class metronome
 {
 public:
-    static void init() {
+    static void init()
+    {
         TIM3->ARR = 1000; // set the timer1 auto-reload counter
         TIM3->PSC = 84;   // set the timer1 prescaler value
         TIM3->CCR1 = 500; // set the compare value of timer1 channel1
         //  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);//too noist
     }
 
-    static void tick(uint32_t last_ticks, int bpm, int idk_what_it_call) {
+    static void tick(uint32_t last_ticks, int bpm, int idk_what_it_call)
+    {
         float b2b_time = 1 / (bpm / 60.0f) * 1000;
         static uint16_t count = 0;
         static uint8_t buzz_offed = 0;
@@ -52,7 +54,7 @@ private:
         TIM3->PSC = 168;  // set the timer1 prescaler value
         TIM3->CCR1 = 500; // set the compare value of timer1 channel1
     }
-    
+
     static void beeper_off()
     {
         TIM3->ARR = 1000; // set the timer1 auto-reload counter
