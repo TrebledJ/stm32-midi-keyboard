@@ -1,8 +1,10 @@
+#pragma once
+
 extern "C" {
     #include "main.h"
 }
 
-extern TIM_HandleTypeDef htim3;
+// extern TIM_HandleTypeDef htim3;
 
 class metronome
 {
