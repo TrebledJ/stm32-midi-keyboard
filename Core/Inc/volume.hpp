@@ -8,7 +8,11 @@ extern ADC_HandleTypeDef hadc1;
 class volume
 {
 public:
-    volume() : dial(&hadc1) {}
+    static Dial& instance()
+    {
+        static Dial dial{&hadc1};
+        return dial;
+    }
 
-    float get() const { return get_value(); }
+    static float get() const { return instance().get_value(); }
 };

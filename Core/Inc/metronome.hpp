@@ -6,49 +6,61 @@ extern "C" {
 
 // extern TIM_HandleTypeDef htim3;
 
-class metronome
+class Metronome
 {
 public:
-    static void init()
+    Metronome(TIM_TypeDef* timer, uint32_t bpm = 80, uint16_t div = 4) : timer{timer}
     {
-        TIM3->ARR = 1000; // set the timer1 auto-reload counter
-        TIM3->PSC = 84;   // set the timer1 prescaler value
-        TIM3->CCR1 = 500; // set the compare value of timer1 channel1
-        //  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);//too noist
+        set_tempo(bpm);
+        set_division(div);
     }
 
-    static void tick(uint32_t last_ticks, int bpm, int idk_what_it_call)
+    void init()
     {
-        float b2b_time = 1 / (bpm / 60.0f) * 1000;
-        static uint16_t count = 0;
-        static uint8_t buzz_offed = 0;
-        if (HAL_GetTick() - last_ticks > b2b_time) {
+        timer->ARR = 1000; // set the timer1 auto-reload counter
+        timer->PSC = 84;   // set the timer1 prescaler value
+        timer->CCR1 = 500; // set the compare value of timer1 channel1
+        //  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1); // too noisy
+    }
+
+    void set_tempo(uint32_t bpm) { interval = 60000 / bpm; }
+    void set_division(uint16_t div) { division = div; }
+
+    void tick(uint32_t last_ticks)
+    {
+        if (is_beeping && HAL_GetTick() - last_ticks > 5) {
             last_ticks = HAL_GetTick();
-            buzz_offed = 0;
-            if (!(count % idk_what_it_call)) {
-                beeper_high();
-            } else {
-                beeper_low();
-            }
-            count++;
-            gpio_toggle(LED2);
-        }
-        if (HAL_GetTick() - last_ticks > 5 && !buzz_offed) {
+            is_beeping = false;
             beeper_off();
-            buzz_offed = 1;
+        } else if (HAL_GetTick() - last_ticks > interval) {
             last_ticks = HAL_GetTick();
+            is_beeping = true;
+            if (count == division) {
+                beeper_strong();
+                count = 0;
+            } else {
+                beeper_weak();
+                count++;
+            }
+            gpio_toggle(LED2);
         }
     }
 
 private:
-    static void beeper_high()
+    TIM_TypeDef* timer;      // Timer object.
+    uint32_t interval;       // Interval between beats, in ms.
+    uint16_t division;       // Set the number of divisions (beats) per bar.
+    uint16_t count = 0;      // Which beat we're currently at.
+    bool is_beeping = false; // Whether beeper is currently on.
+
+    static void beeper_strong()
     {
         TIM3->ARR = 1000; // set the timer1 auto-reload counter
         TIM3->PSC = 120;  // set the timer1 prescaler value
         TIM3->CCR1 = 500; // set the compare value of timer1 channel1
     }
 
-    static void beeper_low()
+    static void beeper_weak()
     {
         TIM3->ARR = 1000; // set the timer1 auto-reload counter
         TIM3->PSC = 168;  // set the timer1 prescaler value
