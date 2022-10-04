@@ -26,13 +26,13 @@ public:
     void set_tempo(uint32_t bpm) { interval = 60000 / bpm; }
     void set_division(uint16_t div) { division = div; }
 
-    void tick(uint32_t last_ticks)
+    void tick()
     {
-        if (is_beeping && HAL_GetTick() - last_ticks > 5) {
+        if (is_beeping && HAL_GetTick() - last_ticks > beep_interval) {
             last_ticks = HAL_GetTick();
             is_beeping = false;
             beeper_off();
-        } else if (HAL_GetTick() - last_ticks > interval) {
+        } else if (HAL_GetTick() - last_ticks > interval - beep_interval) {
             last_ticks = HAL_GetTick();
             is_beeping = true;
             if (count == division) {
@@ -47,11 +47,15 @@ public:
     }
 
 private:
-    TIM_TypeDef* timer;      // Timer object.
-    uint32_t interval;       // Interval between beats, in ms.
-    uint16_t division;       // Set the number of divisions (beats) per bar.
+    TIM_TypeDef* timer;         // Timer object.
+    uint32_t interval;          // Interval between beats, in ms.
+    uint32_t beep_interval = 5; // The interval to beep on each beat, in ms.
+    uint16_t division;          // Set the number of divisions (beats) per bar.
+
+    // Internal parameters to track metronome.
     uint16_t count = 0;      // Which beat we're currently at.
     bool is_beeping = false; // Whether beeper is currently on.
+    uint32_t last_ticks = 0; // Keeps track of the last update.
 
     static void beeper_strong()
     {
