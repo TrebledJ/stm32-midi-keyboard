@@ -1,8 +1,9 @@
 # stm32-midi-keyboard
 Midi keyboard project for ELEC3300, a course on embedded systems, implemented using STM32 with C++20.
 
-## Environment
-Download all of these before continuing:
+## Development 
+### Environment
+Download all of the following before continuing. Preferably, use a package manager to install these.
 
 - [arm-none-eabi-gcc](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) for compiling (make sure you use the lastest version)
 - [OpenOCD](https://github.com/xpack-dev-tools/openocd-xpack/releases/) for flashing and debugging
@@ -11,7 +12,7 @@ Download all of these before continuing:
 	- Ninja is faster and easier to install on windows
 	- Mac/Linux can just use builtin Make easily
 
-### Package Manager: Use Brew on Mac
+#### Package Manager: Use Brew on Mac
 https://brew.sh/
 
 ```
@@ -21,7 +22,7 @@ brew install cmake
 brew install open-ocd
 ```
 
-### Package Manager: Use Anaconda
+#### Package Manager: Use Anaconda
 
 https://anaconda.org/
 While Anaconda is usually for handling Python packages you can find many. You may need this anyway
@@ -33,7 +34,7 @@ conda install -c m-labs openocd # windows/linux
 conda install -c dhgoldberg gcc-arm-none-eabi
 ```
 
-### Package Manager: Use Chocolatey on Windows
+#### Package Manager: Use Chocolatey on Windows
 
 https://chocolatey.org/
 
@@ -44,7 +45,7 @@ choco install ninja
 choco install cmake
 ```
 
-## Building and Flashing:
+### Building and Flashing:
 In the command palette
 - type `build` and find `CMake: Build`, remember the keyboard shortcut shown on the right for future use
 - use `CMake: Build Target` and choose `flash`
@@ -52,7 +53,7 @@ In the command palette
     - this would make `CMake: Build` run that target
     - the default default build target is `all` which just compiles
 
-## VSCode
+### IDE / VSCode
 
 Recommended plugins for VSCode:
 
@@ -61,9 +62,9 @@ Recommended plugins for VSCode:
 * Clang-Format by xaver
 * Cortex-Debug by marus25
 
-## Formatting
+### Formatting
 
-We use ClangFormat for formatting.
+ClangFormat is used for formatting.
 
 For unix-like systems, we recommend installing a pre-commit hook so that you don't forget to format (because forgetting is _that_ easy).
 
