@@ -1,0 +1,5 @@
+#!/bin/sh
+
+files=('**/*.h' '**/*.c' '**/*.hpp' '**/*.cpp' '**/*.tpp')
+blacklist=('!Core/**/stm32*' '!Core/**/system_stm32*' '!Core/**/syscalls.c' '!Core/**/sysmem.c' '!Drivers/**')
+git-format-staged --formatter 'clang-format -style=file' ${files[@]} ${blacklist[@]}

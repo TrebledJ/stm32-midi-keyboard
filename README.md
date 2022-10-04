@@ -60,3 +60,19 @@ Recommended plugins for VSCode:
 * CMake Tools by Microsoft
 * Clang-Format by xaver
 * Cortex-Debug by marus25
+
+## Formatting
+
+We use ClangFormat for formatting.
+
+For unix-like systems, we recommend installing a pre-commit hook so that you don't forget to format (because forgetting is _that_ easy).
+
+```sh
+# Install git-format-staged.
+npm install --global git-format-staged
+
+# Add pre-commit hook.
+mkdir -p .git/hooks
+cp pre-commit .git/hooks/
+chmod u+x .git/hooks/pre-commit
+```
