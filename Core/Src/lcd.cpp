@@ -2,6 +2,7 @@
 #include "lcd/lcd_font.h"
 #include "utils/utils.hpp"
 
+#include <cstring>
 #include <span>
 
 
@@ -109,7 +110,7 @@ void LCD<O>::draw_rectangle(uint16_t color, uint16_t x, uint16_t y, uint16_t w, 
 
     // TODO: try 32-bit copying implementation?
     uint32_t nbytes = w * h * 2;
-    uint32_t size = std::min(nbytes, buf_size);
+    uint32_t size = std::min(nbytes, BUF_SIZE);
     for (int i = 0; i < size; i += 2) {
         curr_buffer[i] = color >> 8;
         curr_buffer[i + 1] = color & 0xFF;
@@ -139,38 +140,56 @@ void LCD<O>::draw_image(const uint8_t* bytes, uint16_t x, uint16_t y, uint16_t w
 
 
 template <Orientation O>
-void LCD<O>::draw_char(char c, color_t color, uint16_t x, uint16_t y)
+void LCD<O>::draw_char(char c, uint16_t x, uint16_t y)
 {
-    spi_wait_finished(spi);
-    ready_region(CHAR_WIDTH * x, CHAR_HEIGHT * y, CHAR_WIDTH, CHAR_HEIGHT);
+    uint8_t* bufptr = curr_buffer;
+    color_t color_fg = palette.foreground();
+    color_t color_bg = palette.background();
 
-    uint32_t nbytes = CHAR_WIDTH * CHAR_HEIGHT * sizeof(color_t);
-    uint16_t i = 0; // Index along character image.
-    do {
-        // Populate buffer.
-        uint32_t size = std::min(nbytes, buf_size);
-        for (int j = 0; j < size; i++, j += 2) {
-            curr_buffer[j] = color >> 8;
-            curr_buffer[j + 1] = color & 0xFF;
+    // Consider the current chunk and populate the buffer.
+    for (uint16_t iy = 0; iy < CHAR_HEIGHT; iy++) {
+        const uint8_t char_ptr = (CHAR_PTR(c))[iy];
+        for (int8_t x = CHAR_WIDTH - 1; x >= 0; x--) {
+            color_t color = ((char_ptr >> x) & 0x01) ? color_fg : color_bg;
+            *bufptr++ = color >> 8;
+            *bufptr++ = color & 0xFF;
         }
+    }
 
-        // TX buffer.
-        spi_wait_finished(spi);
-        HAL_SPI_Transmit_DMA(spi, curr_buffer, size);
-
-        // Swap buffer so that we can continue populating next iteration.
-        swap_buffer();
-        nbytes -= size;
-    } while (nbytes > 0);
+    draw_image(bufptr, x, y, CHAR_WIDTH, CHAR_HEIGHT);
+    swap_buffer();
 }
 
 template <Orientation O>
-void LCD<O>::draw_string(const char* str, color_t color, uint16_t x, uint16_t y)
+void LCD<O>::draw_string(const char* str, uint16_t x, uint16_t y)
 {
-    for (uint16_t ix = x; *str && ix < LCD_WIDTH / CHAR_WIDTH; str++, ix++) {
-        draw_char(*str, color, i, y);
-    }
-    // TODO: optimise for sending multiple chars.
+    uint32_t len = strlen(str);
+    uint8_t* bufptr = curr_buffer;
+    color_t color_fg = palette.foreground();
+    color_t color_bg = palette.background();
+    do {
+        uint32_t chunk_chars = std::min(BUF_CHARS, len);
+
+        // Consider the current chunk and populate the buffer.
+        for (uint16_t iy = 0; iy < CHAR_HEIGHT; iy++) {
+            for (uint8_t is = 0; is < chunk_chars; is++) {
+                const uint8_t char_ptr = (CHAR_PTR(str[is]))[iy];
+                for (int8_t x = CHAR_WIDTH - 1; x >= 0; x--) {
+                    color_t color = ((char_ptr >> x) & 0x01) ? color_fg : color_bg;
+                    *bufptr++ = color >> 8;
+                    *bufptr++ = color & 0xFF;
+                }
+            }
+        }
+
+        draw_image(bufptr, x, y, CHAR_WIDTH * chunk_chars, CHAR_HEIGHT);
+
+        // Jump to next chunk, prepare for next iter.
+        str += chunk_chars;
+        len -= chunk_chars;
+        swap_buffer();
+        bufptr = curr_buffer;
+    } while (*str);
 }
 
 extern template class LCD<LCD_ORIENTATION>;

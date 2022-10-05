@@ -37,15 +37,15 @@ public:
     void draw_pixel(color_t color, uint16_t x, uint16_t y);
     void draw_rectangle(color_t color, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
     void draw_image(const uint8_t* bytes, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
-    void draw_char(char c, color_t color, uint16_t x, uint16_t y);
-    void draw_string(const char* str, color_t color, uint16_t x, uint16_t y);
+    void draw_char(char c, uint16_t x, uint16_t y);
+    void draw_string(const char* str, uint16_t x, uint16_t y);
 
 private:
     SPI_HandleTypeDef* spi;
     Orientation orientation;
 
-    static constexpr uint32_t buf_size = 128; // Number of bytes to buffer before TXing to the LCD.
-    using buffer_t = std::array<uint8_t, buf_size>;
+
+    using buffer_t = std::array<uint8_t, BUF_SIZE>;
     buffer_t buffer[2];
     uint8_t* curr_buffer;
     uint8_t* next_buffer;

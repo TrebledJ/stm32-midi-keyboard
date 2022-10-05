@@ -16,13 +16,6 @@ enum Orientation {
 
 
 ////////////////////////////////////////////////////////////////
-/// CONSTANTS
-////////////////////////////////////////////////////////////////
-
-inline constexpr int LCD_WIDTH = 320;
-inline constexpr int LCD_HEIGHT = 480;
-
-////////////////////////////////////////////////////////////////
 /// COLOURS
 ////////////////////////////////////////////////////////////////
 
@@ -79,7 +72,7 @@ static constexpr uint8_t ili9486_init_seq[] = {
     // Reset
     0x01,
     // Interface Mode Control
-    0xb0, 0x0,
+    0xB0, 0x0,
     // // Sleep OUT
     // 0x11,
     // Interface Pixel Format, 16 bits / pixel
@@ -107,3 +100,18 @@ static constexpr uint8_t ili9486_init_seq[] = {
     //
     // 0x2c, TFT_EOL_MARKER,
 };
+
+
+////////////////////////////////////////////////////////////////
+/// CONSTANTS
+////////////////////////////////////////////////////////////////
+
+inline constexpr int LCD_WIDTH = 320;
+inline constexpr int LCD_HEIGHT = 480;
+
+inline constexpr int CHAR_WIDTH = 8;
+inline constexpr int CHAR_HEIGHT = 16;
+
+inline constexpr uint32_t BUF_CHARS = 8; // Number of chars to buffer onto the LCD.
+inline constexpr uint32_t BUF_SIZE =
+    BUF_CHARS * CHAR_WIDTH * CHAR_HEIGHT * sizeof(color_t); // Number of bytes to buffer before TXing to the LCD.

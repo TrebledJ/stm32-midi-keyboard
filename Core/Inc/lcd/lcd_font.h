@@ -1,8 +1,5 @@
 #pragma once
 
-#define CHAR_WIDTH  8
-#define CHAR_HEIGHT 16
-
 // 8x16 ASCII
 // Each row below is a single character, with each byte representing a row of pixels.
 static const unsigned char ascii_8x16[] = {
