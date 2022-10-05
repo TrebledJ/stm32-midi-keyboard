@@ -1,4 +1,3 @@
-# Common .clang-format for all board and production repos.
 # You may refer to the style options from the official site:
 # https://clang.llvm.org/docs/ClangFormatStyleOptions.html
 ---
@@ -11,6 +10,7 @@ ColumnLimit: 120
 BreakBeforeBraces: Linux
 
 # The not-so-important stuff:
+AlignConsecutiveAssignments: Consecutive
 AlignAfterOpenBracket: Align
 AlignConsecutiveMacros: true
 AlignEscapedNewlines: Left
