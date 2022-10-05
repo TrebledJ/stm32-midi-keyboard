@@ -38,6 +38,10 @@ struct PF {
 
 template <typename PORT, uint16_t PIN>
 struct gpio {
+    static constexpr uintptr_t port = PORT::base;
+    static constexpr uint16_t pin = PIN;
+
+
     // Inline everything so that code isn't bloated by all the generated template ugliness.
 
     static void set() { HAL_GPIO_WritePin((GPIO_TypeDef*)PORT::base, (1 << PIN), GPIO_PIN_SET); }
