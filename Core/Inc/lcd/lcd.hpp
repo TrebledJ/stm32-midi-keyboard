@@ -1,0 +1,71 @@
+#pragma once
+
+#include "defines.hpp"
+#include "lcd/lcd_defines.hpp"
+#include "utils/builder.hpp"
+
+#include <array>
+#include <cstdint>
+
+
+struct Palette {
+    DEFINE_BUILDER_MEMBER(color_t, foreground);
+    DEFINE_BUILDER_MEMBER(color_t, background);
+    DEFINE_BUILDER_MEMBER(color_t, special);
+    DEFINE_BUILDER_MEMBER(color_t, highlight);
+};
+
+
+template <Orientation ORIENTATION = LCD_ORIENTATION>
+class LCD
+{
+public:
+    Palette palette = Palette().background(BLACK).foreground(WHITE).special(CYAN);
+
+    LCD(SPI_HandleTypeDef* spi) : spi{spi}
+    {
+        curr_buffer = buffer[0].data();
+        next_buffer = buffer[1].data();
+    }
+
+    void init()
+    {
+        init_hardware();
+        init_sequence();
+    }
+
+    void draw_pixel(color_t color, uint16_t x, uint16_t y);
+    void draw_rectangle(color_t color, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
+    void draw_image(const uint8_t* bytes, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
+    void draw_char(char c, color_t color, uint16_t x, uint16_t y);
+    void draw_string(const char* str, color_t color, uint16_t x, uint16_t y);
+
+private:
+    SPI_HandleTypeDef* spi;
+    Orientation orientation;
+
+    static constexpr uint32_t buf_size = 128; // Number of bytes to buffer before TXing to the LCD.
+    using buffer_t = std::array<uint8_t, buf_size>;
+    buffer_t buffer[2];
+    uint8_t* curr_buffer;
+    uint8_t* next_buffer;
+
+
+    static_assert(sizeof(color_t) == 2, "Implementation only works for 16-bit colours.");
+
+    void init_hardware()
+    {
+        TFT_DC::set();
+        TFT_RES::set();
+    }
+    void init_sequence();
+    void ready_region(uint16_t x, uint16_t y, uint16_t w, uint16_t h);
+    void swap_buffer()
+    {
+        buffer_t* tmp;
+        curr_buffer = next_buffer;
+        next_buffer = tmp;
+    }
+
+    void write_data(uint8_t data);
+};

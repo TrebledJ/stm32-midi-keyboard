@@ -1,6 +1,6 @@
 #include "app.hpp"
-
 #include "defines.hpp"
+#include "lcd/lcd.hpp"
 #include "metronome.hpp"
 
 extern "C" {
@@ -16,12 +16,10 @@ extern UART_HandleTypeDef huart1;
 uint64_t btn_matrix = 0;
 
 Metronome metronome{TIM3};
+LCD lcd{&hspi2};
 
 
-void app_init()
-{
-    metronome.init();
-}
+void app_init() { metronome.init(); }
 
 
 void app_run()
