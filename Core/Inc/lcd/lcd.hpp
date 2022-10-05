@@ -34,8 +34,11 @@ public:
         init_sequence();
     }
 
+    void clear();
+
     void draw_pixel(color_t color, uint16_t x, uint16_t y);
-    void draw_rectangle(color_t color, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
+    void draw_rect(uint16_t x, uint16_t y, uint16_t w, uint16_t h);
+    void draw_rect(color_t color, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
     void draw_image(const uint8_t* bytes, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
     void draw_char(char c, uint16_t x, uint16_t y);
     void draw_string(const char* str, uint16_t x, uint16_t y);
@@ -62,7 +65,7 @@ private:
     void ready_region(uint16_t x, uint16_t y, uint16_t w, uint16_t h);
     void swap_buffer()
     {
-        buffer_t* tmp;
+        uint8_t* tmp = curr_buffer;
         curr_buffer = next_buffer;
         next_buffer = tmp;
     }

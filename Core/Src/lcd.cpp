@@ -36,7 +36,7 @@ void LCD<O>::init_sequence()
 {
     uint32_t timeout = 100;
     std::span cmds = ili9486_init_seq<O>;
-    HAL_SPI_Transmit(spi, cmds.data(), cmds.size(), timeout);
+    HAL_SPI_Transmit(spi, const_cast<uint8_t*>(cmds.data()), cmds.size(), timeout);
     // uint32_t i = 0;
     // while (ili9486_init_seq[++i] != TFT_EOF_MARKER) {
     //     write_command(ili9486_init_seq[i]);
@@ -96,6 +96,12 @@ void LCD<O>::ready_region(uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 }
 
 template <Orientation O>
+void LCD<O>::clear()
+{
+    draw_rect(palette.background(), 0, 0, LCD_WIDTH, LCD_HEIGHT);
+}
+
+template <Orientation O>
 void LCD<O>::draw_pixel(uint16_t color, uint16_t x, uint16_t y)
 {
     ready_region(x, y, 1, 1);
@@ -104,7 +110,13 @@ void LCD<O>::draw_pixel(uint16_t color, uint16_t x, uint16_t y)
 }
 
 template <Orientation O>
-void LCD<O>::draw_rectangle(uint16_t color, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
+void LCD<O>::draw_rect(uint16_t x, uint16_t y, uint16_t w, uint16_t h)
+{
+    draw_rect(palette.foreground(), x, y, w, h);
+}
+
+template <Orientation O>
+void LCD<O>::draw_rect(uint16_t color, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
     ready_region(x, y, w, h);
 
@@ -135,7 +147,7 @@ void LCD<O>::draw_image(const uint8_t* bytes, uint16_t x, uint16_t y, uint16_t w
 {
     spi_wait_finished(spi);
     ready_region(x, y, w, h);
-    HAL_SPI_Transmit_DMA(spi, bytes, w * h);
+    HAL_SPI_Transmit_DMA(spi, const_cast<uint8_t*>(bytes), w * h);
 }
 
 
@@ -192,4 +204,4 @@ void LCD<O>::draw_string(const char* str, uint16_t x, uint16_t y)
     } while (*str);
 }
 
-extern template class LCD<LCD_ORIENTATION>;
+template class LCD<LCD_ORIENTATION>;
