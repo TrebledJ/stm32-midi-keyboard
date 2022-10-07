@@ -18,19 +18,20 @@ void LCD<O>::write_cmd(uint8_t cmd)
 {
     while (__HAL_SPI_GET_FLAG(spi, SPI_FLAG_BSY))
         ;
-    TFT_DC_GPIO_Port->BSRR = uint32_t(TFT_DC_Pin) << 16;
-    spi->Instance->CR1 |= SPI_CR1_SPE; // Enable SPI.
-    spi->Instance->DR = cmd;           // Send data.
-    spi_wait_finished(spi);            // Block until finished.
-    TFT_DC_GPIO_Port->BSRR = uint32_t(TFT_DC_Pin);
+    // TFT_DC_GPIO_Port->BSRR = uint32_t(TFT_DC_Pin) << 16; // Set to command mode.
+    TFT_DC::set();
+    spi->Instance->DR = cmd; // Send data.
+    spi_wait_finished(spi);  // Block until finished.
+    TFT_DC::reset();
+    // TFT_DC_GPIO_Port->BSRR = uint32_t(TFT_DC_Pin); // Set to data mode.
 }
 
 template <Orientation O>
 void LCD<O>::write_data(uint8_t data)
 {
-    spi->Instance->CR1 |= SPI_CR1_SPE; // Enable SPI.
-    spi->Instance->DR = data;          // Send data.
-    spi_wait_finished(spi);            // Block until finished.
+    // spi->Instance->CR1 |= SPI_CR1_SPE; // Enable SPI.
+    spi->Instance->DR = data; // Send data.
+    spi_wait_finished(spi);   // Block until finished.
 }
 
 // void LCD::write_data(uint8_t data)
@@ -155,9 +156,8 @@ void LCD<O>::draw_rect(uint16_t color, uint16_t x, uint16_t y, uint16_t w, uint1
     // ready_region(x, y, w, h);
 
     // TODO: try 32-bit copying implementation?
-    uint32_t nbytes = w * h * 2;
-    uint32_t size   = std::min(nbytes, BUF_SIZE);
-    for (uint32_t i = 0; i < size; i += 2) {
+    uint32_t nbytes = std::min(w * h * 2ul, BUF_SIZE);
+    for (uint32_t i = 0; i < nbytes; i += 2) {
         curr_buffer[i]     = color >> 8;
         curr_buffer[i + 1] = color & 0xFF;
     }
@@ -166,13 +166,14 @@ void LCD<O>::draw_rect(uint16_t color, uint16_t x, uint16_t y, uint16_t w, uint1
     ready_region(x, y, w, h);
 
     do {
-        uint32_t send_size = std::min(nbytes, size);
-        int res            = HAL_SPI_Transmit(spi, curr_buffer, send_size, 100);
-        LED0::off();
-        LED1::off();
-        LED2::off();
-        LED3::off();
-        (res == 0) ? LED0::on() : res == 1 ? LED1::on() : res == 2 ? LED2::on() : LED3::on();
+        uint32_t send_size = std::min(nbytes, BUF_SIZE);
+        HAL_SPI_Transmit(spi, curr_buffer, send_size, 1000);
+        // int res            = HAL_SPI_Transmit(spi, curr_buffer, send_size, 100);
+        // LED0::off();
+        // LED1::off();
+        // LED2::off();
+        // LED3::off();
+        // (res == 0) ? LED0::on() : res == 1 ? LED1::on() : res == 2 ? LED2::on() : LED3::on();
         spi_wait_finished(spi);
         // HAL_SPI_Transmit_DMA(spi, curr_buffer, send_size);
         // dma_wait();

@@ -10,8 +10,6 @@ extern "C" {
 /// PROGRAM
 ////////////////////////////////////////////////////////////////
 
-#define LCD_ORIENTATION PIN_ON_LEFT
-
 
 ////////////////////////////////////////////////////////////////
 /// BOARD
@@ -27,6 +25,6 @@ using LED3 = led<PC, 5>;
 using TFT_BLK = gpio<PC, 2>;
 using TFT_SDA = gpio<PC, 3>;
 using TFT_RES = gpio<PB, 1>;
-using TFT_DC = gpio<PB, 2>;
+using TFT_DC  = gpio<PB, 2>;
 using TFT_CLK = gpio<PB, 10>;
-using TFT_CS = gpio<PB, 11>;
+using TFT_CS  = gpio<PB, 11>;

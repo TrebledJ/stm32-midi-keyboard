@@ -29,7 +29,7 @@ void app_init()
 void app_run()
 {
     lcd.clear();
-    lcd.draw_string("hello world!", 0, 0);
+    // lcd.draw_string("hello world!", 0, 0);
     // lcd.draw_char('X', 1, 1);
     // lcd.draw_rect(GREEN, 200, 200, 50, 50);
     while (1) {

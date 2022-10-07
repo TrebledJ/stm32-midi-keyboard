@@ -14,6 +14,8 @@ enum Orientation {
     PIN_ON_RIGHT,
 };
 
+inline constexpr Orientation LCD_ORIENTATION = PIN_ON_LEFT;
+
 
 ////////////////////////////////////////////////////////////////
 /// COLOURS
@@ -131,8 +133,8 @@ static constexpr uint8_t ili9486_init_seq[] = {
 /// CONSTANTS
 ////////////////////////////////////////////////////////////////
 
-inline constexpr int LCD_WIDTH  = 320;
-inline constexpr int LCD_HEIGHT = 480;
+inline constexpr int LCD_WIDTH  = 480;
+inline constexpr int LCD_HEIGHT = 320;
 
 inline constexpr int CHAR_WIDTH  = 8;
 inline constexpr int CHAR_HEIGHT = 16;

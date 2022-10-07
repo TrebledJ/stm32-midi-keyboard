@@ -45,7 +45,7 @@ public:
 
 private:
     SPI_HandleTypeDef* spi;
-    Orientation orientation;
+    // Orientation orientation;
 
 
     using buffer_t = std::array<uint8_t, BUF_SIZE>;
@@ -58,6 +58,8 @@ private:
 
     void init_hardware()
     {
+        spi->Instance->CR1 |= SPI_CR1_SPE; // Enable SPI.
+        // TFT_BLK::reset();
         TFT_DC::set();
         TFT_RES::set();
         delay(100);
