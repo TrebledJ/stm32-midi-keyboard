@@ -73,8 +73,8 @@ static constexpr uint8_t ili9486_init_seq[] = {
     0xb0, 0x0, TFT_EOL_MARKER,
     // Sleep OUT
     0x11, TFT_DELAY_MARKER, 100, TFT_EOL_MARKER,
-    // Interface Pixel Format, 18 bits / pixel
-    0x3A, 0x66, TFT_EOL_MARKER,
+    // Interface Pixel Format, 16 bits / pixel
+    0x3A, 0x55, TFT_EOL_MARKER,
     // Power control VRH[5:0] = 4.60 V
     0xC0, 0x23, TFT_EOL_MARKER,
     // Power control SAP[2:0];BT[3:0] = adjust power to lowest possible
