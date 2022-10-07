@@ -19,15 +19,19 @@ Metronome metronome{TIM3};
 LCD lcd{&hspi2};
 
 
-void app_init() { metronome.init(); }
+void app_init()
+{
+    metronome.init();
+    lcd.init();
+}
 
 
 void app_run()
 {
     lcd.clear();
     lcd.draw_string("hello world!", 0, 0);
-    lcd.draw_char('X', 1, 1);
-    lcd.draw_rect(GREEN, 200, 200, 50, 50);
+    // lcd.draw_char('X', 1, 1);
+    // lcd.draw_rect(GREEN, 200, 200, 50, 50);
     while (1) {
         metronome.tick();
         btn_matrix = detect_key_matrix();

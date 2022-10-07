@@ -51,9 +51,9 @@ constexpr uint16_t rgb16(uint8_t r, uint8_t g, uint8_t b)
 ////////////////////////////////////////////////////////////////
 
 static constexpr uint8_t TFT_ORIENTATION_CMD = 0x36;
-static constexpr uint8_t TFT_EOF_MARKER = 0x42;
-static constexpr uint8_t TFT_EOL_MARKER = 0x43;
-static constexpr uint8_t TFT_DELAY_MARKER = 0xFF;
+static constexpr uint8_t TFT_EOF_MARKER      = 0x42;
+static constexpr uint8_t TFT_EOL_MARKER      = 0x43;
+static constexpr uint8_t TFT_DELAY_MARKER    = 0xFF;
 
 
 template <Orientation ORIENTATION>
@@ -69,34 +69,59 @@ constexpr uint8_t orientation_cmd()
 
 template <Orientation ORIENTATION>
 static constexpr uint8_t ili9486_init_seq[] = {
-    // Reset
-    0x01,
     // Interface Mode Control
-    0xB0, 0x0,
+    0xb0, 0x0, TFT_EOL_MARKER,
+    // Sleep OUT
+    0x11, TFT_DELAY_MARKER, 100, TFT_EOL_MARKER,
+    // Interface Pixel Format, 18 bits / pixel
+    0x3A, 0x66, TFT_EOL_MARKER,
+    // Power control VRH[5:0] = 4.60 V
+    0xC0, 0x23, TFT_EOL_MARKER,
+    // Power control SAP[2:0];BT[3:0] = adjust power to lowest possible
+    0xC1, 0x10, TFT_EOL_MARKER,
+    // Power Control 3 (For Normal Mode)
+    0xC2, 0x44, TFT_EOL_MARKER,
+    // VCOM Control
+    0xC5, 0x00, 0x00, 0x00, 0x00, TFT_EOL_MARKER,
+    // PGAMCTRL(Positive Gamma Control)
+    0xE0, 0x0F, 0x1F, 0x1C, 0x0C, 0x0F, 0x08, 0x48, 0x98, 0x37, 0x0A, 0x13, 0x04, 0x11, 0x0D, 0x00, TFT_EOL_MARKER,
+    // NGAMCTRL (Negative Gamma Correction)
+    0xE1, 0x0F, 0x32, 0x2E, 0x0B, 0x0D, 0x05, 0x47, 0x75, 0x37, 0x06, 0x10, 0x03, 0x24, 0x20, 0x00, TFT_EOL_MARKER,
+    // Digital Gamma Control 1
+    0xE2, 0x0F, 0x32, 0x2E, 0x0B, 0x0D, 0x05, 0x47, 0x75, 0x37, 0x06, 0x10, 0x03, 0x24, 0x20, 0x00, TFT_EOL_MARKER,
+    // Memory Access Control
+    TFT_ORIENTATION_CMD, orientation_cmd<ORIENTATION>(), TFT_EOL_MARKER,
+    // Exit sleep
+    0x11, TFT_DELAY_MARKER, 100, TFT_EOL_MARKER, 0x29, TFT_DELAY_MARKER, 100, TFT_EOL_MARKER, 0x2c, TFT_EOL_MARKER,
+    TFT_EOF_MARKER
+    // Reset
+    // 0x01,
+    // Interface Mode Control
+    // 0xB0, 0x0,
     // // Sleep OUT
     // 0x11,
     // Interface Pixel Format, 16 bits / pixel
-    0x3A, 0x55,
-    // Power control VRH[5:0] = 4.60 V
-    0xC0, 0x23,
-    // Power control SAP[2:0];BT[3:0] = adjust power to lowest possible
-    0xC1, 0x10,
-    // Power Control 3 (For Normal Mode)
-    0xC2, 0x44,
-    // VCOM Control
-    0xC5, 0x00, 0x00, 0x00, 0x00,
-    // PGAMCTRL(Positive Gamma Control)
-    0xE0, 0x0F, 0x1F, 0x1C, 0x0C, 0x0F, 0x08, 0x48, 0x98, 0x37, 0x0A, 0x13, 0x04, 0x11, 0x0D, 0x00,
-    // NGAMCTRL (Negative Gamma Correction)
-    0xE1, 0x0F, 0x32, 0x2E, 0x0B, 0x0D, 0x05, 0x47, 0x75, 0x37, 0x06, 0x10, 0x03, 0x24, 0x20, 0x00,
-    // Digital Gamma Control 1
-    0xE2, 0x0F, 0x32, 0x2E, 0x0B, 0x0D, 0x05, 0x47, 0x75, 0x37, 0x06, 0x10, 0x03, 0x24, 0x20, 0x00,
-    // Memory Access Control
-    orientation_cmd<ORIENTATION>(),
+    // 0x3A, 0x55,
+    // // Power control VRH[5:0] = 4.60 V
+    // 0xC0, 0x23,
+    // // Power control SAP[2:0];BT[3:0] = adjust power to lowest possible
+    // 0xC1, 0x10,
+    // // Power Control 3 (For Normal Mode)
+    // 0xC2, 0x44,
+    // // VCOM Control
+    // 0xC5, 0x00, 0x00, 0x00, 0x00,
+    // // PGAMCTRL(Positive Gamma Control)
+    // 0xE0, 0x0F, 0x1F, 0x1C, 0x0C, 0x0F, 0x08, 0x48, 0x98, 0x37, 0x0A, 0x13, 0x04, 0x11, 0x0D, 0x00,
+    // // NGAMCTRL (Negative Gamma Correction)
+    // 0xE1, 0x0F, 0x32, 0x2E, 0x0B, 0x0D, 0x05, 0x47, 0x75, 0x37, 0x06, 0x10, 0x03, 0x24, 0x20, 0x00,
+    // // Digital Gamma Control 1
+    // 0xE2, 0x0F, 0x32, 0x2E, 0x0B, 0x0D, 0x05, 0x47, 0x75, 0x37, 0x06, 0x10, 0x03, 0x24, 0x20, 0x00,
+    // // Memory Access Control
+    // 0x36, orientation_cmd<ORIENTATION>(),
     // Display ON.
-    0x29,
+    // 0x29,
     // Sleep OUT
-    0x11,
+    // 0x11,
     //
     // 0x2c, TFT_EOL_MARKER,
 };
@@ -106,10 +131,10 @@ static constexpr uint8_t ili9486_init_seq[] = {
 /// CONSTANTS
 ////////////////////////////////////////////////////////////////
 
-inline constexpr int LCD_WIDTH = 320;
+inline constexpr int LCD_WIDTH  = 320;
 inline constexpr int LCD_HEIGHT = 480;
 
-inline constexpr int CHAR_WIDTH = 8;
+inline constexpr int CHAR_WIDTH  = 8;
 inline constexpr int CHAR_HEIGHT = 16;
 
 inline constexpr uint32_t BUF_CHARS = 8; // Number of chars to buffer onto the LCD.

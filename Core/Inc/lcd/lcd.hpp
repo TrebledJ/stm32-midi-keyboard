@@ -60,15 +60,22 @@ private:
     {
         TFT_DC::set();
         TFT_RES::set();
+        delay(100);
+        TFT_RES::reset();
+        delay(100);
+        TFT_RES::set();
+        delay(100);
+        // TFT_BLK::reset();
     }
     void init_sequence();
     void ready_region(uint16_t x, uint16_t y, uint16_t w, uint16_t h);
     void swap_buffer()
     {
         uint8_t* tmp = curr_buffer;
-        curr_buffer = next_buffer;
-        next_buffer = tmp;
+        curr_buffer  = next_buffer;
+        next_buffer  = tmp;
     }
 
+    void write_cmd(uint8_t cmd);
     void write_data(uint8_t data);
 };
