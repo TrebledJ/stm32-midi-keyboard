@@ -4,7 +4,7 @@
 #include "metronome.hpp"
 
 extern "C" {
-#include "button_matrix.h"
+#include "buttons.hpp"
 #include "main.h"
 }
 
@@ -16,7 +16,7 @@ extern UART_HandleTypeDef huart1;
 uint64_t btn_matrix = 0;
 
 Metronome metronome{TIM3};
-
+Buttons button_matrix;
 
 void app_init()
 {
@@ -28,13 +28,13 @@ void app_run()
 {
     while (1) {
         metronome.tick();
-        btn_matrix = detect_key_matrix();
-        if (read_key_matrix(BTN_1_U)) {
+        button_matrix.tick();
+        if (button_matrix.read_button_matrix(BTN_2_U)) {
             LED0::on();
         } else {
             LED0::off();
         }
-        if (read_key_matrix(BTN_1_D)) {
+        if (button_matrix.read_button_matrix(BTN_2_D)) {
             LED1::on();
         } else {
             LED1::off();
