@@ -43,6 +43,8 @@ public:
     void draw_char(uint16_t x, uint16_t y, char c);
     void draw_string(uint16_t x, uint16_t y, const char* str);
 
+    void draw_string(uint16_t x, uint16_t y, const char* fmt, auto... args);
+
 private:
     SPI_HandleTypeDef* spi;
 
@@ -70,3 +72,18 @@ private:
     void write_cmd(uint8_t cmd);
     void write_data(uint8_t data);
 };
+
+
+// Forward declare without including cstdio header.
+extern "C" {
+int sprintf(char* str, const char* format, ...);
+}
+
+
+template <Orientation O>
+void LCD<O>::draw_string(uint16_t x, uint16_t y, const char* fmt, auto... args)
+{
+    static char buffer[64];
+    sprintf(buffer, fmt, args...);
+    draw_string(x, y, buffer);
+}

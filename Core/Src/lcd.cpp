@@ -2,8 +2,7 @@
 #include "lcd/lcd_font.h"
 #include "utils/utils.hpp"
 
-#include <cstring>
-#include <span>
+#include <cstdio> // sprintf
 
 
 void spi_wait_busy(SPI_HandleTypeDef* spi)

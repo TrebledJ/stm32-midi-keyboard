@@ -32,6 +32,7 @@ void app_run()
     lcd.draw_rect(200, 200, 50, 50, GREEN);
     lcd.draw_char(1, 1, 'X');
     lcd.draw_string(0, 0, "hello world!");
+    lcd.draw_string(0, 0, "%d + %d = %d", 1, 2, 3);
     while (1) {
         metronome.tick();
         // btn_matrix = detect_key_matrix();
