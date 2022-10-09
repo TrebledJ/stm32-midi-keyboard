@@ -53,7 +53,7 @@ extern "C" {
 #define gpio_reset(p)  HAL_GPIO_WritePin(p##_GPIO_Port, p##_Pin, GPIO_PIN_RESET)
 #define gpio_read(p)   HAL_GPIO_ReadPin(p##_GPIO_Port, p##_Pin)
 #define gpio_toggle(p) HAL_GPIO_TogglePin(p##_GPIO_Port, p##_Pin)
-#define delay(t)       HAL_Delay(t);
+#define delay(t)       HAL_Delay(t)
 #define get_ticks()    HAL_GetTick()
 
 

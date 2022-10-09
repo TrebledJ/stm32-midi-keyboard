@@ -4,7 +4,6 @@ extern "C" {
 #include "main.h"
 }
 
-// extern TIM_HandleTypeDef htim3;
 
 class Metronome
 {
