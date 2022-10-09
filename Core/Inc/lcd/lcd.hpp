@@ -54,15 +54,15 @@ private:
     uint8_t* next_buffer;
 
 
-    static_assert(sizeof(color_t) == 2, "Implementation only works for 16-bit colours.");
+    // static_assert(sizeof(color_t) == 2, "Implementation only works for 16-bit colours.");
 
     void init_hardware()
     {
-        spi->Instance->CR1 |= SPI_CR1_SPE; // Enable SPI.
+        // spi->Instance->CR1 |= SPI_CR1_SPE; // Enable SPI.
         // TFT_BLK::reset();
-        TFT_DC::set();
-        TFT_RES::set();
-        delay(100);
+        // TFT_DC::set();
+        // TFT_RES::set();
+        // delay(100);
         TFT_RES::reset();
         delay(100);
         TFT_RES::set();

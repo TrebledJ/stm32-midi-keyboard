@@ -29,22 +29,22 @@ void app_init()
 void app_run()
 {
     lcd.clear();
-    // lcd.draw_string("hello world!", 0, 0);
-    // lcd.draw_char('X', 1, 1);
-    // lcd.draw_rect(GREEN, 200, 200, 50, 50);
+    lcd.draw_rect(GREEN, 200, 200, 50, 50);
+    lcd.draw_char('X', 1, 1);
+    lcd.draw_string("hello world!", 0, 0);
     while (1) {
         metronome.tick();
-        btn_matrix = detect_key_matrix();
-        if (read_key_matrix(BTN_1_U)) {
-            LED0::on();
-        } else {
-            LED0::off();
-        }
-        if (read_key_matrix(BTN_1_D)) {
-            LED1::on();
-        } else {
-            LED1::off();
-        }
+        // btn_matrix = detect_key_matrix();
+        // if (read_key_matrix(BTN_1_U)) {
+        //     LED0::on();
+        // } else {
+        //     LED0::off();
+        // }
+        // if (read_key_matrix(BTN_1_D)) {
+        //     LED1::on();
+        // } else {
+        //     LED1::off();
+        // }
         //	  LED2.toggle();
         //	  delay(499);
     }

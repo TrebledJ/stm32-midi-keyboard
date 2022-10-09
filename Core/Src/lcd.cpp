@@ -6,40 +6,27 @@
 #include <span>
 
 
-void spi_wait_finished(SPI_HandleTypeDef* spi)
+void spi_wait_busy(SPI_HandleTypeDef* spi)
 {
     // Wait for transmit to finish.
-    while (!__HAL_SPI_GET_FLAG(spi, SPI_FLAG_TXE))
+    while (__HAL_SPI_GET_FLAG(spi, SPI_FLAG_BSY))
         ;
 }
 
 template <Orientation O>
 void LCD<O>::write_cmd(uint8_t cmd)
 {
-    while (__HAL_SPI_GET_FLAG(spi, SPI_FLAG_BSY))
-        ;
-    // TFT_DC_GPIO_Port->BSRR = uint32_t(TFT_DC_Pin) << 16; // Set to command mode.
-    TFT_DC::set();
-    spi->Instance->DR = cmd; // Send data.
-    spi_wait_finished(spi);  // Block until finished.
+    spi_wait_busy(spi);
     TFT_DC::reset();
-    // TFT_DC_GPIO_Port->BSRR = uint32_t(TFT_DC_Pin); // Set to data mode.
+    HAL_SPI_Transmit(spi, &cmd, 1, 10);
+    TFT_DC::set();
 }
 
 template <Orientation O>
 void LCD<O>::write_data(uint8_t data)
 {
-    // spi->Instance->CR1 |= SPI_CR1_SPE; // Enable SPI.
-    spi->Instance->DR = data; // Send data.
-    spi_wait_finished(spi);   // Block until finished.
+    HAL_SPI_Transmit(spi, &data, 1, 10);
 }
-
-// void LCD::write_data(uint8_t data)
-// {
-//     spi->Instance->DR = data;
-//     while (!__HAL_SPI_GET_FLAG(spi, SPI_FLAG_TXE))
-//         ;
-// }
 
 template <Orientation O>
 void LCD<O>::init_sequence()
@@ -57,64 +44,12 @@ void LCD<O>::init_sequence()
                 write_data(cmds[i]);
         }
     }
-
-    // uint32_t timeout = 100;
-    // std::span cmds   = ili9486_init_seq<O>;
-    // write_data(0xB0);
-    // write_data(0x00);
-    // write_data(0x11);
-    // delay(100);
-    // HAL_SPI_Transmit(spi, const_cast<uint8_t*>(cmds.data()), cmds.size(), timeout);
-    // write_data(0x11);
-    // delay(100);
-    // write_data(0x29);
-    // delay(100);
-    // write_data(0x2C);
-    // delay(100);
-    LED3::on();
-    // uint32_t i = 0;
-    // while (ili9486_init_seq[++i] != TFT_EOF_MARKER) {
-    //     write_command(ili9486_init_seq[i]);
-
-    //     if (ili9486_init_seq[i] == TFT_ORIENTATION_CMD)
-    //         write_data(ili9486_init_orientations[orientation]);
-
-    //     while (ili9486_init_seq[++i] != TFT_EOL_MARKER) {
-    //         if (ili9486_init_seq[i] == TFT_DELAY_MARKER)
-    //             delay(ili9486_init_seq[++i]);
-    //         else
-    //             write_data(ili9486_init_seq[i]);
-    //     }
-    // }
 }
 
 template <Orientation O>
 void LCD<O>::ready_region(uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
-    // std::array<uint8_t, 20> cmds = {
-    //     // Column addr set.
-    //     0x2A,
-    //     // X start.
-    //     uint8_t((x >> 8) & 0xFF),
-    //     uint8_t(x & 0xFF),
-    //     // X end.
-    //     uint8_t(((x + w) >> 8) & 0xFF),
-    //     uint8_t((x + w) & 0xFF),
-    //     // Row addr set.
-    //     0x2B,
-    //     // Y start.
-    //     uint8_t((y >> 8) & 0xFF),
-    //     uint8_t(y & 0xFF),
-    //     // Y end.
-    //     uint8_t(((y + h) >> 8) & 0xFF),
-    //     uint8_t((y + h) & 0xFF),
-    //     // Memory write.
-    //     0x2C,
-    // };
-
-    // uint32_t timeout = 100;
-    // HAL_SPI_Transmit(spi, cmds.data(), cmds.size(), timeout);
-
+    __disable_irq();
     write_cmd(0x2A); // Column addr set.
     write_data((x >> 8) & 0xFF);
     write_data((x)&0xFF); // X START.
@@ -128,6 +63,7 @@ void LCD<O>::ready_region(uint16_t x, uint16_t y, uint16_t w, uint16_t h)
     write_data((y + h) & 0xFF);
 
     write_cmd(0x2C);
+    __enable_irq();
 }
 
 template <Orientation O>
@@ -137,10 +73,11 @@ void LCD<O>::clear()
 }
 
 template <Orientation O>
-void LCD<O>::draw_pixel(uint16_t color, uint16_t x, uint16_t y)
+void LCD<O>::draw_pixel(color_t color, uint16_t x, uint16_t y)
 {
-    ready_region(x, y, 1, 1);
-    write_data(color >> 8);
+    ready_region(x, y, 0, 0);
+    write_data((color >> 16) & 0xFF);
+    write_data((color >> 8) & 0xFF);
     write_data(color & 0xFF);
 }
 
@@ -151,33 +88,25 @@ void LCD<O>::draw_rect(uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 }
 
 template <Orientation O>
-void LCD<O>::draw_rect(uint16_t color, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
+void LCD<O>::draw_rect(color_t color, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
-    // ready_region(x, y, w, h);
-
     // TODO: try 32-bit copying implementation?
-    uint32_t nbytes = std::min(w * h * 2ul, BUF_SIZE);
-    for (uint32_t i = 0; i < nbytes; i += 2) {
-        curr_buffer[i]     = color >> 8;
-        curr_buffer[i + 1] = color & 0xFF;
+    uint32_t nbytes   = w * h * 3ul; // Total number of byte to send.
+    uint32_t bufbytes = std::min(nbytes, BUF_SIZE);
+    for (uint32_t i = 0; i < bufbytes; i += 3) {
+        curr_buffer[i]     = (color >> 16) & 0xFF;
+        curr_buffer[i + 1] = (color >> 8) & 0xFF;
+        curr_buffer[i + 2] = color & 0xFF;
     }
 
-    // spi_wait_finished(spi);
+    spi_wait_busy(spi);
     ready_region(x, y, w, h);
 
     do {
-        uint32_t send_size = std::min(nbytes, BUF_SIZE);
-        HAL_SPI_Transmit(spi, curr_buffer, send_size, 1000);
-        // int res            = HAL_SPI_Transmit(spi, curr_buffer, send_size, 100);
-        // LED0::off();
-        // LED1::off();
-        // LED2::off();
-        // LED3::off();
-        // (res == 0) ? LED0::on() : res == 1 ? LED1::on() : res == 2 ? LED2::on() : LED3::on();
-        spi_wait_finished(spi);
-        // HAL_SPI_Transmit_DMA(spi, curr_buffer, send_size);
-        // dma_wait();
-        // dma_transfer(TFT_SPI.tx_dma, sending_buf->data(), l * Pixel::size());
+        TFT_DC::set();
+        uint32_t send_size = std::min(nbytes, bufbytes);
+        spi_wait_busy(spi);
+        HAL_SPI_Transmit_DMA(spi, curr_buffer, send_size);
         nbytes -= send_size;
     } while (nbytes > 0);
     swap_buffer();
@@ -186,15 +115,16 @@ void LCD<O>::draw_rect(uint16_t color, uint16_t x, uint16_t y, uint16_t w, uint1
 template <Orientation O>
 void LCD<O>::draw_image(const uint8_t* bytes, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
-    spi_wait_finished(spi);
-    ready_region(x, y, w, h);
-    HAL_SPI_Transmit_DMA(spi, const_cast<uint8_t*>(bytes), w * h);
+    spi_wait_busy(spi);
+    ready_region(x, y, w - 1, h - 1);
+    HAL_SPI_Transmit_DMA(spi, const_cast<uint8_t*>(bytes), w * h * 3ul);
 }
 
 
 template <Orientation O>
 void LCD<O>::draw_char(char c, uint16_t x, uint16_t y)
 {
+    spi_wait_busy(spi);
     uint8_t* bufptr  = curr_buffer;
     color_t color_fg = palette.foreground();
     color_t color_bg = palette.background();
@@ -202,47 +132,27 @@ void LCD<O>::draw_char(char c, uint16_t x, uint16_t y)
     // Consider the current chunk and populate the buffer.
     for (uint16_t iy = 0; iy < CHAR_HEIGHT; iy++) {
         const uint8_t char_ptr = (CHAR_PTR(c))[iy];
-        for (int8_t x = CHAR_WIDTH - 1; x >= 0; x--) {
-            color_t color = ((char_ptr >> x) & 0x01) ? color_fg : color_bg;
-            *bufptr++     = color >> 8;
-            *bufptr++     = color & 0xFF;
+        for (int8_t ix = CHAR_WIDTH - 1; ix >= 0; ix--) {
+            // for (uint16_t ix = 0; ix < CHAR_WIDTH; ix++) {
+            color_t color = ((char_ptr >> ix) & 0x01) ? color_fg : color_bg;
+            draw_pixel(color, x * CHAR_WIDTH + ix, y * CHAR_HEIGHT + iy);
+            *bufptr++ = (color >> 16) & 0xFF;
+            *bufptr++ = (color >> 8) & 0xFF;
+            *bufptr++ = color & 0xFF;
         }
     }
 
-    draw_image(bufptr, x, y, CHAR_WIDTH, CHAR_HEIGHT);
+    draw_image(curr_buffer, x * CHAR_WIDTH, y * CHAR_HEIGHT, CHAR_WIDTH, CHAR_HEIGHT);
     swap_buffer();
 }
 
 template <Orientation O>
 void LCD<O>::draw_string(const char* str, uint16_t x, uint16_t y)
 {
-    uint32_t len     = strlen(str);
-    uint8_t* bufptr  = curr_buffer;
-    color_t color_fg = palette.foreground();
-    color_t color_bg = palette.background();
-    do {
-        uint32_t chunk_chars = std::min(BUF_CHARS, len);
-
-        // Consider the current chunk and populate the buffer.
-        for (uint16_t iy = 0; iy < CHAR_HEIGHT; iy++) {
-            for (uint8_t is = 0; is < chunk_chars; is++) {
-                const uint8_t char_ptr = (CHAR_PTR(str[is]))[iy];
-                for (int8_t x = CHAR_WIDTH - 1; x >= 0; x--) {
-                    color_t color = ((char_ptr >> x) & 0x01) ? color_fg : color_bg;
-                    *bufptr++     = color >> 8;
-                    *bufptr++     = color & 0xFF;
-                }
-            }
-        }
-
-        draw_image(bufptr, x, y, CHAR_WIDTH * chunk_chars, CHAR_HEIGHT);
-
-        // Jump to next chunk, prepare for next iter.
-        str += chunk_chars;
-        len -= chunk_chars;
-        swap_buffer();
-        bufptr = curr_buffer;
-    } while (*str);
+    for (; *str; str++) {
+        draw_char(*str, x, y);
+        x++;
+    }
 }
 
 template class LCD<LCD_ORIENTATION>;
