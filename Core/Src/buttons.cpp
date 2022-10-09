@@ -1,6 +1,25 @@
 #include "buttons.hpp"
 
 
+#define row_port(p) row##p##_GPIO_Port,
+#define row_pin(p)  row##p##_Pin,
+
+#define col_port(p) col##p##_GPIO_Port,
+#define col_pin(p)  col##p##_Pin,
+
+#define row_set(p) HAL_GPIO_WritePin(row##p##_GPIO_Port, row##p##_Pin, GPIO_PIN_SET);
+
+#define btn_table(X) \
+    X(0)             \
+    X(1)             \
+    X(2)             \
+    X(3)             \
+    X(4)             \
+    X(5)             \
+    X(6)             \
+    X(7)
+
+
 static GPIO_TypeDef* Btn_Row_Port[] = {btn_table(row_port)};
 static const uint16_t Btn_Row_Pin[] = {btn_table(row_pin)};
 

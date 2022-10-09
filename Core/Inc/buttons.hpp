@@ -76,28 +76,6 @@ typedef enum {
     all_pressed,
     pressing,
 } ButtonState;
-#define row_port(p) row##p##_GPIO_Port,
-#define row_pin(p)  row##p##_Pin,
-
-#define col_port(p) col##p##_GPIO_Port,
-#define col_pin(p)  col##p##_Pin,
-
-#define row_set(p) HAL_GPIO_WritePin(row##p##_GPIO_Port, row##p##_Pin, GPIO_PIN_SET);
-
-#define btn_table(X) \
-    X(0)             \
-    X(1)             \
-    X(2)             \
-    X(3)             \
-    X(4)             \
-    X(5)             \
-    X(6)             \
-    X(7)
-
-uint64_t detect_key_matrix();
-#define read_key_matrix()
-
-void wait_key(int key);
 
 class Buttons
 {

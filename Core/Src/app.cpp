@@ -18,10 +18,7 @@ uint64_t btn_matrix = 0;
 Metronome metronome{TIM3};
 Buttons button_matrix;
 
-void app_init()
-{
-    metronome.init();
-}
+void app_init() { metronome.init(); }
 
 
 void app_run()
