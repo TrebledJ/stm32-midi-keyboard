@@ -5,6 +5,8 @@
 #include <cstdio> // sprintf
 
 
+// TODO: try built-in DMA double buffering.
+
 void spi_wait_busy(SPI_HandleTypeDef* spi)
 {
     // Wait for transmit to finish.
