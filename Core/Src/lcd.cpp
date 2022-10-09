@@ -17,31 +17,28 @@ template <Orientation O>
 void LCD<O>::write_cmd(uint8_t cmd)
 {
     spi_wait_busy(spi);
-    TFT_DC::reset();
-    HAL_SPI_Transmit(spi, &cmd, 1, 10);
-    TFT_DC::set();
+    TFT_DC::reset();                    // Command mode.
+    HAL_SPI_Transmit(spi, &cmd, 1, 10); // Send command.
+    TFT_DC::set();                      // Data mode.
 }
 
 template <Orientation O>
 void LCD<O>::write_data(uint8_t data)
 {
-    HAL_SPI_Transmit(spi, &data, 1, 10);
+    HAL_SPI_Transmit(spi, &data, 1, 10); // Send data.
 }
 
 template <Orientation O>
 void LCD<O>::init_sequence()
 {
-    uint32_t i     = 0;
-    std::span cmds = ili9486_init_seq<O>;
-
-    while (cmds[++i] != TFT_EOF_MARKER) {
-        write_cmd(cmds[i]);
-
-        while (cmds[++i] != TFT_EOL_MARKER) {
-            if (cmds[i] == TFT_DELAY_MARKER)
-                delay(cmds[++i]);
+    const uint8_t* cmds = ili9486_init_seq<O>;
+    while (*++cmds != TFT_EOF_MARKER) {
+        write_cmd(*cmds);
+        while (*++cmds != TFT_EOL_MARKER) {
+            if (*cmds == TFT_DELAY_MARKER)
+                delay(*++cmds);
             else
-                write_data(cmds[i]);
+                write_data(*cmds);
         }
     }
 }
@@ -49,7 +46,6 @@ void LCD<O>::init_sequence()
 template <Orientation O>
 void LCD<O>::ready_region(uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
-    __disable_irq();
     write_cmd(0x2A); // Column addr set.
     write_data((x >> 8) & 0xFF);
     write_data((x)&0xFF); // X START.
@@ -63,7 +59,6 @@ void LCD<O>::ready_region(uint16_t x, uint16_t y, uint16_t w, uint16_t h)
     write_data((y + h) & 0xFF);
 
     write_cmd(0x2C);
-    __enable_irq();
 }
 
 template <Orientation O>
@@ -73,7 +68,7 @@ void LCD<O>::clear()
 }
 
 template <Orientation O>
-void LCD<O>::draw_pixel(color_t color, uint16_t x, uint16_t y)
+void LCD<O>::draw_pixel(uint16_t x, uint16_t y, color_t color)
 {
     ready_region(x, y, 0, 0);
     write_data((color >> 16) & 0xFF);
@@ -88,13 +83,13 @@ void LCD<O>::draw_rect(uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 }
 
 template <Orientation O>
-void LCD<O>::draw_rect(color_t color, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
+void LCD<O>::draw_rect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, color_t color)
 {
     // TODO: try 32-bit copying implementation?
     uint32_t nbytes   = w * h * 3ul; // Total number of byte to send.
     uint32_t bufbytes = std::min(nbytes, BUF_SIZE);
     for (uint32_t i = 0; i < bufbytes; i += 3) {
-        curr_buffer[i]     = (color >> 16) & 0xFF;
+        curr_buffer[i + 0] = (color >> 16) & 0xFF;
         curr_buffer[i + 1] = (color >> 8) & 0xFF;
         curr_buffer[i + 2] = color & 0xFF;
     }
@@ -103,7 +98,6 @@ void LCD<O>::draw_rect(color_t color, uint16_t x, uint16_t y, uint16_t w, uint16
     ready_region(x, y, w, h);
 
     do {
-        TFT_DC::set();
         uint32_t send_size = std::min(nbytes, bufbytes);
         spi_wait_busy(spi);
         HAL_SPI_Transmit_DMA(spi, curr_buffer, send_size);
@@ -113,7 +107,7 @@ void LCD<O>::draw_rect(color_t color, uint16_t x, uint16_t y, uint16_t w, uint16
 }
 
 template <Orientation O>
-void LCD<O>::draw_image(const uint8_t* bytes, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
+void LCD<O>::draw_image(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint8_t* bytes)
 {
     spi_wait_busy(spi);
     ready_region(x, y, w - 1, h - 1);
@@ -122,7 +116,7 @@ void LCD<O>::draw_image(const uint8_t* bytes, uint16_t x, uint16_t y, uint16_t w
 
 
 template <Orientation O>
-void LCD<O>::draw_char(char c, uint16_t x, uint16_t y)
+void LCD<O>::draw_char(uint16_t x, uint16_t y, char c)
 {
     spi_wait_busy(spi);
     uint8_t* bufptr  = curr_buffer;
@@ -135,23 +129,22 @@ void LCD<O>::draw_char(char c, uint16_t x, uint16_t y)
         for (int8_t ix = CHAR_WIDTH - 1; ix >= 0; ix--) {
             // for (uint16_t ix = 0; ix < CHAR_WIDTH; ix++) {
             color_t color = ((char_ptr >> ix) & 0x01) ? color_fg : color_bg;
-            draw_pixel(color, x * CHAR_WIDTH + ix, y * CHAR_HEIGHT + iy);
+            // draw_pixel(x * CHAR_WIDTH + ix, y * CHAR_HEIGHT + iy, color);
             *bufptr++ = (color >> 16) & 0xFF;
             *bufptr++ = (color >> 8) & 0xFF;
             *bufptr++ = color & 0xFF;
         }
     }
 
-    draw_image(curr_buffer, x * CHAR_WIDTH, y * CHAR_HEIGHT, CHAR_WIDTH, CHAR_HEIGHT);
+    draw_image(x * CHAR_WIDTH, y * CHAR_HEIGHT, CHAR_WIDTH, CHAR_HEIGHT, curr_buffer);
     swap_buffer();
 }
 
 template <Orientation O>
-void LCD<O>::draw_string(const char* str, uint16_t x, uint16_t y)
+void LCD<O>::draw_string(uint16_t x, uint16_t y, const char* str)
 {
     for (; *str; str++) {
-        draw_char(*str, x, y);
-        x++;
+        draw_char(x++, y, *str);
     }
 }
 

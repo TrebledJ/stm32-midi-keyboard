@@ -36,38 +36,27 @@ public:
 
     void clear();
 
-    void draw_pixel(color_t color, uint16_t x, uint16_t y);
+    void draw_pixel(uint16_t x, uint16_t y, color_t color);
     void draw_rect(uint16_t x, uint16_t y, uint16_t w, uint16_t h);
-    void draw_rect(color_t color, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
-    void draw_image(const uint8_t* bytes, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
-    void draw_char(char c, uint16_t x, uint16_t y);
-    void draw_string(const char* str, uint16_t x, uint16_t y);
+    void draw_rect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, color_t color);
+    void draw_image(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint8_t* bytes);
+    void draw_char(uint16_t x, uint16_t y, char c);
+    void draw_string(uint16_t x, uint16_t y, const char* str);
 
 private:
     SPI_HandleTypeDef* spi;
-    // Orientation orientation;
-
 
     using buffer_t = std::array<uint8_t, BUF_SIZE>;
     buffer_t buffer[2];
     uint8_t* curr_buffer;
     uint8_t* next_buffer;
 
-
-    // static_assert(sizeof(color_t) == 2, "Implementation only works for 16-bit colours.");
-
     void init_hardware()
     {
-        // spi->Instance->CR1 |= SPI_CR1_SPE; // Enable SPI.
-        // TFT_BLK::reset();
-        // TFT_DC::set();
-        // TFT_RES::set();
-        // delay(100);
         TFT_RES::reset();
         delay(100);
         TFT_RES::set();
         delay(100);
-        // TFT_BLK::reset();
     }
     void init_sequence();
     void ready_region(uint16_t x, uint16_t y, uint16_t w, uint16_t h);

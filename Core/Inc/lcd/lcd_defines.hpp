@@ -72,7 +72,9 @@ constexpr uint8_t orientation_cmd()
 
 template <Orientation ORIENTATION>
 static constexpr uint8_t ili9486_init_seq[] = {
-    0x00, 0x01,
+    0x00,
+    // Soft reset
+    0x01,
     // Interface Mode Control
     0xb0, 0x0, TFT_EOL_MARKER,
     // Sleep OUT
@@ -96,8 +98,11 @@ static constexpr uint8_t ili9486_init_seq[] = {
     // Memory Access Control
     TFT_ORIENTATION_CMD, orientation_cmd<ORIENTATION>(), TFT_EOL_MARKER,
     // Exit sleep
-    0x11, TFT_DELAY_MARKER, 100, TFT_EOL_MARKER, 0x29, TFT_DELAY_MARKER, 100, TFT_EOL_MARKER, 0x2c, TFT_EOL_MARKER,
-    TFT_EOF_MARKER};
+    0x11, TFT_DELAY_MARKER, 100, TFT_EOL_MARKER,
+    // Display on
+    0x29, TFT_DELAY_MARKER, 100, TFT_EOL_MARKER,
+    // Memory Write
+    0x2C, TFT_EOL_MARKER, TFT_EOF_MARKER};
 
 
 ////////////////////////////////////////////////////////////////
