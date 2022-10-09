@@ -55,7 +55,6 @@ extern "C" {
 #define gpio_toggle(p) HAL_GPIO_TogglePin(p##_GPIO_Port, p##_Pin)
 #define delay(t)       HAL_Delay(t)
 #define get_ticks()    HAL_GetTick()
-#define row_set(p)     HAL_GPIO_WritePin(row##p##_GPIO_Port, row##p##_Pin, GPIO_PIN_SET);
 
 
 /* USER CODE END EM */
