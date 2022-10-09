@@ -1,10 +1,10 @@
 #include "app.hpp"
+#include "buttons.hpp"
 #include "defines.hpp"
 #include "lcd/lcd.hpp"
 #include "metronome.hpp"
 
 extern "C" {
-#include "buttons.hpp"
 #include "main.h"
 }
 
@@ -12,8 +12,6 @@ extern "C" {
 extern DAC_HandleTypeDef hdac;
 extern SPI_HandleTypeDef hspi2;
 extern UART_HandleTypeDef huart1;
-
-uint64_t btn_matrix = 0;
 
 Metronome metronome{TIM3};
 LCD lcd{&hspi2};
@@ -36,17 +34,17 @@ void app_run()
     while (1) {
         metronome.tick();
         button_matrix.tick();
-        if (button_matrix.read_button_matrix(BTN_2_U)) {
+        if (button_matrix.is_btn_pressed(BTN_2_U)) {
             LED0::on();
         } else {
             LED0::off();
         }
-        if (button_matrix.read_button_matrix(BTN_2_D)) {
+        if (button_matrix.is_btn_pressed(BTN_2_D)) {
             LED1::on();
         } else {
             LED1::off();
         }
-        //	  LED2.toggle();
+        //	  LED2::toggle();
         //	  delay(499);
     }
 }
