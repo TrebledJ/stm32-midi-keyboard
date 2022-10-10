@@ -14,13 +14,9 @@ public:
      * @brief   Gets the value of the dial.
      * @param   timeout Timeout in milliseconds.
      */
-    float get_value(uint32_t timeout = 100)
-    {
-        HAL_ADC_PollForConversion(adc, timeout);
-        return HAL_ADC_GetValue(adc) / 1.0;
-    }
+    float get_value() { return test(); }
 
-    float test() const
+    uint32_t test() const
     {
         HAL_ADC_Start(adc);
         HAL_ADC_PollForConversion(adc, HAL_MAX_DELAY);
