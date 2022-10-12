@@ -9,17 +9,17 @@ CDefines=USE_HAL_DRIVER;STM32F405xx;USE_HAL_DRIVER;USE_HAL_DRIVER;
 [PreviousGenFiles]
 AdvancedFolderStructure=true
 HeaderFileListSize=3
-HeaderFiles#0=../Core/Inc/stm32f4xx_it.h
-HeaderFiles#1=../Core/Inc/stm32f4xx_hal_conf.h
-HeaderFiles#2=../Core/Inc/main.h
+HeaderFiles#0=/Users/yanyeetang/Desktop/RT/stm32-midi-keyboard/Core/Inc/stm32f4xx_it.h
+HeaderFiles#1=/Users/yanyeetang/Desktop/RT/stm32-midi-keyboard/Core/Inc/stm32f4xx_hal_conf.h
+HeaderFiles#2=/Users/yanyeetang/Desktop/RT/stm32-midi-keyboard/Core/Inc/main.h
 HeaderFolderListSize=1
-HeaderPath#0=../Core/Inc
+HeaderPath#0=/Users/yanyeetang/Desktop/RT/stm32-midi-keyboard/Core/Inc
 HeaderFiles=;
 SourceFileListSize=3
-SourceFiles#0=../Core/Src/stm32f4xx_it.c
-SourceFiles#1=../Core/Src/stm32f4xx_hal_msp.c
-SourceFiles#2=../Core/Src/main.c
+SourceFiles#0=/Users/yanyeetang/Desktop/RT/stm32-midi-keyboard/Core/Src/stm32f4xx_it.c
+SourceFiles#1=/Users/yanyeetang/Desktop/RT/stm32-midi-keyboard/Core/Src/stm32f4xx_hal_msp.c
+SourceFiles#2=/Users/yanyeetang/Desktop/RT/stm32-midi-keyboard/Core/Src/main.c
 SourceFolderListSize=1
-SourcePath#0=../Core/Src
+SourcePath#0=/Users/yanyeetang/Desktop/RT/stm32-midi-keyboard/Core/Src
 SourceFiles=;
 

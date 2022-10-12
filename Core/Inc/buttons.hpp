@@ -69,7 +69,6 @@ enum ButtonName {
     BTN_28_D,
     BTN_29_U,
     BTN_29_D,
-    BTN_Null,
 };
 
 enum ButtonState {

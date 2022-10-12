@@ -65,7 +65,7 @@ void LCD<O>::ready_region(uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 template <Orientation O>
 void LCD<O>::clear()
 {
-    draw_rect(palette.background(), 0, 0, LCD_WIDTH, LCD_HEIGHT);
+    draw_rect(0, 0, LCD_WIDTH, LCD_HEIGHT, palette.background());
 }
 
 template <Orientation O>
@@ -80,7 +80,7 @@ void LCD<O>::draw_pixel(uint16_t x, uint16_t y, color_t color)
 template <Orientation O>
 void LCD<O>::draw_rect(uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
-    draw_rect(palette.foreground(), x, y, w, h);
+    draw_rect(x, y, w, h, palette.foreground());
 }
 
 template <Orientation O>
