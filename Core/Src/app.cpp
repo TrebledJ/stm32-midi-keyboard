@@ -1,5 +1,4 @@
 #include "app.hpp"
-
 #include "buttons.hpp"
 #include "defines.hpp"
 #include "lcd/lcd.hpp"
@@ -41,10 +40,6 @@ void app_init()
 void app_run()
 {
     lcd.clear();
-    lcd.draw_rect(200, 200, 50, 50, GREEN);
-    lcd.draw_char(1, 1, 'X');
-    lcd.draw_string(0, 0, "hello world!");
-    lcd.draw_string(0, 0, "%d + %d = %d", 1, 2, 3);
     while (1) {
         calcsin(wav.freq[C4]);
         HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_2, (uint32_t*)sine_val, 1000, DAC_ALIGN_12B_R);
@@ -57,16 +52,6 @@ void app_run()
                 lcd.draw_string(0 + 3 * j, 3 + i, "%d",
                                 button_matrix.is_btn_pressed(static_cast<ButtonName>(i * 8 + j)));
 
-        // HAL_GPIO_WritePin(row4_GPIO_Port, row4_Pin, GPIO_PIN_RESET);
-
-        // lcd.draw_string(3, 3 + 0, "%d", !HAL_GPIO_ReadPin(col0_GPIO_Port, col0_Pin));
-        // lcd.draw_string(3, 3 + 1, "%d", !HAL_GPIO_ReadPin(col1_GPIO_Port, col1_Pin));
-        // lcd.draw_string(3, 3 + 2, "%d", !HAL_GPIO_ReadPin(col2_GPIO_Port, col2_Pin));
-        // lcd.draw_string(3, 3 + 3, "%d", !HAL_GPIO_ReadPin(col3_GPIO_Port, col3_Pin));
-        // lcd.draw_string(3, 3 + 4, "%d", !HAL_GPIO_ReadPin(col4_GPIO_Port, col4_Pin));
-        // lcd.draw_string(3, 3 + 5, "%d", !HAL_GPIO_ReadPin(col5_GPIO_Port, col5_Pin));
-        // lcd.draw_string(3, 3 + 6, "%d", !HAL_GPIO_ReadPin(col6_GPIO_Port, col6_Pin));
-        // lcd.draw_string(3, 3 + 7, "%d", !HAL_GPIO_ReadPin(col7_GPIO_Port, col7_Pin));
         button_matrix.tick();
         // if (button_matrix.is_btn_pressed(BTN_22_U)) {
         //     LED0::on();
@@ -78,6 +63,6 @@ void app_run()
         // } else {
         //     LED1::off();
         // }
-        gpio_toggle(LED2);
+        LED2::toggle();
     }
 }
