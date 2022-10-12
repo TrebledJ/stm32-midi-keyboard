@@ -3,7 +3,8 @@
 extern "C" {
 #include "main.h"
 }
-typedef enum {
+
+enum ButtonName {
     BTN_Bottom,
     BTN_Up,
     BTN_D,
@@ -68,31 +69,34 @@ typedef enum {
     BTN_28_D,
     BTN_29_U,
     BTN_29_D,
-    BTN_Nothing,
-} ButtonName;
-typedef enum {
-    all_released,
-    releasing,
-    all_pressed,
-    pressing,
-} ButtonState;
+};
+
+enum ButtonState {
+    ALL_RELEASED,
+    RELEASING,
+    ALL_PRESSED,
+    PRESSING,
+};
 
 class Buttons
 {
 public:
-    void tick() { btn_matrix = detect_key_matrix(); }
-    uint64_t detect_key_matrix();
-    void wait_key(int key);
-    void key_velocity(uint64_t btn_matrix);
-    uint8_t read_button_matrix(ButtonName btn)
+    void tick()
     {
-        // TODO
-        return (btn_matrix >> btn) & 1;
+        btn_matrix = detect_key_matrix();
+        update_velocity();
     }
+
+    void wait_key(int key);
+
+    bool is_btn_pressed(ButtonName btn) const { return (btn_matrix >> btn) & 1; }
 
 private:
     uint64_t btn_matrix;
     uint8_t delta_t_pressed[29];
     ButtonState key_state[29];
     uint8_t delta_t_released[29];
+
+    uint64_t detect_key_matrix();
+    void update_velocity();
 };

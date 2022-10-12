@@ -1,4 +1,4 @@
-#pramga once
+#pragma once
 
 #include "dial.hpp"
 
@@ -14,5 +14,5 @@ public:
         return dial;
     }
 
-    static float get() const { return instance().get_value(); }
+    float get() { return instance().get_value(); }
 };
