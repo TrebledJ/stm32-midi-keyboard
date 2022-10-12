@@ -29,14 +29,16 @@ static const uint16_t btn_col_pin[] = {btn_table(col_pin)};
 uint64_t Buttons::detect_key_matrix()
 {
     uint64_t result = 0;
+    btn_table(row_set);
     for (int row = 0; row < 8; row++) {
-        btn_table(row_set);
+        HAL_Delay(1);
         HAL_GPIO_WritePin(btn_row_port[row], btn_row_pin[row], GPIO_PIN_RESET);
         for (int col = 0; col < 8; col++) {
             if (!HAL_GPIO_ReadPin(btn_col_port[col], btn_col_pin[col])) {
-                result = result | 1 << (row * 8 + col);
+                result |= 1ULL << (row * 8 + col);
             }
         }
+        HAL_GPIO_WritePin(btn_row_port[row], btn_row_pin[row], GPIO_PIN_SET);
     }
     return result;
 }
