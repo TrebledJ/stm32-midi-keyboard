@@ -14,5 +14,5 @@ public:
         return dial;
     }
 
-    float get() { return instance().get_value(); }
+    static float get() { return instance().get_value(); }
 };

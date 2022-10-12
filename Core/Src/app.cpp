@@ -18,12 +18,12 @@ extern UART_HandleTypeDef huart1;
 extern TIM_HandleTypeDef htim8;
 uint32_t sine_val[1000] = {0};
 Waveform wav;
-volume vol;
+
 void calcsin(float freq)
 {
     for (int i = 0; i < 1000; i++) {
         // sine_val[i] = ((float)(sin((i / 1000.0) * 2 * PI * freq) + 1) * (2047.0f)); // 10Hz
-        sine_val[i] = ((float)(sin((i / 1000.0) * 2 * PI * freq) + 1) * (vol.get() / 2.0)); // 10Hz
+        sine_val[i] = ((float)(sin((i / 1000.0) * 2 * PI * freq) + 1) * (volume::get() / 2.0)); // 10Hz
     }
 }
 Metronome metronome{TIM3};
