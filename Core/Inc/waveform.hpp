@@ -1,5 +1,9 @@
 #include "main.h"
 
+#include <array>
+#include <cmath>
+#include <numbers>
+
 
 #define NOTE_FREQ_TABLE(X) \
     X(C0, 16.35)           \
@@ -121,12 +125,112 @@ typedef struct {
     float t;
     uint32_t wav_val;
 } WavInfo;
+
+// class Waveform
+// {
+// public:
+//     Waveform() { NOTE_FREQ_TABLE(init_element) }
+//     float generate_waveform(Notes note, float t);
+//     float freq[NUM_OF_NOTES];
+
+// private:
+// };
+
+struct Envelope {
+    uint32_t a; // Duration of attack (in ms).
+    uint32_t d; // Duration of decay (in ms).
+    float s;    // Level of sustain (in %).
+    uint32_t r; // Duration of release (in ms).
+};
+
+namespace null
+{
+    inline constexpr Envelope envelope = Envelope{0, 0, 1.0, 0};
+}
+
+
 class Waveform
 {
 public:
-    Waveform() { NOTE_FREQ_TABLE(init_element) }
-    float generate_waveform(Notes note, float t);
-    float freq[NUM_OF_NOTES];
+    using type = std::array<uint32_t, 400>;
+    type data;
+
+    constexpr Waveform(uint32_t sz = 400) : data_size{sz} {}
+
+    constexpr uint32_t size() const { return data_size; }
 
 private:
+    uint32_t data_size;
 };
+
+class WaveformTransformer
+{
+public:
+    WaveformTransformer(uint32_t tick, const Waveform& wav, const Envelope& env = null::envelope) : wav{wav}, env{env}
+    {
+        start = tick;
+    }
+
+    void reset(uint32_t tick) { start = tick; }
+
+    /**
+     * @brief   Apply the envelope to the waveform and get the data point associated with the tick.
+     *          Call this when the waveform is being played.
+     */
+    uint32_t apply(uint32_t tick)
+    {
+        uint32_t data = wav.data[get_index()];
+        uint32_t t    = tick - start;
+        if (t < env.a) {
+            // Attack: Interpolate 0 to max level.
+            return data * t / env.a;
+        } else if (t < env.a + env.d) {
+            // Decay: Interpolate max and sustain levels.
+            return data * (1 - (t - env.a) * (1.0 - env.s) / env.d);
+        } else /* if (t >= env.a + env.d) */ {
+            // Sustain.
+            return data * env.s;
+        }
+    }
+
+    /**
+     * @brief   Apply the release stage to the waveform. Make sure to call `reset()` before this to reset the tick.
+     */
+    uint32_t release(uint32_t tick) { return wav.data[get_index()] * (tick - start) * env.s / env.r; }
+
+
+private:
+    uint32_t start;
+    uint32_t index = 0;
+    const Waveform& wav;
+    const Envelope& env;
+
+    /**
+     * @brief   Get the current index and advance it to the next position.
+     */
+    uint32_t get_index()
+    {
+        if (index + 1 == wav.size()) {
+            index = 0;
+            return wav.size() - 1;
+        } else {
+            return index++;
+        }
+    }
+};
+
+
+namespace generate
+{
+    inline constexpr uint32_t MAX_AMP = (1 << 12) - 1;
+
+    constexpr Waveform sine(uint16_t freq, double scale = 0.5)
+    {
+        uint32_t n = 168000 / freq;
+        Waveform wav{n};
+        for (uint32_t i = 0; i < n; i++) {
+            wav.data[i] = (MAX_AMP / 2) + (MAX_AMP / 2) * scale * sin(double(2.0) * double(std::numbers::pi) * i / n);
+        }
+        return wav;
+    }
+}; // namespace generate

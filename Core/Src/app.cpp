@@ -19,16 +19,33 @@ extern TIM_HandleTypeDef htim8;
 uint32_t sine_val[1000] = {0};
 Waveform wav;
 
-void calcsin(float freq)
-{
-    for (int i = 0; i < 1000; i++) {
-        // sine_val[i] = ((float)(sin((i / 1000.0) * 2 * PI * freq) + 1) * (2047.0f)); // 10Hz
-        sine_val[i] = ((float)(sin((i / 1000.0) * 2 * PI * freq) + 1) * (volume::get() / 2.0)); // 10Hz
-    }
-}
+inline constexpr uint32_t MAX_AMP = (1 << 12) - 1;
+
+
+// void calcsin(float freq)
+// {
+//     for (int i = 0; i < 1000; i++) {
+//         // sine_val[i] = ((float)(sin((i / 1000.0) * 2 * PI * freq) + 1) * (2047.0f)); // 10Hz
+//         sine_val[i] = ((float)(sin((i / 1000.0) * 2 * PI * freq) + 1) * (volume::get() / 2.0)); // 10Hz
+//     }
+// }
 Metronome metronome{TIM3};
 LCD lcd{&hspi2};
 Buttons button_matrix;
+
+
+// uint32_t Wave_LUT[128] = {
+//     2048, 2149, 2250, 2350, 2450, 2549, 2646, 2742, 2837, 2929, 3020, 3108, 3193, 3275, 3355, 3431, 3504, 3574, 3639,
+//     3701, 3759, 3812, 3861, 3906, 3946, 3982, 4013, 4039, 4060, 4076, 4087, 4094, 4095, 4091, 4082, 4069, 4050, 4026,
+//     3998, 3965, 3927, 3884, 3837, 3786, 3730, 3671, 3607, 3539, 3468, 3394, 3316, 3235, 3151, 3064, 2975, 2883, 2790,
+//     2695, 2598, 2500, 2400, 2300, 2199, 2098, 1997, 1896, 1795, 1695, 1595, 1497, 1400, 1305, 1212, 1120, 1031, 944,
+//     860,  779,  701,  627,  556,  488,  424,  365,  309,  258,  211,  168,  130,  97,   69,   45,   26,   13,   4,
+//     0,    1,    8,    19,   35,   56,   82,   113,  149,  189,  234,  283,  336,  394,  456,  521,  591,  664,  740,
+//     820,  902,  987,  1075, 1166, 1258, 1353, 1449, 1546, 1645, 1745, 1845, 1946, 2047};
+
+// #define N 180
+Waveform Wave_LUT       = generate::sine(880, 1.0);
+uint32_t Wave_LUT2[200] = {};
 
 
 void app_init()
@@ -40,17 +57,25 @@ void app_init()
 void app_run()
 {
     lcd.clear();
+    for (int i = 0; i < 168; i++) {
+        if ((i / (168 / 2)) % 2 == 0)
+            Wave_LUT2[i] = 4095;
+        else
+            Wave_LUT2[i] = 0;
+    }
+    HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t*)Wave_LUT.data.data(), Wave_LUT.size(), DAC_ALIGN_12B_R);
+    HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_2, (uint32_t*)Wave_LUT2, 168, DAC_ALIGN_12B_R);
+    HAL_TIM_Base_Start(&htim8);
     while (1) {
-        calcsin(wav.freq[C4]);
-        HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_2, (uint32_t*)sine_val, 1000, DAC_ALIGN_12B_R);
-        HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t*)sine_val, 1000, DAC_ALIGN_12B_R);
-        HAL_TIM_Base_Start(&htim8);
+        // calcsin(wav.freq[C4]);
+        // HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_2, (uint32_t*)sine_val, 1000, DAC_ALIGN_12B_R);
+        // HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t*)sine_val, 1000, DAC_ALIGN_12B_R);
         metronome.tick();
 
-        for (int i = 0; i < 8; i++)
-            for (int j = 0; j < 8; j++)
-                lcd.draw_string(0 + 3 * j, 3 + i, "%d",
-                                button_matrix.is_btn_pressed(static_cast<ButtonName>(i * 8 + j)));
+        // for (int i = 0; i < 8; i++)
+        //     for (int j = 0; j < 8; j++)
+        //         lcd.draw_string(0 + 3 * j, 3 + i, "%d",
+        //                         button_matrix.is_btn_pressed(static_cast<ButtonName>(i * 8 + j)));
 
         button_matrix.tick();
         // if (button_matrix.is_btn_pressed(BTN_22_U)) {
