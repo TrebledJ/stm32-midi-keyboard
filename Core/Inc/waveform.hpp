@@ -143,30 +143,35 @@ struct Envelope {
     uint32_t r; // Duration of release (in ms).
 };
 
-namespace null
+namespace envelope
 {
-    inline constexpr Envelope envelope = Envelope{0, 0, 1.0, 0};
-}
+    inline constexpr Envelope null    = Envelope{0, 0, 1.0, 0};
+    inline constexpr Envelope std     = Envelope{40, 10, 1.0, 50};
+    inline constexpr Envelope fadeout = Envelope{40, 10, 1.0, 200};
+} // namespace envelope
 
 
 class Waveform
 {
 public:
-    using type = std::array<uint32_t, 400>;
+    using type = std::array<uint32_t, 2048>;
+    // TODO: have some smart bin allocator for allocating buffers and memory regions for waveforms.
     type data;
 
-    constexpr Waveform(uint32_t sz = 400) : data_size{sz} {}
+    constexpr Waveform(uint32_t sz = 2048) : m_size{sz} {}
 
-    constexpr uint32_t size() const { return data_size; }
+    constexpr uint32_t size() const { return m_size; }
 
 private:
-    uint32_t data_size;
+    uint32_t m_size;
 };
+
 
 class WaveformTransformer
 {
 public:
-    WaveformTransformer(uint32_t tick, const Waveform& wav, const Envelope& env = null::envelope) : wav{wav}, env{env}
+    WaveformTransformer(const Waveform& wav, const Envelope& env = envelope::null) : WaveformTransformer{0, wav, env} {}
+    WaveformTransformer(uint32_t tick, const Waveform& wav, const Envelope& env = envelope::null) : wav{wav}, env{env}
     {
         start = tick;
     }
@@ -177,27 +182,27 @@ public:
      * @brief   Apply the envelope to the waveform and get the data point associated with the tick.
      *          Call this when the waveform is being played.
      */
-    uint32_t apply(uint32_t tick)
+    uint32_t apply(uint32_t tick = 0)
     {
-        uint32_t data = wav.data[get_index()];
-        uint32_t t    = tick - start;
-        if (t < env.a) {
-            // Attack: Interpolate 0 to max level.
-            return data * t / env.a;
-        } else if (t < env.a + env.d) {
-            // Decay: Interpolate max and sustain levels.
-            return data * (1 - (t - env.a) * (1.0 - env.s) / env.d);
-        } else /* if (t >= env.a + env.d) */ {
-            // Sustain.
-            return data * env.s;
-        }
+        // uint32_t data = wav.data[get_index()];
+        // uint32_t t    = tick - start;
+        // if (t < env.a) {
+        //     // Attack: Interpolate 0 to max level.
+        //     return data * t / env.a;
+        // } else if (t < env.a + env.d) {
+        //     // Decay: Interpolate max and sustain levels.
+        //     return data * (1 - (t - env.a) * (1.0 - env.s) / env.d);
+        // } else /* if (t >= env.a + env.d) */ {
+        //     // Sustain.
+        //     return data * env.s;
+        // }
+        return wav.data[get_index()];
     }
 
     /**
      * @brief   Apply the release stage to the waveform. Make sure to call `reset()` before this to reset the tick.
      */
     uint32_t release(uint32_t tick) { return wav.data[get_index()] * (tick - start) * env.s / env.r; }
-
 
 private:
     uint32_t start;
@@ -226,7 +231,10 @@ namespace generate
 
     constexpr Waveform sine(uint16_t freq, double scale = 0.5)
     {
-        uint32_t n = 168000 / freq;
+        if (freq < 440)
+            freq = 440;
+
+        uint32_t n = round(21000.0 / freq);
         Waveform wav{n};
         for (uint32_t i = 0; i < n; i++) {
             wav.data[i] = (MAX_AMP / 2) + (MAX_AMP / 2) * scale * sin(double(2.0) * double(std::numbers::pi) * i / n);
