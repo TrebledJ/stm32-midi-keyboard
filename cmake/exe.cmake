@@ -66,7 +66,7 @@ add_executable(${PROJECT_NAME} ${MCU_STARTUP_FILE} ${SOURCE_FILES})
         list(APPEND GCC_FEAT_FLAGS -freg-struct-return) # FIXME: Enable only when using GCC
     endif()
 	if (SP_FPU)
-		list(APPEND GCC_FEAT_FLAGS -fsingle-precision-constant -Werror=double-promotion)
+		list(APPEND GCC_FEAT_FLAGS -fsingle-precision-constant )
 	endif()
 	set(COMPILER_FLAGS ${COMMON_FLAGS} ${GCC_WARN_FLAGS} ${GCC_FEAT_FLAGS})
 
