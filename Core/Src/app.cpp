@@ -51,7 +51,7 @@ void app_run()
 {
     int sound_mode = 0;
     while (1) {
-        speaker::tick(sine[sound_mode]);
+        speaker::load(sine[sound_mode]);
         speaker::send();
 
         static bool prev_pressed = false;

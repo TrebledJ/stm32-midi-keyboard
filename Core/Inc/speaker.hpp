@@ -48,7 +48,7 @@ public:
     }
 
     template <typename T>
-    static void tick(T signal)
+    static void load(T signal)
     {
         for (size_t i = 0; i < buffer_size; i++) {
             instance().curr_buffer[i] = signal.tick() * amplitude + amplitude;
