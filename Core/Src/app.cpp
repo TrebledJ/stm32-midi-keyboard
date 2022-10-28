@@ -2,7 +2,7 @@
 #include "buttons.hpp"
 #include "defines.hpp"
 #include "lcd/lcd.hpp"
-#include "leafpp.hpp"
+#include "leaf.hpp"
 #include "metronome.hpp"
 #include "profile.hpp"
 #include "speaker.hpp"
@@ -13,8 +13,6 @@ extern "C" {
 #include "main.h"
 }
 
-#include "leaf.h"
-
 extern ADC_HandleTypeDef hadc1;
 extern SPI_HandleTypeDef hspi2;
 extern UART_HandleTypeDef huart1;
@@ -22,7 +20,6 @@ extern UART_HandleTypeDef huart1;
 Metronome metronome{TIM3};
 LCD lcd{&hspi2};
 Buttons button_matrix;
-LEAF leaf_main;
 
 
 #define MEM_SIZE 40000
@@ -31,7 +28,7 @@ char leaf_memory[MEM_SIZE];
 float random_number() { return 0.5; }
 
 inline constexpr int NUM_SINES = 8;
-leaf::cycle sine[NUM_SINES];
+leaf::osc::cycle sine[NUM_SINES];
 float freq[] = {440.0, 493.88, 554.37, 587.33, 659.25, 739.99, 830.61, 880};
 
 void app_init()
@@ -40,10 +37,10 @@ void app_init()
     lcd.init();
     lcd.clear();
 
-    LEAF_init(&leaf_main, 21000, leaf_memory, MEM_SIZE, &random_number);
+    leaf::init(21000, leaf_memory, MEM_SIZE, &random_number);
 
     for (int i = 0; i < NUM_SINES; i++) {
-        sine[i].init(leaf_main);
+        sine[i].init();
         sine[i].setFreq(freq[i]);
     }
 

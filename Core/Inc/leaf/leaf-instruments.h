@@ -433,7 +433,7 @@ void t808Kick_setChirpAmount(t808Kick* const, float chirp);
 void t808Kick_setToneNoiseMix(t808Kick* const, float toneNoiseMix);
 void t808Kick_setNoiseFilterFreq(t808Kick* const, float noiseFilterFreq);
 void t808Kick_setNoiseFilterQ(t808Kick* const, float noiseFilterQ);
-void t808kick_setSampleRate(t808Kick* const, float sr);
+void t808Kick_setSampleRate(t808Kick* const, float sr);
 
 //==============================================================================
 

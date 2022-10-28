@@ -942,7 +942,6 @@ void tMBSawPulse_free(tMBSawPulse* const osc);
 float tMBSawPulse_tick(tMBSawPulse* const osc);
 float tMBSawPulse_sync(tMBSawPulse* const osc, float value);
 void tMBSawPulse_setFreq(tMBSawPulse* const osc, float f);
-float tMBSawPulse_sync(tMBSawPulse* const osc, float sync);
 void tMBSawPulse_setPhase(tMBSawPulse* const osc, float phase);
 void tMBSawPulse_setShape(tMBSawPulse* const osc, float shape);
 void tMBSawPulse_setSyncMode(tMBSawPulse* const osc, int hardOrSoft);
