@@ -7,19 +7,19 @@ namespace leaf
 {
     extern LEAF main;
 
-    void init(LEAF& leaf, float sampleRate, char* memory, size_t memorySize, float (*random)(void))
+    inline void init(LEAF& leaf, float sampleRate, char* memory, size_t memorySize, float (*random)(void))
     {
         LEAF_init(&leaf, sampleRate, memory, memorySize, random);
     }
 
-    void init(float sampleRate, char* memory, size_t memorySize, float (*random)(void))
+    inline void init(float sampleRate, char* memory, size_t memorySize, float (*random)(void))
     {
         init(main, sampleRate, memory, memorySize, random);
     }
 
-    void setSampleRate(LEAF& leaf, float sampleRate) { LEAF_setSampleRate(&leaf, sampleRate); }
-    void setSampleRate(float sampleRate) { setSampleRate(main, sampleRate); }
-    float getSampleRate(const LEAF& leaf = main) { return leaf.sampleRate; }
+    inline void setSampleRate(LEAF& leaf, float sampleRate) { LEAF_setSampleRate(&leaf, sampleRate); }
+    inline void setSampleRate(float sampleRate) { setSampleRate(main, sampleRate); }
+    inline float getSampleRate(const LEAF& leaf = main) { return leaf.sampleRate; }
 
     namespace distortion
     {
