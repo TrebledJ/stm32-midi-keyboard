@@ -1509,7 +1509,7 @@ namespace leaf
             float tickFrozen(float synth, float voice) { return tTalkbox_tickFrozen(&obj, synth, voice); }
             void update() { tTalkbox_update(&obj); }
             void suspend() { tTalkbox_suspend(&obj); }
-            void lpcDurbin(float* r, int p, float* k, float* g) { tTalkbox_lpcDurbin(r, p, k, g); }
+            inline void lpcDurbin(float* r, int p, float* k, float* g) { tTalkbox_lpcDurbin(r, p, k, g); }
             void setQuality(float quality) { tTalkbox_setQuality(&obj, quality); }
             void setWarpFactor(float warp) { tTalkbox_setWarpFactor(&obj, warp); }
             void setWarpOn(float warpOn) { tTalkbox_setWarpOn(&obj, warpOn); }
@@ -1528,7 +1528,7 @@ namespace leaf
             float tickFrozen(float synth, float voice) { return tTalkboxFloat_tickFrozen(&obj, synth, voice); }
             void update() { tTalkboxFloat_update(&obj); }
             void suspend() { tTalkboxFloat_suspend(&obj); }
-            void lpcDurbin(float* r, int p, float* k, float* g) { tTalkboxFloat_lpcDurbin(r, p, k, g); }
+            inline void lpcDurbin(float* r, int p, float* k, float* g) { tTalkboxFloat_lpcDurbin(r, p, k, g); }
             void setQuality(float quality) { tTalkboxFloat_setQuality(&obj, quality); }
             void setWarpFactor(float warp) { tTalkboxFloat_setWarpFactor(&obj, warp); }
             void setWarpOn(int warpOn) { tTalkboxFloat_setWarpOn(&obj, warpOn); }
