@@ -28,7 +28,6 @@ void calcsin(float freq)
 }
 Metronome metronome{TIM3};
 LCD lcd{&hspi2};
-Buttons button_matrix;
 
 
 void app_init()
@@ -49,10 +48,9 @@ void app_run()
 
         for (int i = 0; i < 8; i++)
             for (int j = 0; j < 8; j++)
-                lcd.draw_string(0 + 3 * j, 3 + i, "%d",
-                                button_matrix.is_btn_pressed(static_cast<ButtonName>(i * 8 + j)));
+                lcd.draw_string(0 + 3 * j, 3 + i, "%d", buttons::is_btn_pressed(static_cast<ButtonName>(i * 8 + j)));
 
-        button_matrix.tick();
+        buttons::tick();
         // if (button_matrix.is_btn_pressed(BTN_22_U)) {
         //     LED0::on();
         // } else {

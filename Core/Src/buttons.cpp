@@ -26,12 +26,12 @@ static GPIO_TypeDef* btn_col_port[] = {btn_table(col_port)};
 static const uint16_t btn_col_pin[] = {btn_table(col_pin)};
 
 
-uint64_t Buttons::detect_key_matrix()
+void buttons::detect_key_matrix()
 {
     uint64_t result = 0;
     btn_table(row_set);
     for (int row = 0; row < 8; row++) {
-        HAL_Delay(1);
+        HAL_Delay(1); // TODO: shorten this duration somehow? Wastes a bit too much processing power. >.>
         HAL_GPIO_WritePin(btn_row_port[row], btn_row_pin[row], GPIO_PIN_RESET);
         for (int col = 0; col < 8; col++) {
             if (!HAL_GPIO_ReadPin(btn_col_port[col], btn_col_pin[col])) {
@@ -40,10 +40,11 @@ uint64_t Buttons::detect_key_matrix()
         }
         HAL_GPIO_WritePin(btn_row_port[row], btn_row_pin[row], GPIO_PIN_SET);
     }
-    return result;
+    btn_edge   = btn_matrix ^ result; // Different => edge => 1. Same => flat => 0.
+    btn_matrix = result;
 }
 
-void Buttons::wait_key(int key)
+void buttons::wait_key(int key)
 {
     int col = key % 8;
     int row = key / 8;
@@ -55,7 +56,7 @@ void Buttons::wait_key(int key)
     return;
 }
 
-void Buttons::update_velocity()
+void buttons::update_velocity()
 {
     for (uint8_t i = BTN_1_U; i <= BTN_29_D; i += 2) {
         int index     = (i - BTN_1_U) / 2;
