@@ -29,7 +29,13 @@ float random_number() { return 0.5; }
 
 inline constexpr int NUM_SINES = 8;
 leaf::osc::cycle sine[NUM_SINES];
+
+inline constexpr int NUM_SINES_CH = 2;
+leaf::osc::cycle sine_ch[NUM_SINES_CH];
+
 float freq[] = {440.0, 493.88, 554.37, 587.33, 659.25, 739.99, 830.61, 880};
+// float chord[] = {440.0, 554.37, 659.25};
+float chord[] = {440, 660};
 
 void app_init()
 {
@@ -43,6 +49,10 @@ void app_init()
         sine[i].init();
         sine[i].setFreq(freq[i]);
     }
+    for (int i = 0; i < NUM_SINES_CH; i++) {
+        sine_ch[i].init();
+        sine_ch[i].setFreq(chord[i]);
+    }
 
     speaker::play();
 }
@@ -51,14 +61,30 @@ void app_run()
 {
     int sound_mode = 0;
     while (1) {
-        speaker::load(sine[sound_mode]);
+        // speaker::load(sine[sound_mode]);
+        if (sound_mode == 0)
+            speaker::load(sine_ch[0]);
+        else if (sound_mode == 1)
+            speaker::load(sine_ch[1]);
+        else
+            speaker::load(sine_ch[0], sine_ch[1]);
         speaker::send();
 
         static bool prev_pressed = false;
 
         bool pressed = button_matrix.is_btn_pressed(BTN_A);
         if (!prev_pressed && pressed) {
-            sound_mode = (sound_mode + 1) % NUM_SINES;
+            // sound_mode = (sound_mode + 1) % NUM_SINES;
+            sound_mode = (sound_mode + 1) % 3;
+            if (sound_mode == 2) {
+                sine_ch[0].setFreq(880);
+                sine_ch[1].setFreq(1320);
+            } else {
+                sine_ch[0].setFreq(440);
+                sine_ch[1].setFreq(660);
+            }
+            sine_ch[0].setPhase(0);
+            sine_ch[1].setPhase(0);
         }
         prev_pressed = pressed;
 

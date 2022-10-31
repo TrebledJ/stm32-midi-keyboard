@@ -47,11 +47,11 @@ public:
         HAL_TIM_Base_Stop(timer);
     }
 
-    template <typename T>
-    static void load(T signal)
+    template <typename... Ts>
+    static void load(Ts&... ss)
     {
         for (size_t i = 0; i < buffer_size; i++) {
-            instance().curr_buffer[i] = signal.tick() * amplitude + amplitude;
+            instance().curr_buffer[i] = (ss.tick() + ...) / sizeof...(Ts) * amplitude + amplitude;
         }
     }
 
