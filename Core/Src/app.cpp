@@ -2,65 +2,118 @@
 #include "buttons.hpp"
 #include "defines.hpp"
 #include "lcd/lcd.hpp"
+#include "leaf.hpp"
 #include "metronome.hpp"
+#include "profile.hpp"
+#include "speaker.hpp"
 #include "volume.hpp"
 #include "waveform.hpp"
+
 extern "C" {
 #include "main.h"
-#include "math.h"
 }
 
-#define PI 3.1415926
-extern DAC_HandleTypeDef hdac;
 extern ADC_HandleTypeDef hadc1;
 extern SPI_HandleTypeDef hspi2;
 extern UART_HandleTypeDef huart1;
-extern TIM_HandleTypeDef htim8;
-uint32_t sine_val[1000] = {0};
-Waveform wav;
-volume vol;
-void calcsin(float freq)
-{
-    for (int i = 0; i < 1000; i++) {
-        // sine_val[i] = ((float)(sin((i / 1000.0) * 2 * PI * freq) + 1) * (2047.0f)); // 10Hz
-        sine_val[i] = ((float)(sin((i / 1000.0) * 2 * PI * freq) + 1) * (vol.get() / 2.0)); // 10Hz
-    }
-}
+
 Metronome metronome{TIM3};
 LCD lcd{&hspi2};
 
+
+#define MEM_SIZE 40000
+char leaf_memory[MEM_SIZE];
+
+float random_number() { return 0.5; }
+
+inline constexpr int NUM_SINES = 8;
+leaf::osc::cycle sine[NUM_SINES];
+
+inline constexpr int NUM_SINES_CH = 2;
+leaf::osc::cycle sine_ch[NUM_SINES_CH];
+
+float freq[] = {440.0, 493.88, 554.37, 587.33, 659.25, 739.99, 830.61, 880};
+// float chord[] = {440.0, 554.37, 659.25};
+float chord[] = {440, 660};
 
 void app_init()
 {
     metronome.init();
     lcd.init();
+    lcd.clear();
+
+    leaf::init(21000, leaf_memory, MEM_SIZE, &random_number);
+
+    for (int i = 0; i < NUM_SINES; i++) {
+        sine[i].init();
+        sine[i].setFreq(freq[i]);
+    }
+    for (int i = 0; i < NUM_SINES_CH; i++) {
+        sine_ch[i].init();
+        sine_ch[i].setFreq(chord[i]);
+    }
+
+    speaker::play();
 }
 
 void app_run()
 {
-    lcd.clear();
+    int sound_mode = 0;
     while (1) {
-        calcsin(wav.freq[C4]);
-        HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_2, (uint32_t*)sine_val, 1000, DAC_ALIGN_12B_R);
-        HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t*)sine_val, 1000, DAC_ALIGN_12B_R);
-        HAL_TIM_Base_Start(&htim8);
-        metronome.tick();
+        // speaker::load(sine[sound_mode]);
+        if (sound_mode == 0)
+            speaker::load(sine_ch[0]);
+        else if (sound_mode == 1)
+            speaker::load(sine_ch[1]);
+        else
+            speaker::load(sine_ch[0], sine_ch[1]);
+        speaker::send();
 
+        // Testing Purposes: Check state for changing sound.
+        static bool prev_pressed = false;
+
+        bool pressed = buttons::is_btn_pressed(BTN_A);
+        if (!prev_pressed && pressed) {
+            // sound_mode = (sound_mode + 1) % NUM_SINES;
+            sound_mode = (sound_mode + 1) % 3;
+            if (sound_mode == 2) {
+                sine_ch[0].setFreq(880);
+                sine_ch[1].setFreq(1320);
+            } else {
+                sine_ch[0].setFreq(440);
+                sine_ch[1].setFreq(660);
+            }
+            sine_ch[0].setPhase(0);
+            sine_ch[1].setPhase(0);
+        }
+        prev_pressed = pressed;
+
+        // Print button states.
         for (int i = 0; i < 8; i++)
             for (int j = 0; j < 8; j++)
                 lcd.draw_string(0 + 3 * j, 3 + i, "%d", buttons::is_btn_pressed(static_cast<ButtonName>(i * 8 + j)));
 
+        // Tick everything.
+        metronome.tick();
         buttons::tick();
-        // if (button_matrix.is_btn_pressed(BTN_22_U)) {
-        //     LED0::on();
-        // } else {
-        //     LED0::off();
-        // }
-        // if (button_matrix.is_btn_pressed(BTN_22_D)) {
-        //     LED1::on();
-        // } else {
-        //     LED1::off();
-        // }
-        LED2::toggle();
+        LED0::toggle();
+
+        // timeit(elapsed, speaker::tick(sine[sound_mode]););
+        // timeit(elapsed_send, speaker::send(););
+
+        // timeit(elapsed_loop, {
+        //     static bool prev_pressed = false;
+        //     bool pressed             = button_matrix.is_btn_pressed(BTN_A);
+        //     if (!prev_pressed && pressed) {
+        //         sound_mode = (sound_mode + 1) % NUM_SINES;
+        //     }
+        //     prev_pressed = pressed;
+
+
+        //     metronome.tick();
+        //     button_matrix.tick();
+        //     LED0::toggle();
+        // });
+        // lcd.draw_string(0, 0, "elapsed: %d %d %d", elapsed, elapsed_send, elapsed_loop);
     }
 }

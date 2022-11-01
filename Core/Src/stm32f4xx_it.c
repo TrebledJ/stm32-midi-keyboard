@@ -223,6 +223,11 @@ void DMA1_Stream4_IRQHandler(void)
 void DMA1_Stream5_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Stream5_IRQn 0 */
+  // extern uint8_t completed_flag;
+  // if ((DMA1->HISR & DMA_HISR_TCIF5) != 0) { // Check if transfer is completed.
+  //   completed_flag = 1;
+  //   DMA1->HIFCR |= DMA_HIFCR_CTCIF5; // Clear the transfer complete flag.
+  // }
 
   /* USER CODE END DMA1_Stream5_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_dac1);

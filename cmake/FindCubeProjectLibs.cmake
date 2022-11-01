@@ -27,7 +27,7 @@ endif()
 # Find Sources
 if (NOT SOURCE_FILES)
     file(GLOB_RECURSE MIDDLEWARE_SOURCES "Middlewares/*.c")
-    file(GLOB SOURCE_FILES "Core/Src/*.cpp" "Core/Src/*.c" "Drivers/${STM32_FAMILY}xx_HAL_Driver/Src/*.c")
+    file(GLOB_RECURSE SOURCE_FILES "Core/**/*.cpp" "Core/**/*.c" "Drivers/${STM32_FAMILY}xx_HAL_Driver/Src/*.c")
     list(APPEND SOURCE_FILES ${MIDDLEWARE_SOURCES} ${ADD_SOURCE_FILES})
 endif()
 

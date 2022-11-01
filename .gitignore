@@ -63,4 +63,4 @@ Debug/
 .vscode/settings.json
 .vscode/.cortex-debug*
 .mxproject
-.settings/language.settings.xml
+.settings/
