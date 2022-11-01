@@ -4,6 +4,8 @@ extern "C" {
 #include "main.h"
 }
 
+#include <array>
+
 extern DAC_HandleTypeDef hdac;
 extern TIM_HandleTypeDef htim8;
 
@@ -23,17 +25,14 @@ class speaker
     uint16_t* next_buffer;
 
 public:
-    speaker()
-    {
-        curr_buffer = buffer[0].data();
-        next_buffer = buffer[1].data();
-    }
-
     static speaker& instance()
     {
         static speaker s;
         return s;
     }
+
+    static void init();
+    static void loop();
 
     static void play()
     {
@@ -70,5 +69,11 @@ public:
     }
 
 private:
+    speaker()
+    {
+        curr_buffer = buffer[0].data();
+        next_buffer = buffer[1].data();
+    }
+
     void swap_buffer() { std::swap(curr_buffer, next_buffer); }
 };

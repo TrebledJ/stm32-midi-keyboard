@@ -78,25 +78,41 @@ enum ButtonState {
     PRESSING,
 };
 
-class Buttons
+class buttons
 {
 public:
-    void tick()
+    static buttons& instance()
     {
-        btn_matrix = detect_key_matrix();
-        update_velocity();
+        static buttons b;
+        return b;
     }
 
-    void wait_key(int key);
+    static void tick()
+    {
+        instance().detect_key_matrix();
+        instance().update_velocity();
+    }
 
-    bool is_btn_pressed(ButtonName btn) const { return (btn_matrix >> btn) & 1; }
+    static void wait_key(int key);
+
+    static bool is_btn_pressed(ButtonName btn) { return (instance().btn_matrix >> btn) & 1; }
+    static bool is_btn_released(ButtonName btn) { return instance().btn_matrix & instance().btn_edge & (1ULL << btn); }
+    static bool is_btn_just_pressed(ButtonName btn)
+    {
+        return instance().btn_matrix & ~instance().btn_edge & (1ULL << btn);
+    }
 
 private:
-    uint64_t btn_matrix;
+    uint64_t btn_matrix; // Current state of each button (1=pressed, 0=released).
+    uint64_t btn_edge;   // Edge-state of each button (1=edge, 0=flat).
     uint8_t delta_t_pressed[29];
     ButtonState key_state[29];
     uint8_t delta_t_released[29];
 
-    uint64_t detect_key_matrix();
+    void detect_key_matrix();
     void update_velocity();
 };
+
+// Edge-triggering events.
+#define on_btn_pressed(btn)  if (buttons::is_btn_just_pressed(btn))
+#define on_btn_released(btn) if (buttons::is_btn_released(btn))

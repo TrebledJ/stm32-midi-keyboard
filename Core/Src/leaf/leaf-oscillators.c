@@ -55,7 +55,7 @@ float tCycle_tick(tCycle* const cy)
     // Wavetable synthesis
     idx      = c->phase >> 21;       // 11 bit table
     tempFrac = (c->phase & 2097151); //(2^21 - 1) all the lower bits i.e. the remainder of a division by 2^21  (2097151
-                                     //is the 21 bits after the 11 bits that represent the main index)
+                                     // is the 21 bits after the 11 bits that represent the main index)
 
     samp0 = __leaf_table_sinewave[idx];
     idx   = (idx + 1) & c->mask;
@@ -159,7 +159,7 @@ void tTriangle_setFreq(tTriangle* const cy, float freq)
     c->w = fabsf(c->freq * (TRI_TABLE_SIZE * c->invSampleRate));
 
     c->w = log2f_approx(c->w); //+ LEAF_SQRT2 - 1.0f; adding an offset here will shift our table selection upward,
-                               //reducing aliasing but lower high freq fidelity. +1.0f should remove all aliasing
+                               // reducing aliasing but lower high freq fidelity. +1.0f should remove all aliasing
     if (c->w < 0.0f)
         c->w = 0.0f;
     c->oct = (int)c->w;
@@ -254,7 +254,7 @@ void tSquare_setFreq(tSquare* const cy, float freq)
     c->w = fabsf(c->freq * (SQR_TABLE_SIZE * c->invSampleRate));
 
     c->w = log2f_approx(c->w); //+ LEAF_SQRT2 - 1.0f; adding an offset here will shift our table selection upward,
-                               //reducing aliasing but lower high freq fidelity. +1.0f should remove all aliasing
+                               // reducing aliasing but lower high freq fidelity. +1.0f should remove all aliasing
     if (c->w < 0.0f)
         c->w = 0.0f;
     c->oct = (int)c->w;
@@ -350,7 +350,7 @@ void tSawtooth_setFreq(tSawtooth* const cy, float freq)
     c->w = fabsf(c->freq * (SAW_TABLE_SIZE * c->invSampleRate));
 
     c->w = log2f_approx(c->w); //+ LEAF_SQRT2 - 1.0f; adding an offset here will shift our table selection upward,
-                               //reducing aliasing but lower high freq fidelity. +1.0f should remove all aliasing
+                               // reducing aliasing but lower high freq fidelity. +1.0f should remove all aliasing
     if (c->w < 0.0f)
         c->w = 0.0f; // If c->w is < 0.0f, then freq is less than our base freq
     c->oct = (int)c->w;
@@ -2294,7 +2294,7 @@ void tWaveOsc_setFreq(tWaveOsc* const cy, float freq)
     // I bet we could turn this into a lookup and save a lot of processing
     c->w =
         log2f_approx(c->w) + c->aa; //+ LEAF_SQRT2 - 1.0f; adding an offset here will shift our table selection upward,
-                                    //reducing aliasing but lower high freq fidelity. +1.0f should remove all aliasing
+                                    // reducing aliasing but lower high freq fidelity. +1.0f should remove all aliasing
     if (c->w < 0.0f)
         c->w = 0.0f; // If c->w is < 0.0f, then freq is less than our base freq
     c->oct = (int)c->w;
@@ -2665,7 +2665,7 @@ void tWaveOscS_setFreq(tWaveOscS* const cy, float freq)
     // I bet we could turn this into a lookup and save a lot of processing
     c->w =
         log2f_approx(c->w) + c->aa; //+ LEAF_SQRT2 - 1.0f; adding an offset here will shift our table selection upward,
-                                    //reducing aliasing but lower high freq fidelity. +1.0f should remove all aliasing
+                                    // reducing aliasing but lower high freq fidelity. +1.0f should remove all aliasing
     if (c->w < 0.0f)
         c->w = 0.0f; // If c->w is < 0.0f, then freq is less than our base freq
     c->oct = (int)c->w;
