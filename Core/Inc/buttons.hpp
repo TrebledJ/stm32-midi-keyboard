@@ -99,7 +99,7 @@ public:
     static bool is_btn_released(ButtonName btn) { return instance().btn_matrix & instance().btn_edge & (1ULL << btn); }
     static bool is_btn_just_pressed(ButtonName btn)
     {
-        return instance().btn_matrix & ~instance().btn_edge & (1ULL << btn);
+        return instance().btn_matrix & instance().btn_edge & (1ULL << btn);
     }
 
 private:
