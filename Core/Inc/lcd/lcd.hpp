@@ -44,7 +44,7 @@ public:
     void draw_image(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint8_t* bytes);
     void draw_char(uint16_t x, uint16_t y, char c);
     void draw_string(uint16_t x, uint16_t y, const char* str);
-    void draw_string(uint16_t x, uint16_t y, const char* fmt, auto... args);
+    void draw_stringf(uint16_t x, uint16_t y, const char* fmt, ...) __attribute__((format(printf, 4, 5)));
 
 private:
     SPI_HandleTypeDef* spi;
@@ -75,18 +75,3 @@ private:
 
     void buf_color(color_t color, size_t n);
 };
-
-
-// Forward declare without including cstdio header.
-extern "C" {
-int sprintf(char* str, const char* format, ...);
-}
-
-
-template <Orientation O>
-void LCD<O>::draw_string(uint16_t x, uint16_t y, const char* fmt, auto... args)
-{
-    static char buffer[64];
-    sprintf(buffer, fmt, args...);
-    draw_string(x, y, buffer);
-}

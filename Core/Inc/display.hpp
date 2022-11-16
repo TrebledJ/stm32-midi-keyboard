@@ -208,8 +208,8 @@ public:
     void draw(const urect& bounds)
     {
         // TODO: display curr selected option
-        lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT, "%-10s", options[curr]);
-        lcd.draw_string(0, 15, "%d %d", curr, max);
+        lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT, "%-10s", options[curr]);
+        lcd.draw_stringf(0, 15, "%d %d", curr, max);
     }
 
     void update(const urect& bounds)
@@ -428,7 +428,7 @@ public:
             instrument.draw({bounds.x + restw, bounds.y, restw - 10, bounds.h});
             lcd.palette.background(BLACK);
 
-            lcd.draw_string(0, 14, "ch index: %d", select_index);
+            lcd.draw_stringf(0, 14, "ch index: %d", select_index);
 
             prev_index = select_index;
         } else {
@@ -476,10 +476,10 @@ public:
         for (int i = 0; i < NUM_CHANNELS; i++) {
             if (is_ch(index) && i == to_ch(index)) {
                 lcd.palette.background(BLUE);
-                lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + i, "Channel %d:", i + 1);
+                lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + i, "Channel %d:", i + 1);
                 lcd.palette.background(BLACK);
             } else {
-                lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + i, "Channel %d:", i + 1);
+                lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + i, "Channel %d:", i + 1);
             }
             channel[i].draw(
                 {bounds.x + CHAR_WIDTH * 12, bounds.y + CHAR_HEIGHT * i, bounds.w - CHAR_WIDTH * 12, CHAR_HEIGHT});
@@ -488,19 +488,19 @@ public:
 
     void update(const urect& bounds)
     {
-        lcd.draw_string(0, 13, "select index: %d", index);
+        lcd.draw_stringf(0, 13, "select index: %d", index);
         if (index != prev_index) {
             // Draw and update.
             // draw(x, y);
 
             if (is_ch(prev_index)) {
-                lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + to_ch(prev_index),
-                                "Channel %d:", to_ch(prev_index) + 1);
+                lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + to_ch(prev_index),
+                                 "Channel %d:", to_ch(prev_index) + 1);
             }
             if (is_ch(index)) {
                 lcd.palette.background(BLUE);
-                lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + to_ch(index),
-                                "Channel %d:", to_ch(index) + 1);
+                lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + to_ch(index),
+                                 "Channel %d:", to_ch(index) + 1);
                 lcd.palette.background(BLACK);
             }
 
@@ -512,8 +512,8 @@ public:
         }
         if (is_ch(index)) {
             lcd.palette.background(channel[to_ch(index)].selection() == ChannelWidget::DEFAULT ? BLUE : BLACK);
-            lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + to_ch(index),
-                            "Channel %d:", to_ch(index) + 1);
+            lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + to_ch(index),
+                             "Channel %d:", to_ch(index) + 1);
             lcd.palette.background(BLACK);
 
             channel[to_ch(index)].update({bounds.x + CHAR_WIDTH * 12, bounds.y + CHAR_HEIGHT * to_ch(index),
@@ -560,17 +560,17 @@ public:
 
     void draw(const urect& bounds)
     {
-        lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT, "Song %d", song_index + 1);
+        lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT, "Song %d", song_index + 1);
         widget.draw({bounds.x, bounds.y + CHAR_HEIGHT, bounds.w, bounds.h - CHAR_HEIGHT});
     }
 
     void update(const urect& bounds)
     {
-        lcd.draw_string(0, 12, "song index: %d", song_index);
+        lcd.draw_stringf(0, 12, "song index: %d", song_index);
         // if (song_index != prev_song_index) {
         //     prev_song_index = song_index;
         // }
-        lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT, "Song %d", song_index + 1);
+        lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT, "Song %d", song_index + 1);
         widget.update({bounds.x, bounds.y + CHAR_HEIGHT, bounds.w, bounds.h - CHAR_HEIGHT});
     }
 

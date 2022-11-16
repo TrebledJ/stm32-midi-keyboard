@@ -177,4 +177,24 @@ void LCD<O>::draw_string(uint16_t x, uint16_t y, const char* str)
     }
 }
 
+// Forward declare without including cstdio header.
+extern "C" {
+#include <cstdarg>
+}
+
+
+template <Orientation O>
+void LCD<O>::draw_stringf(uint16_t x, uint16_t y, const char* fmt, ...)
+{
+    static char buffer[64];
+
+    va_list args;
+    va_start(args, fmt);
+    vsprintf(buffer, fmt, args);
+    va_end(args);
+
+    draw_string(x, y, buffer);
+}
+
+
 template class LCD<LCD_ORIENTATION>;
