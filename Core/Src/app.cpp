@@ -1,5 +1,4 @@
 #include "app.hpp"
-
 #include "buttons.hpp"
 #include "defines.hpp"
 #include "display.hpp"
@@ -19,46 +18,38 @@ extern UART_HandleTypeDef huart1;
 
 Metronome metronome{TIM3};
 
-Menu display;
+std::array<SongData, NUM_SONGS> songs = {
+
+};
+
+MenuController display{songs};
+// extern
+LCD<> lcd{&hspi2};
+
 void app_init()
 {
     metronome.init();
-    display.init();
+    lcd.init();
+    lcd.clear();
+    // display.init();
     speaker::init();
 }
 
 void app_run()
 {
+    display.draw({0, 0, 300, 200});
     while (1) {
         speaker::loop();
-        display.tick();
+        display.loop();
+        // display.tick();
+        // display.update(0, 0);
         // for (int i = 0; i < 8; i++)
         //     for (int j = 0; j < 8; j++)
-        //         display.lcd.draw_string(0 + 3 * j, 3 + i, "%d%d",
+        //         lcd.draw_string(0 + 3 * j, 3 + i, "%d%d",
         //                                 buttons::is_btn_pressed(static_cast<ButtonName>(i * 8 + j)),
         //                                 buttons::is_btn_just_pressed(static_cast<ButtonName>(i * 8 + j)));
 
         // Tick everything.
-        if (buttons::is_btn_just_pressed(BTN_Bottom)) {
-            display.minus();
-        }
-        if (buttons::is_btn_just_pressed(BTN_Up)) {
-            display.plus();
-        }
-        if (buttons::is_btn_just_pressed(BTN_W)) {
-            display.move_up();
-            LED1::toggle();
-        }
-        if (buttons::is_btn_just_pressed(BTN_A)) {
-            display.exit();
-        }
-        if (buttons::is_btn_just_pressed(BTN_S)) {
-            display.move_down();
-            LED0::toggle();
-        }
-        if (buttons::is_btn_just_pressed(BTN_D)) {
-            display.enter();
-        }
         metronome.tick();
         buttons::tick();
         LED0::toggle();
