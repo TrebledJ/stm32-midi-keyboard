@@ -172,7 +172,7 @@ private:
 // {
 //     W(menu);
 //     // widget.clear();
-//     widget.draw(u32, u32);
+//     widget.draw(urect(32, u3));
 //     // {
 //     //     widget.btn_ctrl()
 //     //     } -> btn_ctrl_t;
@@ -404,12 +404,12 @@ public:
         uint16_t restw    = (bounds.w - 2 * togglesz) / 2;
 
         lcd.palette.foreground(select_index == VOLUME ? BLUE : DARKGREY);
-        volume.draw({bounds.x, bounds.y + 4, restw - 20, bounds.h - 10});
+        volume.draw(urect(bounds.x, bounds.y + 4, restw - 20, bounds.h - 10));
         lcd.palette.foreground(WHITE);
 
-        instrument.draw({bounds.x + restw, bounds.y, restw - 10, bounds.h});
-        mute.draw({bounds.x + restw * 2, bounds.y, togglesz, togglesz});
-        solo.draw({bounds.x + restw * 2 + togglesz, bounds.y, togglesz, togglesz});
+        instrument.draw(urect(bounds.x + restw, bounds.y, restw - 10, bounds.h));
+        mute.draw(urect(bounds.x + restw * 2, bounds.y, togglesz, togglesz));
+        solo.draw(urect(bounds.x + restw * 2 + togglesz, bounds.y, togglesz, togglesz));
     }
 
     void update(const urect& bounds)
@@ -421,11 +421,11 @@ public:
             // prev_index = index;
 
             lcd.palette.foreground(select_index == VOLUME ? BLUE : DARKGREY);
-            volume.draw({bounds.x, bounds.y + 4, restw - 20, bounds.h - 10});
+            volume.draw(urect(bounds.x, bounds.y + 4, restw - 20, bounds.h - 10));
             lcd.palette.foreground(WHITE);
 
             lcd.palette.background(select_index == INSTRUMENT ? BLUE : BLACK);
-            instrument.draw({bounds.x + restw, bounds.y, restw - 10, bounds.h});
+            instrument.draw(urect(bounds.x + restw, bounds.y, restw - 10, bounds.h));
             lcd.palette.background(BLACK);
 
             lcd.draw_stringf(0, 14, "ch index: %d", select_index);
@@ -433,15 +433,15 @@ public:
             prev_index = select_index;
         } else {
             lcd.palette.foreground(select_index == VOLUME ? BLUE : DARKGREY);
-            volume.update({bounds.x, bounds.y + 4, restw - 20, bounds.h - 10});
+            volume.update(urect(bounds.x, bounds.y + 4, restw - 20, bounds.h - 10));
             lcd.palette.foreground(WHITE);
 
             lcd.palette.background(select_index == INSTRUMENT ? BLUE : BLACK);
-            instrument.update({bounds.x + restw, bounds.y, restw - 10, bounds.h});
+            instrument.update(urect(bounds.x + restw, bounds.y, restw - 10, bounds.h));
             lcd.palette.background(BLACK);
         }
-        mute.update({bounds.x + restw * 2, bounds.y, togglesz, togglesz});
-        solo.update({bounds.x + restw * 2 + togglesz, bounds.y, togglesz, togglesz});
+        mute.update(urect(bounds.x + restw * 2, bounds.y, togglesz, togglesz));
+        solo.update(urect(bounds.x + restw * 2 + togglesz, bounds.y, togglesz, togglesz));
     }
 
 private:
@@ -482,7 +482,7 @@ public:
                 lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + i, "Channel %d:", i + 1);
             }
             channel[i].draw(
-                {bounds.x + CHAR_WIDTH * 12, bounds.y + CHAR_HEIGHT * i, bounds.w - CHAR_WIDTH * 12, CHAR_HEIGHT});
+                urect(bounds.x + CHAR_WIDTH * 12, bounds.y + CHAR_HEIGHT * i, bounds.w - CHAR_WIDTH * 12, CHAR_HEIGHT));
         }
     }
 
@@ -504,10 +504,10 @@ public:
                 lcd.palette.background(BLACK);
             }
 
-            // ch[prev_index].draw(x, y + 20 * prev_index);
+            // ch[prev_index].draw(urect(, y + 20 * prev_inde));
             prev_index = index;
             // lcd.palette.background(BLUE);
-            // ch[index].draw(x, y + 20 * index);
+            // ch[index].draw(urect(, y + 20 * inde));
             // lcd.palette.background(BLACK);
         }
         if (is_ch(index)) {
@@ -516,8 +516,8 @@ public:
                              "Channel %d:", to_ch(index) + 1);
             lcd.palette.background(BLACK);
 
-            channel[to_ch(index)].update({bounds.x + CHAR_WIDTH * 12, bounds.y + CHAR_HEIGHT * to_ch(index),
-                                          bounds.w - CHAR_WIDTH * 12, CHAR_HEIGHT});
+            channel[to_ch(index)].update(urect(bounds.x + CHAR_WIDTH * 12, bounds.y + CHAR_HEIGHT * to_ch(index),
+                                               bounds.w - CHAR_WIDTH * 12, CHAR_HEIGHT));
         }
     }
 
@@ -561,7 +561,7 @@ public:
     void draw(const urect& bounds)
     {
         lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT, "Song %d", song_index + 1);
-        widget.draw({bounds.x, bounds.y + CHAR_HEIGHT, bounds.w, bounds.h - CHAR_HEIGHT});
+        widget.draw(urect(bounds.x, bounds.y + CHAR_HEIGHT, bounds.w, bounds.h - CHAR_HEIGHT));
     }
 
     void update(const urect& bounds)
@@ -571,7 +571,7 @@ public:
         //     prev_song_index = song_index;
         // }
         lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT, "Song %d", song_index + 1);
-        widget.update({bounds.x, bounds.y + CHAR_HEIGHT, bounds.w, bounds.h - CHAR_HEIGHT});
+        widget.update(urect(bounds.x, bounds.y + CHAR_HEIGHT, bounds.w, bounds.h - CHAR_HEIGHT));
     }
 
 private:
@@ -608,9 +608,9 @@ class MenuController
 public:
     MenuController(std::array<SongData, NUM_SONGS>& data) : song_menu{data} {}
 
-    void draw(const urect& bounds) { song_menu.draw({bounds.x, bounds.y, bounds.w, bounds.h}); }
+    void draw(const urect& bounds) { song_menu.draw(urect(bounds.x, bounds.y, bounds.w, bounds.h)); }
 
-    void update(const urect& bounds) { song_menu.update({bounds.x, bounds.y, bounds.w, bounds.h}); }
+    void update(const urect& bounds) { song_menu.update(urect(bounds.x, bounds.y, bounds.w, bounds.h)); }
 
     void loop()
     {
