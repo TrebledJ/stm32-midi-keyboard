@@ -54,6 +54,21 @@ public:
         }
     }
 
+    template <typename Ts>
+    static void load(Ts arr[], uint8_t active[], int size_of_arr)
+    {
+        float sum = 0;
+
+        for (size_t i = 0; i < buffer_size; i++) {
+            sum = 0;
+            for (int i = 0; i < 29; i++) {
+                sum += active[i] * arr[i].tick();
+            }
+
+            instance().curr_buffer[i] = sum / size_of_arr * amplitude + amplitude;
+        }
+    }
+
     // Blocks until DAC can send, then sends the buffer over DMA.
     static void send()
     {
@@ -68,12 +83,34 @@ public:
         instance().swap_buffer();
     }
 
+
 private:
     speaker()
     {
         curr_buffer = buffer[0].data();
         next_buffer = buffer[1].data();
     }
-
     void swap_buffer() { std::swap(curr_buffer, next_buffer); }
 };
+
+typedef enum {
+    NOTE_OFF = 8,
+    NOTE_ON,
+    POLYPHONIC_AFTERTOUCH,
+    CONTROL_CHANGE,
+    PR0GRAM_CHANGE,
+    CHANNEL_AFTERTOUCH,
+    PITCH_BEND_CHANGE
+} MIDI_Status;
+
+typedef struct {
+    uint32_t time_stamp;
+    uint8_t status_byte;
+    uint8_t data_byte;
+    uint8_t velocity;
+} MIDI_Message;
+
+typedef union {
+    MIDI_Message message;
+    uint8_t buff[7];
+} MIDI_Pkg;
