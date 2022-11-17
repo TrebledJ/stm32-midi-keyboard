@@ -4,85 +4,21 @@
 #include "display/songwidget.hpp"
 
 
-class SongMenu
+class SongPage
 {
 public:
-    SongMenu(std::array<SongData, NUM_SONGS>& data) : song_data{data} { load(data[0]); }
+    SongPage(std::array<SongData, NUM_SONGS>& data) : song_data{data} { load(data[0]); }
 
     bool on_w() { return (is_ch(v_index) && channel[to_ch(v_index)].on_w()) || truef(select_prev_v_index()); }
     bool on_s() { return (is_ch(v_index) && channel[to_ch(v_index)].on_s()) || truef(select_next_v_index()); }
     bool on_a() { return (is_ch(v_index) && channel[to_ch(v_index)].on_a()) || truef(load_prev_song()); }
     bool on_d() { return (is_ch(v_index) && channel[to_ch(v_index)].on_d()) || truef(load_next_song()); }
-    bool on_f1() { return (is_ch(v_index) && channel[to_ch(v_index)].on_f1()); }
-    bool on_f2() { return (is_ch(v_index) && channel[to_ch(v_index)].on_f2()) || truef(playpause()); }
+    bool on_f1() { return (is_ch(v_index) && channel[to_ch(v_index)].on_f1()) || truef(playpause()); }
+    bool on_f2() { return (is_ch(v_index) && channel[to_ch(v_index)].on_f2()) || truef(record()); }
 
-    void load(SongData& data)
-    {
-        for (int i = 0; i < NUM_CHANNELS; i++) {
-            channel[i].load(data.channel[i]);
-        }
-    }
-
-    void draw(const urect& bounds)
-    {
-        extern LCD_ lcd;
-        with_bg_if(!is_ch(v_index), BLUE)
-        {
-            lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT, "Song %d", song_index + 1);
-        }
-        draw(urect(bounds.x, bounds.y + CHAR_HEIGHT, bounds.w, bounds.h - CHAR_HEIGHT));
-
-        for (int i = 0; i < NUM_CHANNELS; i++) {
-            with_bg_if(is_ch(v_index) && i == to_ch(v_index), BLUE)
-            {
-                lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + i, "Channel %d:", i + 1);
-            }
-            channel[i].draw(
-                urect(bounds.x + CHAR_WIDTH * 12, bounds.y + CHAR_HEIGHT * i, bounds.w - CHAR_WIDTH * 12, CHAR_HEIGHT));
-        }
-    }
-
-    void update(const urect& bounds)
-    {
-        extern LCD_ lcd;
-        lcd.draw_stringf(0, 12, "song index: %d", song_index);
-        lcd.draw_stringf(0, 13, "select index: %d", v_index);
-
-        if (prev_song_index != song_index) {
-            prev_song_index = song_index;
-            lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT, "Song %d", song_index + 1);
-        }
-
-        size_t ch_y = bounds.y + CHAR_HEIGHT;
-
-        if (prev_v_index != v_index) {
-            prev_v_index = v_index;
-
-            if (is_ch(prev_v_index)) {
-                // Deselect previous index.
-                lcd.draw_stringf(bounds.x / CHAR_WIDTH, ch_y / CHAR_HEIGHT + to_ch(prev_v_index),
-                                 "Channel %d:", to_ch(prev_v_index) + 1);
-            }
-            if (is_ch(v_index)) {
-                // Select current index.
-                with_bg(BLUE)
-                {
-                    lcd.draw_stringf(bounds.x / CHAR_WIDTH, ch_y / CHAR_HEIGHT + to_ch(v_index),
-                                     "Channel %d:", to_ch(v_index) + 1);
-                }
-            }
-        }
-        if (is_ch(v_index)) {
-            with_bg_if(channel[to_ch(v_index)].selection() == ChannelWidget::DEFAULT, BLUE)
-            {
-                lcd.draw_stringf(bounds.x / CHAR_WIDTH, ch_y / CHAR_HEIGHT + to_ch(v_index),
-                                 "Channel %d:", to_ch(v_index) + 1);
-            }
-
-            channel[to_ch(v_index)].update(urect(bounds.x + CHAR_WIDTH * 12, ch_y + CHAR_HEIGHT * to_ch(v_index),
-                                                 bounds.w - CHAR_WIDTH * 12, CHAR_HEIGHT));
-        }
-    }
+    void load(SongData& data);
+    void draw(const urect& bounds);
+    void update(const urect& bounds);
 
 private:
     uint8_t song_index = 0;
@@ -97,22 +33,8 @@ private:
 
     std::array<SongData, NUM_SONGS> song_data;
 
-    void load_prev_song()
-    {
-        if (song_index == 0) {
-            return;
-        }
-        song_index--;
-        load(song_data[song_index]);
-    }
-    void load_next_song()
-    {
-        if (song_index + 1 == NUM_SONGS) {
-            return;
-        }
-        song_index++;
-        load(song_data[song_index]);
-    }
+    void load_prev_song();
+    void load_next_song();
 
     static bool is_ch(size_t index) { return 1 <= index && index <= NUM_CHANNELS; }
     static uint16_t to_ch(size_t index) { return index - 1; }
@@ -120,52 +42,257 @@ private:
     void select_prev_v_index() { v_index = (v_index == 0 ? 0 : v_index - 1); }
     void select_next_v_index() { v_index = (v_index + 1 == max_v_index ? v_index : v_index + 1); }
 
-    void playpause()
+    void playpause();
+    void record();
+};
+
+template <size_t MAX, typename T = uint16_t>
+struct clamped_int {
+    using type = T;
+    T data;
+
+    template <typename U>
+    clamped_int(U x = 0) : data{static_cast<T>(x)}
     {
-        // TODO: toggle playing/pausing of current song
     }
 
-    void clear()
+    constexpr T& operator++() { return data = (data + 1 == MAX ? data : data + 1); }
+    constexpr T operator++(int)
     {
-        // TODO
+        T tmp = data;
+        ++(*this);
+        return tmp;
     }
+    constexpr T& operator--() { return data = (data == 0 ? data : data - 1); }
+    constexpr T operator--(int)
+    {
+        T tmp = data;
+        --(*this);
+        return tmp;
+    }
+    constexpr T& operator()() { return data; }
+};
+
+#define clamped_int_bin_op(OP)                           \
+    template <size_t N, typename T, typename U>          \
+    constexpr bool operator OP(clamped_int<N, T> a, U b) \
+    {                                                    \
+        return a.data OP b;                              \
+    }
+
+clamped_int_bin_op(==) clamped_int_bin_op(!=) clamped_int_bin_op(<) clamped_int_bin_op(<=) clamped_int_bin_op(>)
+    clamped_int_bin_op(>=)
+
+        class HomePage
+{
+public:
+    HomePage() {}
+
+    bool on_w() { return false; }
+    bool on_a() { return false; }
+    bool on_s() { return false; }
+    bool on_d() { return false; }
+    bool on_f1() { return false; }
+    bool on_f2() { return false; }
+
+    void draw(const urect& bounds)
+    {
+        extern LCD_ lcd;
+        lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + 0, "Home");
+        lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + 1, "Song Menu");
+        lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + 2, "Settings Menu");
+    }
+    void update(const urect& bounds)
+    {
+        extern LCD_ lcd;
+        if (prev_index != index.data) {
+            prev_index = index.data;
+            with_bg_if(index == 1, BLUE)
+            {
+                lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + 1, "Song Menu");
+            }
+            with_bg_if(index == 2, BLUE)
+            {
+                lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + 2, "Settings Menu");
+            }
+        }
+    }
+
+private:
+    clamped_int<3> index             = 0;
+    decltype(index)::type prev_index = 0;
+};
+
+class SettingsPage
+{
+public:
+    enum Selection { DEFAULT, VOLUME, TRANSPOSE, NUM_SELECTION };
+
+    bool on_w()
+    {
+        if (select_index > 0) {
+            select_index -= 1;
+            return true;
+        }
+        return false;
+    }
+
+    bool on_s()
+    {
+        if (select_index + 1 < max_index) {
+            select_index += 1;
+            return true;
+        }
+        return false;
+    }
+
+    bool on_a()
+    {
+        switch (select_index) {
+            case VOLUME: return truef(volume.down());
+            case TRANSPOSE: return truef(transpose.down());
+            default: return false;
+        }
+    }
+
+    bool on_d()
+    {
+        switch (select_index) {
+            case VOLUME: return truef(volume.up());
+            case TRANSPOSE: return truef(transpose.up());
+            default: return false;
+        }
+    }
+
+    bool on_f1() { return false; }
+    bool on_f2() { return false; }
+
+    void draw(const urect& bounds)
+    {
+        extern LCD_ lcd;
+
+        size_t col2 = bounds.x / CHAR_WIDTH + CHAR_WIDTH * 12;
+        size_t w2   = bounds.w - bounds.x / CHAR_WIDTH;
+        size_t y    = bounds.y;
+
+        with_fg_if(select_index == DEFAULT, BLUE)
+        {
+            lcd.draw_string(bounds.x / CHAR_WIDTH, y / CHAR_HEIGHT, "Settings");
+        }
+
+        y += CHAR_HEIGHT;
+        with_bg_if(select_index == VOLUME, BLUE) { lcd.draw_string(bounds.x / CHAR_WIDTH, y / CHAR_HEIGHT, "Volume:"); }
+        with_fg_if(select_index == VOLUME, BLUE) { volume.draw(urect(col2, y + 4, w2, CHAR_HEIGHT)); }
+
+        y += CHAR_HEIGHT;
+        with_bg_if(select_index == TRANSPOSE, BLUE, DARKGREY)
+        {
+            lcd.draw_string(bounds.x / CHAR_WIDTH, y / CHAR_HEIGHT, "Transpose:");
+        }
+        with_fg_if(select_index == TRANSPOSE, BLUE, DARKGREY) { transpose.draw(urect(col2, y + 4, w2, CHAR_HEIGHT)); }
+    }
+
+    void update(const urect& bounds)
+    {
+        if (prev_select_index != select_index) {
+            prev_select_index = select_index;
+            draw(bounds);
+        }
+    }
+
+private:
+    uint8_t select_index = 0;
+    uint8_t max_index    = NUM_SELECTION;
+
+    SliderWidget volume;
+    SliderWidget transpose;
+
+    uint8_t prev_select_index = 0;
 };
 
 
 class MenuController
 {
 public:
-    MenuController(std::array<SongData, NUM_SONGS>& data) : song_menu{data} {}
+    MenuController(std::array<SongData, NUM_SONGS>& data) : song_page{data} {}
 
-    void draw(const urect& bounds) { song_menu.draw(urect(bounds.x, bounds.y, bounds.w, bounds.h)); }
+    void draw(const urect& bounds)
+    {
+        switch (page) {
+            case PageName::HOME: draw_delegate(home_page); break;
+            case PageName::SONG: draw_delegate(song_page); break;
+            case PageName::SETTING: draw_delegate(settings_page); break;
+            default: break;
+        }
+    }
 
-    void update(const urect& bounds) { song_menu.update(urect(bounds.x, bounds.y, bounds.w, bounds.h)); }
+    // void update(const urect& bounds) { song_page.update(urect(bounds.x, bounds.y, bounds.w, bounds.h)); }
 
     void loop()
     {
+        switch (page) {
+            case PageName::HOME:
+                callback_delegate(home_page);
+                update_delegate(home_page);
+                break;
+            case PageName::SONG:
+                callback_delegate(song_page);
+                update_delegate(song_page);
+                break;
+            case PageName::SETTING:
+                callback_delegate(settings_page);
+                update_delegate(settings_page);
+                break;
+            default: break;
+        }
+    }
+
+    void go_to_page(PageName page)
+    {
+        extern LCD_ lcd;
+        this->page = page;
+        lcd.clear();
+    }
+
+    template <typename T>
+    void draw_delegate(T& page)
+    {
+        page.draw({0, 0, LCD_WIDTH, LCD_HEIGHT});
+    }
+
+    template <typename T>
+    void update_delegate(T& page)
+    {
+        page.update({0, 0, LCD_WIDTH, LCD_HEIGHT});
+    }
+
+    template <typename T>
+    void callback_delegate(T& page)
+    {
         if (buttons::is_btn_just_pressed(BTN_Bottom)) {
-            song_menu.on_f2();
+            page.on_f2();
         }
         if (buttons::is_btn_just_pressed(BTN_Up)) {
-            song_menu.on_f1();
+            page.on_f1();
         }
         if (buttons::is_btn_just_pressed(BTN_W)) {
-            song_menu.on_w();
+            page.on_w() || truef(go_to_page(PageName::HOME));
         }
         if (buttons::is_btn_just_pressed(BTN_A)) {
-            song_menu.on_a();
+            page.on_a();
         }
         if (buttons::is_btn_just_pressed(BTN_S)) {
-            song_menu.on_s();
+            page.on_s();
         }
         if (buttons::is_btn_just_pressed(BTN_D)) {
-            song_menu.on_d();
+            page.on_d();
         }
-
-        update({0, 0, 300, 200});
     }
 
 private:
-    SongMenu song_menu;
-    // SettingsMenu settings_menu;
+    PageName page;
+
+    HomePage home_page;
+    SongPage song_page;
+    SettingsPage settings_page;
 };

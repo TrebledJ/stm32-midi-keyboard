@@ -22,13 +22,12 @@ enum Instrument {
     PIANO,
 };
 
-enum PageName {
+enum class PageName {
     HOME,
     SONG,
-    CHANNEL,
-    EXPORT,
+    // EXPORT,
     SETTING,
-    EFFECTS,
+    // EFFECTS,
 };
 
 enum Effect {

@@ -35,9 +35,8 @@ struct scoped_foreground {
 
 #define with_fg_if(...) GET_MACRO3(__VA_ARGS__, with_fg_if3, with_fg_if2)(__VA_ARGS__)
 
-#define with_fg_if2(COND, THEN_COLOR)                                                                                  \
-    if ([[maybe_unused]] auto _tmp = scoped_foreground(lcd, (COND) ? THEN_COLOR : LCD_::default_palette.foreground()); \
-        true)
+#define with_fg_if2(COND, THEN_COLOR) \
+    if ([[maybe_unused]] auto _tmp = scoped_foreground((COND) ? THEN_COLOR : LCD_::default_palette.foreground()); true)
 
 #define with_fg_if3(COND, THEN_COLOR, ELSE_COLOR) \
     if ([[maybe_unused]] auto _tmp = scoped_foreground((COND) ? THEN_COLOR : ELSE_COLOR); true)
