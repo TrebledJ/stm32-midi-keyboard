@@ -1,7 +1,7 @@
 #include "app.hpp"
 #include "buttons.hpp"
 #include "defines.hpp"
-#include "display.hpp"
+#include "display/menu.hpp"
 #include "lcd/lcd.hpp"
 #include "metronome.hpp"
 #include "profile.hpp"
