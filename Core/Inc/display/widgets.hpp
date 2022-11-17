@@ -18,7 +18,6 @@ public:
     {
         extern LCD_ lcd;
         lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT, "%-10s", options[curr].data());
-        lcd.draw_stringf(0, 15, "%d %d", curr, max);
     }
 
     void update(const urect& bounds)

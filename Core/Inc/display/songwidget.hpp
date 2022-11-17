@@ -111,7 +111,6 @@ public:
                 instrument.draw(urect(bounds.x + restw, bounds.y, restw - 10, bounds.h));
             }
 
-            lcd.draw_stringf(0, 14, "ch index: %d", select_index);
         } else {
             with_fg_if(select_index == VOLUME, BLUE, DARKGREY)
             {

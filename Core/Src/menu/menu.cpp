@@ -1,5 +1,35 @@
 #include "display/menu.hpp"
 
+//////////////////////////
+// ----- HomePage ----- //
+//////////////////////////
+
+void HomePage::draw(const urect& bounds)
+{
+    extern LCD_ lcd;
+    lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + 0, "Home");
+    lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + 1, "Song Menu");
+    lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + 2, "Settings Menu");
+}
+void HomePage::update(const urect& bounds)
+{
+    extern LCD_ lcd;
+    if (prev_index != index.data) {
+        prev_index = index.data;
+        with_bg_if(index == 1, BLUE)
+        {
+            lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + 1, "Song Menu");
+        }
+        with_bg_if(index == 2, BLUE)
+        {
+            lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + 2, "Settings Menu");
+        }
+    }
+}
+
+//////////////////////////
+// ----- SongPage ----- //
+//////////////////////////
 
 void SongPage::load(SongData& data)
 {
@@ -32,8 +62,6 @@ void SongPage::draw(const urect& bounds)
 void SongPage::update(const urect& bounds)
 {
     extern LCD_ lcd;
-    lcd.draw_stringf(0, 12, "song index: %d", song_index);
-    lcd.draw_stringf(0, 13, "select index: %d", v_index);
 
     if (prev_song_index != song_index) {
         prev_song_index = song_index;
@@ -43,8 +71,6 @@ void SongPage::update(const urect& bounds)
     size_t ch_y = bounds.y + CHAR_HEIGHT;
 
     if (prev_v_index != v_index) {
-        lcd.draw_stringf(0, 14, "prev index: %d  ", prev_v_index);
-
         with_bg_if(v_index == 0, BLUE)
         {
             lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT, "Song %d", song_index + 1);
@@ -87,5 +113,151 @@ void SongPage::load_next_song()
     load(song_data[song_index]);
 }
 
-void SongPage::playpause() {}
-void SongPage::record() {}
+void SongPage::playpause()
+{
+    // TODO
+}
+void SongPage::record()
+{
+    // TODO
+}
+
+////////////////////////////////
+// ----- SettingsPage ----- //
+////////////////////////////////
+
+SettingsPage::SettingsPage()
+{
+    volume.set_value(50);
+    volume.set_inc(10);
+    volume.set_range(0, 100);
+    transpose.set_value(0);
+    transpose.set_range(-12, 12);
+}
+
+bool SettingsPage::on_w()
+{
+    if (select_index > 0) {
+        select_index -= 1;
+        return true;
+    }
+    return false;
+}
+
+bool SettingsPage::on_s()
+{
+    if (select_index + 1 < max_index) {
+        select_index += 1;
+        return true;
+    }
+    return false;
+}
+
+bool SettingsPage::on_a()
+{
+    switch (select_index) {
+        case VOLUME: return truef(volume.down());
+        case TRANSPOSE: return truef(transpose.down());
+        default: return false;
+    }
+}
+
+bool SettingsPage::on_d()
+{
+    switch (select_index) {
+        case VOLUME: return truef(volume.up());
+        case TRANSPOSE: return truef(transpose.up());
+        default: return false;
+    }
+}
+
+void SettingsPage::draw(const urect& bounds)
+{
+    extern LCD_ lcd;
+
+    size_t col2 = bounds.x + CHAR_WIDTH * 12;
+    size_t w2   = (bounds.w - CHAR_WIDTH * 12) * 3 / 5;
+    size_t y    = bounds.y;
+
+    with_bg_if(select_index == DEFAULT, BLUE) { lcd.draw_string(bounds.x / CHAR_WIDTH, y / CHAR_HEIGHT, "Settings"); }
+
+    y += CHAR_HEIGHT;
+    with_bg_if(select_index == VOLUME, BLUE) { lcd.draw_string(bounds.x / CHAR_WIDTH, y / CHAR_HEIGHT, "Volume:"); }
+    with_fg_if(select_index == VOLUME, BLUE, DARKGREY) { volume.draw(urect(col2, y + 4, w2, CHAR_HEIGHT - 8)); }
+
+    y += CHAR_HEIGHT;
+    with_bg_if(select_index == TRANSPOSE, BLUE)
+    {
+        lcd.draw_string(bounds.x / CHAR_WIDTH, y / CHAR_HEIGHT, "Transpose:");
+    }
+    with_fg_if(select_index == TRANSPOSE, BLUE, DARKGREY) { transpose.draw(urect(col2, y + 4, w2, CHAR_HEIGHT - 8)); }
+}
+
+void SettingsPage::update(const urect& bounds)
+{
+    if (prev_select_index != select_index) {
+        prev_select_index = select_index;
+        draw(bounds);
+    } else {
+        extern LCD_ lcd;
+        size_t col2 = bounds.x + CHAR_WIDTH * 12;
+        size_t w2   = (bounds.w - CHAR_WIDTH * 12) * 3 / 5;
+        size_t y    = bounds.y;
+        y += CHAR_HEIGHT;
+        with_fg_if(select_index == VOLUME, BLUE, DARKGREY) { volume.update(urect(col2, y + 4, w2, CHAR_HEIGHT - 8)); }
+        y += CHAR_HEIGHT;
+        with_fg_if(select_index == TRANSPOSE, BLUE, DARKGREY)
+        {
+            transpose.update(urect(col2, y + 4, w2, CHAR_HEIGHT - 8));
+        }
+    }
+}
+
+
+////////////////////////////////
+// ----- MenuController ----- //
+////////////////////////////////
+
+void MenuController::draw()
+{
+    switch (page) {
+        case PageName::HOME: draw_delegate(home_page); break;
+        case PageName::SONG: draw_delegate(song_page); break;
+        case PageName::SETTING: draw_delegate(settings_page); break;
+        default: break;
+    }
+}
+
+void MenuController::loop()
+{
+    switch (page) {
+        case PageName::HOME:
+            callback_delegate(home_page);
+            update_delegate(home_page);
+            break;
+        case PageName::SONG:
+            callback_delegate(song_page);
+            update_delegate(song_page);
+            break;
+        case PageName::SETTING:
+            callback_delegate(settings_page);
+            update_delegate(settings_page);
+            break;
+        default: break;
+    }
+}
+
+void MenuController::go_to_page(PageName page)
+{
+    extern LCD_ lcd;
+    if (this->page != page) {
+        this->page = page;
+        lcd.clear();
+        draw();
+        switch (page) {
+            case PageName::HOME: home_page.reset_selection(); break;
+            case PageName::SETTING: settings_page.reset_selection(); break;
+            default: break;
+        }
+    }
+}
