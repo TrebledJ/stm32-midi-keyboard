@@ -136,65 +136,49 @@ inline constexpr int NUM_CHANNELS              = 4;
         true;        \
     })
 
-// template <typename M>
-// concept Menu = requires(M menu)
-// {
-//     menu.on_function1();
-//     menu.on_function2();
-//     menu.on_w();
-//     menu.on_a();
-//     menu.on_s();
-//     menu.on_d();
-//     // menu.set_area();
-// };
+#define GET_MACRO3(_1, _2, _3, NAME, ...) NAME
 
-class ButtonEvent
-{
-public:
-    enum Event { PRESSED, RELEASED, HELD };
 
-    ButtonEvent(Event event) : m_event{event} {}
-
-    Event event() const { return m_event; }
-
-    // Test whether the event is still active (unhandled).
-    // bool operator()() const { return !m_handled; }
-
-    // void finish() { m_handled = true; }
-
-private:
-    Event m_event;
-    // bool m_handled = false;
+struct scoped_foreground {
+    LCD_& lcd;
+    color_t after;
+    scoped_foreground(LCD_& lcd, color_t c1) : lcd{lcd}, after{lcd.default_palette.foreground()}
+    {
+        lcd.palette.foreground(c1);
+    }
+    scoped_foreground(LCD_& lcd, color_t c1, color_t c2) : lcd{lcd}, after{c2} { lcd.palette.foreground(c1); }
+    ~scoped_foreground() { lcd.palette.foreground(after); }
 };
 
-// template <typename W>
-// concept Widget = requires(W widget, Menu& menu, uint32_t u32)
-// {
-//     W(menu);
-//     // widget.clear();
-//     widget.draw(urect(32, u3));
-//     // {
-//     //     widget.btn_ctrl()
-//     //     } -> btn_ctrl_t;
-//     {
-//         widget.on_function1()
-//         } -> std::same_as<bool>;
-//     {
-//         widget.on_function2()
-//         } -> std::same_as<bool>;
-//     {
-//         widget.on_w()
-//         } -> std::same_as<bool>;
-//     {
-//         widget.on_a()
-//         } -> std::same_as<bool>;
-//     {
-//         widget.on_s()
-//         } -> std::same_as<bool>;
-//     {
-//         widget.on_d()
-//         } -> std::same_as<bool>;
-// };
+#define with_fg_if(...) GET_MACRO3(__VA_ARGS__, with_fg_if3, with_fg_if2)(__VA_ARGS__)
+
+#define with_fg_if2(COND, THEN_COLOR)                                                                  \
+    if ([[maybe_unused]] auto _tmp =                                                                   \
+            scoped_foreground(lcd, (COND) ? THEN_COLOR : decltype(lcd)::default_palette.foreground()); \
+        true)
+
+#define with_fg_if3(COND, THEN_COLOR, ELSE_COLOR) \
+    if ([[maybe_unused]] auto _tmp = scoped_foreground(lcd, (COND) ? THEN_COLOR : ELSE_COLOR); true)
+
+struct scoped_background {
+    LCD_& lcd;
+    color_t after;
+    scoped_background(LCD_& lcd, color_t c1) : lcd{lcd}, after{lcd.default_palette.background()}
+    {
+        lcd.palette.background(c1);
+    }
+    scoped_background(LCD_& lcd, color_t c1, color_t c2) : lcd{lcd}, after{c2} { lcd.palette.background(c1); }
+    ~scoped_background() { lcd.palette.background(after); }
+};
+
+#define with_bg_if(...) GET_MACRO3(__VA_ARGS__, with_bg_if3, with_bg_if2)(__VA_ARGS__)
+
+#define with_bg(COLOR) if ([[maybe_unused]] auto _tmp = scoped_background(lcd, (COLOR)); true)
+
+#define with_bg_if2(COND, THEN_COLOR) with_bg((COND) ? THEN_COLOR : decltype(lcd)::default_palette.background())
+
+#define with_bg_if3(COND, THEN_COLOR, ELSE_COLOR) with_bg((COND) ? THEN_COLOR : ELSE_COLOR)
+
 
 class ComboSelectWidget
 {
@@ -207,7 +191,6 @@ public:
 
     void draw(const urect& bounds)
     {
-        // TODO: display curr selected option
         lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT, "%-10s", options[curr]);
         lcd.draw_stringf(0, 15, "%d %d", curr, max);
     }
@@ -240,7 +223,6 @@ public:
 
     void draw(const urect& bounds)
     {
-        // TODO
         state ? lcd.draw_rect(bounds.x + 1, bounds.y + 1, bounds.w - 2, bounds.h - 2, GREEN)
               : lcd.draw_rect(bounds.x + 1, bounds.y + 1, bounds.w - 2, bounds.h - 2, RED);
     }
@@ -248,8 +230,8 @@ public:
     void update(const urect& bounds)
     {
         if (prev_state != state) {
-            draw(bounds);
             prev_state = state;
+            draw(bounds);
         }
     }
 };
@@ -289,9 +271,8 @@ public:
     void update(const urect& bounds)
     {
         if (prev_value != value) {
-            // TODO: update.
-            draw(bounds);
             prev_value = value;
+            draw(bounds);
         }
     }
 
@@ -358,9 +339,7 @@ public:
     bool on_w()
     {
         switch (select_index) {
-            case VOLUME:
-                // TODO: handle volume control
-                return truef(volume.up());
+            case VOLUME: return truef(volume.up());
             case INSTRUMENT: return truef(instrument.select_prev());
             default: return false;
         }
@@ -369,9 +348,7 @@ public:
     bool on_s()
     {
         switch (select_index) {
-            case VOLUME:
-                // TODO: handle volume control
-                return truef(volume.down());
+            case VOLUME: return truef(volume.down());
             case INSTRUMENT: return truef(instrument.select_next());
             default: return false;
         }
@@ -403,9 +380,10 @@ public:
         uint16_t togglesz = bounds.h;
         uint16_t restw    = (bounds.w - 2 * togglesz) / 2;
 
-        lcd.palette.foreground(select_index == VOLUME ? BLUE : DARKGREY);
-        volume.draw(urect(bounds.x, bounds.y + 4, restw - 20, bounds.h - 10));
-        lcd.palette.foreground(WHITE);
+        with_fg_if(select_index == VOLUME, BLUE, DARKGREY)
+        {
+            volume.draw(urect(bounds.x, bounds.y + 4, restw - 20, bounds.h - 10));
+        }
 
         instrument.draw(urect(bounds.x + restw, bounds.y, restw - 10, bounds.h));
         mute.draw(urect(bounds.x + restw * 2, bounds.y, togglesz, togglesz));
@@ -417,28 +395,29 @@ public:
         uint16_t togglesz = bounds.h;
         uint16_t restw    = (bounds.w - 2 * togglesz) / 2;
         if (prev_index != select_index) {
-            // draw(bounds);
-            // prev_index = index;
+            prev_index = select_index;
 
-            lcd.palette.foreground(select_index == VOLUME ? BLUE : DARKGREY);
-            volume.draw(urect(bounds.x, bounds.y + 4, restw - 20, bounds.h - 10));
-            lcd.palette.foreground(WHITE);
+            with_fg_if(select_index == VOLUME, BLUE, DARKGREY)
+            {
+                volume.draw(urect(bounds.x, bounds.y + 4, restw - 20, bounds.h - 10));
+            }
 
-            lcd.palette.background(select_index == INSTRUMENT ? BLUE : BLACK);
-            instrument.draw(urect(bounds.x + restw, bounds.y, restw - 10, bounds.h));
-            lcd.palette.background(BLACK);
+            with_bg_if(select_index == INSTRUMENT, BLUE)
+            {
+                instrument.draw(urect(bounds.x + restw, bounds.y, restw - 10, bounds.h));
+            }
 
             lcd.draw_stringf(0, 14, "ch index: %d", select_index);
-
-            prev_index = select_index;
         } else {
-            lcd.palette.foreground(select_index == VOLUME ? BLUE : DARKGREY);
-            volume.update(urect(bounds.x, bounds.y + 4, restw - 20, bounds.h - 10));
-            lcd.palette.foreground(WHITE);
+            with_fg_if(select_index == VOLUME, BLUE, DARKGREY)
+            {
+                volume.update(urect(bounds.x, bounds.y + 4, restw - 20, bounds.h - 10));
+            }
 
-            lcd.palette.background(select_index == INSTRUMENT ? BLUE : BLACK);
-            instrument.update(urect(bounds.x + restw, bounds.y, restw - 10, bounds.h));
-            lcd.palette.background(BLACK);
+            with_bg_if(select_index == INSTRUMENT, BLUE)
+            {
+                instrument.update(urect(bounds.x + restw, bounds.y, restw - 10, bounds.h));
+            }
         }
         mute.update(urect(bounds.x + restw * 2, bounds.y, togglesz, togglesz));
         solo.update(urect(bounds.x + restw * 2 + togglesz, bounds.y, togglesz, togglesz));
@@ -474,11 +453,8 @@ public:
     void draw(const urect& bounds)
     {
         for (int i = 0; i < NUM_CHANNELS; i++) {
-            if (is_ch(index) && i == to_ch(index)) {
-                lcd.palette.background(BLUE);
-                lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + i, "Channel %d:", i + 1);
-                lcd.palette.background(BLACK);
-            } else {
+            with_bg_if(is_ch(index) && i == to_ch(index), BLUE)
+            {
                 lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + i, "Channel %d:", i + 1);
             }
             channel[i].draw(
@@ -489,32 +465,29 @@ public:
     void update(const urect& bounds)
     {
         lcd.draw_stringf(0, 13, "select index: %d", index);
-        if (index != prev_index) {
-            // Draw and update.
-            // draw(x, y);
+        if (prev_index != index) {
+            prev_index = index;
 
             if (is_ch(prev_index)) {
+                // Deselect previous index.
                 lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + to_ch(prev_index),
                                  "Channel %d:", to_ch(prev_index) + 1);
             }
             if (is_ch(index)) {
-                lcd.palette.background(BLUE);
-                lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + to_ch(index),
-                                 "Channel %d:", to_ch(index) + 1);
-                lcd.palette.background(BLACK);
+                // Select current index.
+                with_bg(BLUE)
+                {
+                    lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + to_ch(index),
+                                     "Channel %d:", to_ch(index) + 1);
+                }
             }
-
-            // ch[prev_index].draw(urect(, y + 20 * prev_inde));
-            prev_index = index;
-            // lcd.palette.background(BLUE);
-            // ch[index].draw(urect(, y + 20 * inde));
-            // lcd.palette.background(BLACK);
         }
         if (is_ch(index)) {
-            lcd.palette.background(channel[to_ch(index)].selection() == ChannelWidget::DEFAULT ? BLUE : BLACK);
-            lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + to_ch(index),
-                             "Channel %d:", to_ch(index) + 1);
-            lcd.palette.background(BLACK);
+            with_bg_if(channel[to_ch(index)].selection() == ChannelWidget::DEFAULT, BLUE)
+            {
+                lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + to_ch(index),
+                                 "Channel %d:", to_ch(index) + 1);
+            }
 
             channel[to_ch(index)].update(urect(bounds.x + CHAR_WIDTH * 12, bounds.y + CHAR_HEIGHT * to_ch(index),
                                                bounds.w - CHAR_WIDTH * 12, CHAR_HEIGHT));
@@ -583,7 +556,6 @@ private:
 
     void load_prev_song()
     {
-        // TODO
         if (song_index == 0) {
             return;
         }
@@ -592,7 +564,6 @@ private:
     }
     void load_next_song()
     {
-        // TODO
         if (song_index + 1 == NUM_SONGS) {
             return;
         }

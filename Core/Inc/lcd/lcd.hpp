@@ -20,10 +20,13 @@ template <Orientation ORIENTATION = LCD_ORIENTATION>
 class LCD
 {
 public:
-    Palette palette = Palette().background(BLACK).foreground(WHITE).special(CYAN);
+    static constexpr Palette default_palette =
+        Palette().background(BLACK).foreground(WHITE).special(CYAN).highlight(YELLOW);
+    Palette palette;
 
     LCD(SPI_HandleTypeDef* spi) : spi{spi}
     {
+        palette     = default_palette;
         curr_buffer = buffer[0].data();
         next_buffer = buffer[1].data();
     }
@@ -75,3 +78,5 @@ private:
 
     void buf_color(color_t color, size_t n);
 };
+
+using LCD_ = LCD<>;
