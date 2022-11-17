@@ -147,6 +147,17 @@ class SettingsPage
 public:
     enum Selection { DEFAULT, VOLUME, TRANSPOSE, NUM_SELECTION };
 
+    SettingsPage()
+    {
+        volume.set_value(50);
+        volume.set_inc(10);
+        volume.set_range(0, 100);
+        transpose.set_value(0);
+        transpose.set_range(-12, 12);
+    }
+
+    void reset_selection() { select_index = 0; }
+
     bool on_w()
     {
         if (select_index > 0) {
@@ -190,25 +201,28 @@ public:
     {
         extern LCD_ lcd;
 
-        size_t col2 = bounds.x / CHAR_WIDTH + CHAR_WIDTH * 12;
-        size_t w2   = bounds.w - bounds.x / CHAR_WIDTH;
+        size_t col2 = bounds.x + CHAR_WIDTH * 12;
+        size_t w2   = (bounds.w - CHAR_WIDTH * 12) * 3 / 5;
         size_t y    = bounds.y;
 
-        with_fg_if(select_index == DEFAULT, BLUE)
+        with_bg_if(select_index == DEFAULT, BLUE)
         {
             lcd.draw_string(bounds.x / CHAR_WIDTH, y / CHAR_HEIGHT, "Settings");
         }
 
         y += CHAR_HEIGHT;
         with_bg_if(select_index == VOLUME, BLUE) { lcd.draw_string(bounds.x / CHAR_WIDTH, y / CHAR_HEIGHT, "Volume:"); }
-        with_fg_if(select_index == VOLUME, BLUE) { volume.draw(urect(col2, y + 4, w2, CHAR_HEIGHT)); }
+        with_fg_if(select_index == VOLUME, BLUE, DARKGREY) { volume.draw(urect(col2, y + 4, w2, CHAR_HEIGHT - 8)); }
 
         y += CHAR_HEIGHT;
-        with_bg_if(select_index == TRANSPOSE, BLUE, DARKGREY)
+        with_bg_if(select_index == TRANSPOSE, BLUE)
         {
             lcd.draw_string(bounds.x / CHAR_WIDTH, y / CHAR_HEIGHT, "Transpose:");
         }
-        with_fg_if(select_index == TRANSPOSE, BLUE, DARKGREY) { transpose.draw(urect(col2, y + 4, w2, CHAR_HEIGHT)); }
+        with_fg_if(select_index == TRANSPOSE, BLUE, DARKGREY)
+        {
+            transpose.draw(urect(col2, y + 4, w2, CHAR_HEIGHT - 8));
+        }
     }
 
     void update(const urect& bounds)
@@ -216,11 +230,27 @@ public:
         if (prev_select_index != select_index) {
             prev_select_index = select_index;
             draw(bounds);
+        } else {
+            extern LCD_ lcd;
+            lcd.draw_stringf(15, 12, "%d %d %d %d   ", volume.prev_value, volume.value, volume.min, volume.max);
+            size_t col2 = bounds.x + CHAR_WIDTH * 12;
+            size_t w2   = (bounds.w - CHAR_WIDTH * 12) * 3 / 5;
+            size_t y    = bounds.y;
+            y += CHAR_HEIGHT;
+            with_fg_if(select_index == VOLUME, BLUE, DARKGREY)
+            {
+                volume.update(urect(col2, y + 4, w2, CHAR_HEIGHT - 8));
+            }
+            y += CHAR_HEIGHT;
+            with_fg_if(select_index == TRANSPOSE, BLUE, DARKGREY)
+            {
+                transpose.update(urect(col2, y + 4, w2, CHAR_HEIGHT - 8));
+            }
         }
     }
 
 private:
-    uint8_t select_index = 0;
+    uint8_t select_index = DEFAULT;
     uint8_t max_index    = NUM_SELECTION;
 
     SliderWidget volume;
@@ -273,8 +303,10 @@ public:
             this->page = page;
             lcd.clear();
             draw();
-            if (page == PageName::HOME) {
-                home_page.reset_selection();
+            switch (page) {
+                case PageName::HOME: home_page.reset_selection(); break;
+                case PageName::SETTING: settings_page.reset_selection(); break;
+                default: break;
             }
         }
     }

@@ -93,7 +93,7 @@ public:
     void draw(const urect& bounds)
     {
         extern LCD_ lcd;
-        float prog = 1.0 * value / (max - min);
+        float prog = 1.0 * (value - min) / (max - min);
         lcd.draw_rect(bounds.x, bounds.y, bounds.w * prog, bounds.h, lcd.palette.foreground());
         lcd.draw_rect(bounds.x + bounds.w * prog, bounds.y, bounds.w * (1 - prog), bounds.h, WHITE);
     }
@@ -106,10 +106,10 @@ public:
         }
     }
 
-private:
-    int32_t value;
+    // private:
+    int32_t value = 50;
     int32_t prev_value;
-    int32_t inc;
-    int32_t min;
-    int32_t max;
+    int32_t inc = 1;
+    int32_t min = 0;
+    int32_t max = 100;
 };
