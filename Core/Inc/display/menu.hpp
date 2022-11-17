@@ -9,7 +9,7 @@ class SongPage
 public:
     SongPage(std::array<SongData, NUM_SONGS>& data) : song_data{data} { load(data[0]); }
 
-    bool on_w() { return (is_ch(v_index) && channel[to_ch(v_index)].on_w()) || truef(select_prev_v_index()); }
+    bool on_w() { return (is_ch(v_index) && channel[to_ch(v_index)].on_w()) || select_prev_v_index(); }
     bool on_s() { return (is_ch(v_index) && channel[to_ch(v_index)].on_s()) || truef(select_next_v_index()); }
     bool on_a() { return (is_ch(v_index) && channel[to_ch(v_index)].on_a()) || truef(load_prev_song()); }
     bool on_d() { return (is_ch(v_index) && channel[to_ch(v_index)].on_d()) || truef(load_next_song()); }
@@ -25,7 +25,7 @@ private:
     uint8_t v_index    = 0; // 0: Default. 1-4: Channel.
 
     ChannelWidget channel[NUM_CHANNELS];
-    uint8_t max_v_index = 0;
+    uint8_t max_v_index = NUM_CHANNELS + 1;
 
     // Internal update state.
     uint8_t prev_song_index = 0;
@@ -39,8 +39,20 @@ private:
     static bool is_ch(size_t index) { return 1 <= index && index <= NUM_CHANNELS; }
     static uint16_t to_ch(size_t index) { return index - 1; }
 
-    void select_prev_v_index() { v_index = (v_index == 0 ? 0 : v_index - 1); }
-    void select_next_v_index() { v_index = (v_index + 1 == max_v_index ? v_index : v_index + 1); }
+    bool select_prev_v_index()
+    {
+        if (v_index == 0)
+            return false;
+        v_index--;
+        return true;
+    }
+    bool select_next_v_index()
+    {
+        if (v_index + 1 == max_v_index)
+            return false;
+        v_index++;
+        return true;
+    }
 
     void playpause();
     void record();
@@ -80,20 +92,27 @@ struct clamped_int {
         return a.data OP b;                              \
     }
 
-clamped_int_bin_op(==) clamped_int_bin_op(!=) clamped_int_bin_op(<) clamped_int_bin_op(<=) clamped_int_bin_op(>)
-    clamped_int_bin_op(>=)
+clamped_int_bin_op(==);
+clamped_int_bin_op(!=);
+clamped_int_bin_op(<);
+clamped_int_bin_op(<=);
+clamped_int_bin_op(>);
+clamped_int_bin_op(>=);
 
-        class HomePage
+class HomePage
 {
 public:
     HomePage() {}
 
-    bool on_w() { return false; }
+    bool on_w() { return truef(--index); }
+    bool on_s() { return truef(++index); }
     bool on_a() { return false; }
-    bool on_s() { return false; }
-    bool on_d() { return false; }
+    bool on_d() { return index != 0; }
     bool on_f1() { return false; }
     bool on_f2() { return false; }
+
+    void reset_selection() { index.data = 0; }
+    PageName selected_page() const { return static_cast<PageName>(index.data); }
 
     void draw(const urect& bounds)
     {
@@ -216,7 +235,7 @@ class MenuController
 public:
     MenuController(std::array<SongData, NUM_SONGS>& data) : song_page{data} {}
 
-    void draw(const urect& bounds)
+    void draw()
     {
         switch (page) {
             case PageName::HOME: draw_delegate(home_page); break;
@@ -226,7 +245,7 @@ public:
         }
     }
 
-    // void update(const urect& bounds) { song_page.update(urect(bounds.x, bounds.y, bounds.w, bounds.h)); }
+    // void update() { song_page.update(urect(bounds.x, bounds.y, bounds.w, bounds.h)); }
 
     void loop()
     {
@@ -250,8 +269,14 @@ public:
     void go_to_page(PageName page)
     {
         extern LCD_ lcd;
-        this->page = page;
-        lcd.clear();
+        if (this->page != page) {
+            this->page = page;
+            lcd.clear();
+            draw();
+            if (page == PageName::HOME) {
+                home_page.reset_selection();
+            }
+        }
     }
 
     template <typename T>
@@ -285,7 +310,7 @@ public:
             page.on_s();
         }
         if (buttons::is_btn_just_pressed(BTN_D)) {
-            page.on_d();
+            page.on_d() && this->page == PageName::HOME&& truef(go_to_page(home_page.selected_page()));
         }
     }
 

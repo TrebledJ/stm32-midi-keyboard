@@ -37,7 +37,7 @@ void app_init()
 
 void app_run()
 {
-    display.draw({0, 0, 300, 200});
+    display.draw();
     while (1) {
         speaker::loop();
         display.loop();
