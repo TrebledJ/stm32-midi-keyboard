@@ -1,6 +1,6 @@
 #include "lcd/lcd.hpp"
 #include "lcd/lcd_font.h"
-#include "utils/utils.hpp"
+#include "utils/shapes.hpp"
 
 #include <cstdio> // sprintf
 
@@ -63,6 +63,17 @@ void LCD<O>::ready_region(uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 }
 
 template <Orientation O>
+void LCD<O>::buf_color(color_t color, size_t n)
+{
+    for (size_t i = 0; n--; i += 3) {
+        curr_buffer[i + 0] = (color >> 16) & 0xFF;
+        curr_buffer[i + 1] = (color >> 8) & 0xFF;
+        curr_buffer[i + 2] = color & 0xFF;
+    }
+}
+
+
+template <Orientation O>
 void LCD<O>::clear()
 {
     draw_rect(0, 0, LCD_WIDTH, LCD_HEIGHT, palette.background());
@@ -75,6 +86,22 @@ void LCD<O>::draw_pixel(uint16_t x, uint16_t y, color_t color)
     write_data((color >> 16) & 0xFF);
     write_data((color >> 8) & 0xFF);
     write_data(color & 0xFF);
+}
+
+template <Orientation O>
+void LCD<O>::draw_hline(uint16_t x0, uint16_t y0, uint16_t x1, color_t color)
+{
+    buf_color(color, x1 - x0);
+    draw_image(x0, y0, x1 - x0, 1, curr_buffer);
+    swap_buffer();
+}
+
+template <Orientation O>
+void LCD<O>::draw_vline(uint16_t x0, uint16_t y0, uint16_t y1, color_t color)
+{
+    buf_color(color, y1 - y0);
+    draw_image(x0, y0, 1, y1 - y0, curr_buffer);
+    swap_buffer();
 }
 
 template <Orientation O>
@@ -96,7 +123,7 @@ void LCD<O>::draw_rect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, color_t c
     }
 
     spi_wait_busy(spi);
-    ready_region(x, y, w, h);
+    ready_region(x, y, w - 1, h - 1);
 
     do {
         uint32_t send_size = std::min(nbytes, bufbytes);
@@ -115,6 +142,7 @@ void LCD<O>::draw_image(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const ui
     HAL_SPI_Transmit_DMA(spi, const_cast<uint8_t*>(bytes), w * h * 3ul);
 }
 
+// TODO: non-"discrete" draw char variants
 
 template <Orientation O>
 void LCD<O>::draw_char(uint16_t x, uint16_t y, char c)
@@ -148,5 +176,25 @@ void LCD<O>::draw_string(uint16_t x, uint16_t y, const char* str)
         draw_char(x++, y, *str);
     }
 }
+
+// Forward declare without including cstdio header.
+extern "C" {
+#include <cstdarg>
+}
+
+
+template <Orientation O>
+void LCD<O>::draw_stringf(uint16_t x, uint16_t y, const char* fmt, ...)
+{
+    static char buffer[64];
+
+    va_list args;
+    va_start(args, fmt);
+    vsprintf(buffer, fmt, args);
+    va_end(args);
+
+    draw_string(x, y, buffer);
+}
+
 
 template class LCD<LCD_ORIENTATION>;

@@ -20,10 +20,13 @@ template <Orientation ORIENTATION = LCD_ORIENTATION>
 class LCD
 {
 public:
-    Palette palette = Palette().background(BLACK).foreground(WHITE).special(CYAN);
+    static constexpr Palette default_palette =
+        Palette().background(BLACK).foreground(WHITE).special(CYAN).highlight(YELLOW);
+    Palette palette;
 
     LCD(SPI_HandleTypeDef* spi) : spi{spi}
     {
+        palette     = default_palette;
         curr_buffer = buffer[0].data();
         next_buffer = buffer[1].data();
     }
@@ -37,13 +40,14 @@ public:
     void clear();
 
     void draw_pixel(uint16_t x, uint16_t y, color_t color);
+    void draw_hline(uint16_t x0, uint16_t y0, uint16_t x1, color_t color);
+    void draw_vline(uint16_t x0, uint16_t y0, uint16_t y1, color_t color);
     void draw_rect(uint16_t x, uint16_t y, uint16_t w, uint16_t h);
     void draw_rect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, color_t color);
     void draw_image(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint8_t* bytes);
     void draw_char(uint16_t x, uint16_t y, char c);
     void draw_string(uint16_t x, uint16_t y, const char* str);
-
-    void draw_string(uint16_t x, uint16_t y, const char* fmt, auto... args);
+    void draw_stringf(uint16_t x, uint16_t y, const char* fmt, ...) __attribute__((format(printf, 4, 5)));
 
 private:
     SPI_HandleTypeDef* spi;
@@ -71,19 +75,8 @@ private:
 
     void write_cmd(uint8_t cmd);
     void write_data(uint8_t data);
+
+    void buf_color(color_t color, size_t n);
 };
 
-
-// Forward declare without including cstdio header.
-extern "C" {
-int sprintf(char* str, const char* format, ...);
-}
-
-
-template <Orientation O>
-void LCD<O>::draw_string(uint16_t x, uint16_t y, const char* fmt, auto... args)
-{
-    static char buffer[64];
-    sprintf(buffer, fmt, args...);
-    draw_string(x, y, buffer);
-}
+using LCD_ = LCD<>;
