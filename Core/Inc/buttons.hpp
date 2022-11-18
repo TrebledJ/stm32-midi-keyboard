@@ -6,7 +6,7 @@ extern "C" {
 
 enum ButtonName {
     BTN_Bottom,
-    BTN_Up,
+    BTN_Top,
     BTN_D,
     BTN_W,
     BTN_A,
