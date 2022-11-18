@@ -693,7 +693,7 @@ static void FLASH_Program_HalfWord(uint32_t Address, uint16_t Data)
   * @param  Data specifies the data to be programmed.
   * @retval None
   */
-static void FLASH_Program_Byte(uint32_t Address, uint8_t Data)
+void FLASH_Program_Byte(uint32_t Address, uint8_t Data)
 {
   /* Check the parameters */
   assert_param(IS_FLASH_ADDRESS(Address));

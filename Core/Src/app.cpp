@@ -1,4 +1,5 @@
 #include "app.hpp"
+
 #include "buttons.hpp"
 #include "defines.hpp"
 #include "lcd/lcd.hpp"
@@ -9,6 +10,7 @@
 #include "waveform.hpp"
 
 extern "C" {
+#include "FLASH_SECTOR_F4.h"
 #include "main.h"
 }
 
@@ -19,6 +21,9 @@ extern UART_HandleTypeDef huart1;
 Metronome metronome{TIM3};
 LCD lcd{&hspi2};
 
+#define FLASH_ADDR_START 0x0800C000
+uint8_t aa[3]     = {69, 123, 5};
+uint8_t rx_buf[3] = {0};
 
 void app_init()
 {
@@ -26,17 +31,20 @@ void app_init()
     lcd.init();
     lcd.clear();
     speaker::init();
+    Flash_Write_Bytes(FLASH_ADDR_START, aa, 3);
 }
-
 void app_run()
 {
     while (1) {
         speaker::loop();
 
+        Flash_Read_Bytes(FLASH_ADDR_START, rx_buf, 3);
+        lcd.draw_string(0, 0, "%d %d %d", rx_buf[0], rx_buf[1], rx_buf[2]);
+
         // Print button states.
-        for (int i = 0; i < 8; i++)
-            for (int j = 0; j < 8; j++)
-                lcd.draw_string(0 + 3 * j, 3 + i, "%d", buttons::is_btn_pressed(static_cast<ButtonName>(i * 8 + j)));
+        // for (int i = 0; i < 8; i++)
+        //     for (int j = 0; j < 8; j++)
+        //         lcd.draw_string(0 + 3 * j, 3 + i, "%d", buttons::is_btn_pressed(static_cast<ButtonName>(i * 8 + j)));
 
         // Tick everything.
         metronome.tick();
