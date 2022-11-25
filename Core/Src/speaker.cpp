@@ -1,9 +1,8 @@
-#include "speaker.hpp"
-
 #include "buttons.hpp"
 #include "lcd/lcd.hpp"
 #include "leaf.hpp"
 #include "main.h"
+#include "speaker.hpp"
 #include "waveform.hpp"
 
 #define Note2MIDI(n)   n + 21
@@ -61,73 +60,42 @@ void speaker::init()
     speaker::play();
 }
 
-void speaker::loop()
+
+static int active_count           = 0;
+static uint8_t is_recording       = 0;
+static uint8_t is_playback        = 0;
+static uint32_t start_record_time = 0;
+static uint32_t start_play_time   = 0;
+static uint16_t midi_action_cnt   = 0;
+
+bool get_is_recording() { return is_recording; }
+
+bool get_is_playback() { return is_playback; }
+
+void btn_toggle_playback()
 {
-    // static int sound_mode = 0;
-    static int active_count           = 0;
-    static uint8_t toggle_record      = 0;
-    static uint8_t is_playback        = 0;
-    static uint32_t start_record_time = 0;
-    static uint32_t start_play_time   = 0;
-    static uint16_t midi_action_cnt   = 0;
-    // speaker::load(sine[sound_mode]);
-    // if (sound_mode == 0)
-    //     speaker::load(sine_ch[0]);
-    // else if (sound_mode == 1)
-    //     speaker::load(sine_ch[1]);
-    // else
-    //     speaker::load(sine_ch[0], sine_ch[1]);
-    if (buttons::is_btn_just_pressed(BTN_Top)) {
-        if (toggle_record % 2) {
-            is_playback     = 0;
-            midi_action_cnt = 0;
-            memset(midi_file, 0, sizeof(midi_file));
-            start_record_time = get_ticks();
-        }
-        toggle_record++;
+    start_play_time = get_ticks();
+    memset(active, 0, sizeof(active));
+    is_playback = !is_playback;
+    if (is_playback) {
+        is_recording = 0;
     }
-    if (buttons::is_btn_just_pressed(BTN_Bottom)) {
-        start_play_time = get_ticks();
-        memset(active, 0, sizeof(active));
-        is_playback = 1;
+}
+
+void btn_toggle_record()
+{
+    is_recording = !is_recording;
+    if (is_recording) {
+        is_playback     = 0;
+        midi_action_cnt = 0;
+        memset(midi_file, 0, sizeof(midi_file));
+        start_record_time = get_ticks();
     }
+}
 
-    // for (int i = 0; i < 29; i++)
-    //     lcd.draw_string(i, 0, "%d", active[i]);
-
-
-    // on key released
-    if (!is_playback) {
-        active_count = 0;
-        for (int i = 0; i < NUM_SINES; i += 2) {
-            active[i / 2] = buttons::is_btn_pressed((ButtonName)(i + BTN_1_U))
-                            || buttons::is_btn_pressed((ButtonName)(i + BTN_1_D));
-            if (active[i / 2]) { // press the button
-                active_count++;
-                if (!prev_active[i / 2]) { // just press the button
-                    midi_poly.noteOn(Note2MIDI(button2note(i / 2)), 90);
-                    if ((toggle_record % 2)) {
-                        note_on(&midi_file[midi_action_cnt], get_ticks() - start_record_time, 1,
-                                Note2MIDI(button2note(i / 2)));
-                        midi_action_cnt++;
-                    }
-                }
-            } else {
-                if (prev_active[i / 2]) { // just relase the button
-                    midi_poly.noteOff(Note2MIDI(button2note(i / 2)));
-
-                    if ((toggle_record % 2)) {
-                        note_off(&midi_file[midi_action_cnt], get_ticks() - start_record_time, 1,
-                                 Note2MIDI(button2note(i / 2)));
-                        midi_action_cnt++;
-                    }
-                }
-            }
-            prev_active[i / 2] = active[i / 2];
-        }
-        speaker::load(sine, active, active_count);
-        speaker::send();
-    } else {
+void playback_func()
+{
+    if (is_playback) {
         for (int i = 0; i < midi_action_cnt;) {
             speaker::load(sine, active, active_count);
             speaker::send();
@@ -142,10 +110,75 @@ void speaker::loop()
                 i++;
             }
 
-            lcd.draw_string(0, 1, "%d %d %d %d", active[0], active[1], active[2], active_count);
+            lcd.draw_stringf(0, 1, "%d %d %d %d", active[0], active[1], active[2], active_count);
         }
         is_playback = 0;
+    } else if (is_recording) {
+        active_count = 0;
+        for (int i = 0; i < NUM_SINES; i += 2) {
+            active[i / 2] = buttons::is_btn_pressed((ButtonName)(i + BTN_1_U))
+                            || buttons::is_btn_pressed((ButtonName)(i + BTN_1_D));
+            if (active[i / 2]) { // press the button
+                active_count++;
+                if (!prev_active[i / 2]) { // just press the button
+                    midi_poly.noteOn(Note2MIDI(button2note(i / 2)), 90);
+                    if (is_recording) {
+                        note_on(&midi_file[midi_action_cnt], get_ticks() - start_record_time, 1,
+                                Note2MIDI(button2note(i / 2)));
+                        midi_action_cnt++;
+                    }
+                }
+            } else {
+                if (prev_active[i / 2]) { // just relase the button
+                    midi_poly.noteOff(Note2MIDI(button2note(i / 2)));
+
+                    if (is_recording) {
+                        note_off(&midi_file[midi_action_cnt], get_ticks() - start_record_time, 1,
+                                 Note2MIDI(button2note(i / 2)));
+                        midi_action_cnt++;
+                    }
+                }
+            }
+            prev_active[i / 2] = active[i / 2];
+        }
+        speaker::load(sine, active, active_count);
+        speaker::send();
+    } else {
+        // speaker::load(sine, active, active_count);
+        // speaker::send();
     }
+}
+
+
+void speaker::loop()
+{
+    playback_func();
+    // // static int sound_mode = 0;
+
+    // // speaker::load(sine[sound_mode]);
+    // // if (sound_mode == 0)
+    // //     speaker::load(sine_ch[0]);
+    // // else if (sound_mode == 1)
+    // //     speaker::load(sine_ch[1]);
+    // // else
+    // //     speaker::load(sine_ch[0], sine_ch[1]);
+    // if (buttons::is_btn_just_pressed(BTN_Top)) {
+    //     if (toggle_record % 2) {
+    //         is_playback     = 0;
+    //         midi_action_cnt = 0;
+    //         memset(midi_file, 0, sizeof(midi_file));
+    //         start_record_time = get_ticks();
+    //     }
+    //     toggle_record++;
+    // }
+    // if (buttons::is_btn_just_pressed(BTN_Bottom)) {
+    //     start_play_time = get_ticks();
+    //     memset(active, 0, sizeof(active));
+    //     is_playback = 1;
+    // }
+
+    // for (int i = 0; i < 29; i++)
+    //     lcd.draw_string(i, 0, "%d", active[i]);
 
 
     // Testing Purposes: Check state for changing sound.

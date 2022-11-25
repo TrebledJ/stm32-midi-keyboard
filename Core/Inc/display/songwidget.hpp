@@ -95,7 +95,6 @@ public:
 
     void update(const urect& bounds)
     {
-        extern LCD_ lcd;
         uint16_t togglesz = bounds.h;
         uint16_t restw    = (bounds.w - 2 * togglesz) / 2;
         if (prev_index != select_index) {

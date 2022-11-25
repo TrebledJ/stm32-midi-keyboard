@@ -43,11 +43,9 @@ void app_run()
         display.loop();
         // display.tick();
         // display.update(0, 0);
-        // for (int i = 0; i < 8; i++)
-        //     for (int j = 0; j < 8; j++)
-        //         lcd.draw_string(0 + 3 * j, 3 + i, "%d%d",
-        //                                 buttons::is_btn_pressed(static_cast<ButtonName>(i * 8 + j)),
-        //                                 buttons::is_btn_just_pressed(static_cast<ButtonName>(i * 8 + j)));
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 8; j++)
+                lcd.draw_stringf(0 + 3 * j, 8 + i, "%d", buttons::is_btn_pressed(static_cast<ButtonName>(i * 8 + j)));
 
         // Tick everything.
         metronome.tick();

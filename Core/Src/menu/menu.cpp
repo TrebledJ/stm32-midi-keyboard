@@ -1,4 +1,5 @@
 #include "display/menu.hpp"
+#include "speaker.hpp"
 
 //////////////////////////
 // ----- HomePage ----- //
@@ -10,6 +11,8 @@ void HomePage::draw(const urect& bounds)
     lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + 0, "Home");
     lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + 1, "Song Menu");
     lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + 2, "Settings Menu");
+
+    lcd.draw_string(0, 18, "idle            ");
 }
 void HomePage::update(const urect& bounds)
 {
@@ -24,6 +27,17 @@ void HomePage::update(const urect& bounds)
         {
             lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + 2, "Settings Menu");
         }
+    }
+
+    bool get_is_recording();
+    bool get_is_playback();
+    size_t row = 18;
+    if (get_is_recording()) {
+        lcd.draw_string(0, row, "recording...    ");
+    } else if (get_is_playback()) {
+        lcd.draw_string(0, row, "playing...    ");
+    } else {
+        lcd.draw_string(0, row, "idle            ");
     }
 }
 

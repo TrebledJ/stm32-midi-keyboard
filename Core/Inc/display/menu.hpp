@@ -99,6 +99,9 @@ clamped_int_bin_op(<=);
 clamped_int_bin_op(>);
 clamped_int_bin_op(>=);
 
+void btn_toggle_playback();
+void btn_toggle_record();
+
 class HomePage
 {
 public:
@@ -108,8 +111,8 @@ public:
     bool on_s() { return truef(++index); }
     bool on_a() { return false; }
     bool on_d() { return index != 0; }
-    bool on_f1() { return false; }
-    bool on_f2() { return false; }
+    bool on_f1() { return truef(btn_toggle_playback()); }
+    bool on_f2() { return truef(btn_toggle_record()); }
 
     void reset_selection() { index.data = 0; }
     PageName selected_page() const { return static_cast<PageName>(index.data); }
@@ -198,7 +201,7 @@ void MenuController::callback_delegate(T& page)
     if (buttons::is_btn_just_pressed(BTN_Bottom)) {
         page.on_f2();
     }
-    if (buttons::is_btn_just_pressed(BTN_Up)) {
+    if (buttons::is_btn_just_pressed(BTN_Top)) {
         page.on_f1();
     }
     if (buttons::is_btn_just_pressed(BTN_W)) {

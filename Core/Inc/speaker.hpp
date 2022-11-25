@@ -14,7 +14,7 @@ class speaker
     static constexpr TIM_HandleTypeDef* timer = &htim8;
     static constexpr DAC_HandleTypeDef* dac   = &hdac;
 
-    static constexpr uint16_t amplitude = ((1 << 12) - 1) / 2;
+    static constexpr uint16_t amplitude = ((1 << 12) - 1) / 16;
     static constexpr size_t buffer_size = 1024;
 
     bool playing = false;
