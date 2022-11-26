@@ -84,6 +84,13 @@ struct clamped_int {
         return tmp;
     }
     constexpr T& operator()() { return data; }
+
+    constexpr clamped_int& operator=(int x)
+    {
+        data = x;
+        return *this;
+    }
+    operator int() { return data; }
 };
 
 #define clamped_int_bin_op(OP)                           \
@@ -112,7 +119,7 @@ public:
     bool on_f1() { return truef(kb::toggle_playback()); }
     bool on_f2() { return truef(kb::toggle_record()); }
 
-    void reset_selection() { index.data = 0; }
+    void reset_selection() { index = 0; }
     PageName selected_page() const { return static_cast<PageName>(index.data); }
 
     void draw(const urect& bounds);
