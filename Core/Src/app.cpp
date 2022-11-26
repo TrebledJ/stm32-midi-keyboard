@@ -8,6 +8,7 @@
 #include "speaker.hpp"
 #include "volume.hpp"
 extern "C" {
+#include "FLASH_SECTOR_F4.h"
 #include "main.h"
 }
 
@@ -22,8 +23,11 @@ std::array<SongData, NUM_SONGS> songs = {
 };
 
 MenuController display{songs};
-// extern
 LCD<> lcd{&hspi2};
+
+#define FLASH_ADDR_START 0x0800C000
+uint8_t aa[3]     = {69, 123, 5};
+uint8_t rx_buf[3] = {0};
 
 void app_init()
 {
@@ -32,8 +36,8 @@ void app_init()
     lcd.clear();
     // display.init();
     speaker::init();
+    Flash_Write_Bytes(FLASH_ADDR_START, aa, 3);
 }
-
 void app_run()
 {
     display.draw();
@@ -41,11 +45,14 @@ void app_run()
         kb::loop();
         speaker::loop();
         display.loop();
-        // display.tick();
-        // display.update(0, 0);
+
+        // Flash_Read_Bytes(FLASH_ADDR_START, rx_buf, 3);
+        // lcd.draw_stringf(0, 0, "%d %d %d", rx_buf[0], rx_buf[1], rx_buf[2]);
+
+        // Print button states.
         for (int i = 0; i < 8; i++)
             for (int j = 0; j < 8; j++)
-                lcd.draw_stringf(0 + 3 * j, 8 + i, "%d", buttons::is_btn_pressed(static_cast<ButtonName>(i * 8 + j)));
+                lcd.draw_stringf(0 + 3 * j, 3 + i, "%d", buttons::is_btn_pressed(static_cast<ButtonName>(i * 8 + j)));
 
         // Tick everything.
         metronome.tick();
