@@ -39,6 +39,7 @@ void app_run()
 {
     display.draw();
     while (1) {
+        kb::loop();
         speaker::loop();
         display.loop();
         // display.tick();

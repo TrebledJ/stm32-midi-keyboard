@@ -29,12 +29,10 @@ void HomePage::update(const urect& bounds)
         }
     }
 
-    bool get_is_recording();
-    bool get_is_playback();
     size_t row = 18;
-    if (get_is_recording()) {
+    if (kb::is_recording()) {
         lcd.draw_string(0, row, "recording...    ");
-    } else if (get_is_playback()) {
+    } else if (kb::is_playback()) {
         lcd.draw_string(0, row, "playing...    ");
     } else {
         lcd.draw_string(0, row, "idle            ");

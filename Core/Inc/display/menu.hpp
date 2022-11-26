@@ -2,6 +2,7 @@
 
 #include "buttons.hpp"
 #include "display/songwidget.hpp"
+#include "keyboard.hpp"
 
 
 class SongPage
@@ -99,9 +100,6 @@ clamped_int_bin_op(<=);
 clamped_int_bin_op(>);
 clamped_int_bin_op(>=);
 
-void btn_toggle_playback();
-void btn_toggle_record();
-
 class HomePage
 {
 public:
@@ -111,8 +109,8 @@ public:
     bool on_s() { return truef(++index); }
     bool on_a() { return false; }
     bool on_d() { return index != 0; }
-    bool on_f1() { return truef(btn_toggle_playback()); }
-    bool on_f2() { return truef(btn_toggle_record()); }
+    bool on_f1() { return truef(kb::toggle_playback()); }
+    bool on_f2() { return truef(kb::toggle_record()); }
 
     void reset_selection() { index.data = 0; }
     PageName selected_page() const { return static_cast<PageName>(index.data); }

@@ -71,6 +71,8 @@ enum ButtonName {
     BTN_29_D,
 };
 
+inline constexpr int NUM_KEYBOARD_KEYS = 29;
+
 enum ButtonState {
     ALL_RELEASED,
     RELEASING,

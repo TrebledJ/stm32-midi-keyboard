@@ -5,11 +5,7 @@
 #include "speaker.hpp"
 #include "waveform.hpp"
 
-#define Note2MIDI(n)   n + 21
-#define MIDI2Note(n)   n - 21
-#define note2button(n) n - C4
-#define button2note(n) n + C4
-#define MEM_SIZE       40000
+#define MEM_SIZE 40000
 char leaf_memory[MEM_SIZE];
 
 float random_number() { return 0.5; }
@@ -23,24 +19,8 @@ extern LCD<> lcd;
 float freq[88];
 // float chord[] = {440.0, 554.37, 659.25};
 float chord[] = {440, 660};
-uint32_t midi_time_stamp[100];
-MIDI_Pkg midi_file[1000];
-uint8_t active[NUM_SINES]      = {0};
-uint8_t prev_active[NUM_SINES] = {0};
-void note_on(MIDI_Pkg* pkg, uint32_t t, uint8_t channel, uint8_t note, uint8_t v = 90)
-{
-    pkg->message.time_stamp  = t;
-    pkg->message.status_byte = (NOTE_ON << 4) + channel;
-    pkg->message.data_byte   = note;
-    pkg->message.velocity    = v;
-}
-void note_off(MIDI_Pkg* pkg, uint32_t t, uint8_t channel, uint8_t note, uint8_t v = 90)
-{
-    pkg->message.time_stamp  = t;
-    pkg->message.status_byte = (NOTE_OFF << 4) + channel;
-    pkg->message.data_byte   = note;
-    pkg->message.velocity    = v;
-}
+
+
 void speaker::init()
 {
     NOTE_FREQ_TABLE(init_element);
@@ -61,98 +41,16 @@ void speaker::init()
 }
 
 
-static int active_count           = 0;
-static uint8_t is_recording       = 0;
-static uint8_t is_playback        = 0;
-static uint32_t start_record_time = 0;
-static uint32_t start_play_time   = 0;
-static uint16_t midi_action_cnt   = 0;
-
-bool get_is_recording() { return is_recording; }
-
-bool get_is_playback() { return is_playback; }
-
-void btn_toggle_playback()
+void speaker::default_load(bool (&active)[NUM_KEYBOARD_KEYS])
 {
-    start_play_time = get_ticks();
-    memset(active, 0, sizeof(active));
-    is_playback = !is_playback;
-    if (is_playback) {
-        is_recording = 0;
-    }
-}
-
-void btn_toggle_record()
-{
-    is_recording = !is_recording;
-    if (is_recording) {
-        is_playback     = 0;
-        midi_action_cnt = 0;
-        memset(midi_file, 0, sizeof(midi_file));
-        start_record_time = get_ticks();
-    }
-}
-
-void playback_func()
-{
-    if (is_playback) {
-        for (int i = 0; i < midi_action_cnt;) {
-            speaker::load(sine, active, active_count);
-            speaker::send();
-            if (get_ticks() - start_play_time > midi_file[i].message.time_stamp) {
-                active[MIDI2Note(note2button(midi_file[i].message.data_byte))] =
-                    ((midi_file[i].message.status_byte >> 4) & 1);
-                if (active[i]) { // press the button
-                    active_count++;
-                } else {
-                    active_count--;
-                }
-                i++;
-            }
-
-            lcd.draw_stringf(0, 1, "%d %d %d %d", active[0], active[1], active[2], active_count);
-        }
-        is_playback = 0;
-    } else if (is_recording) {
-        active_count = 0;
-        for (int i = 0; i < NUM_SINES; i += 2) {
-            active[i / 2] = buttons::is_btn_pressed((ButtonName)(i + BTN_1_U))
-                            || buttons::is_btn_pressed((ButtonName)(i + BTN_1_D));
-            if (active[i / 2]) { // press the button
-                active_count++;
-                if (!prev_active[i / 2]) { // just press the button
-                    midi_poly.noteOn(Note2MIDI(button2note(i / 2)), 90);
-                    if (is_recording) {
-                        note_on(&midi_file[midi_action_cnt], get_ticks() - start_record_time, 1,
-                                Note2MIDI(button2note(i / 2)));
-                        midi_action_cnt++;
-                    }
-                }
-            } else {
-                if (prev_active[i / 2]) { // just relase the button
-                    midi_poly.noteOff(Note2MIDI(button2note(i / 2)));
-
-                    if (is_recording) {
-                        note_off(&midi_file[midi_action_cnt], get_ticks() - start_record_time, 1,
-                                 Note2MIDI(button2note(i / 2)));
-                        midi_action_cnt++;
-                    }
-                }
-            }
-            prev_active[i / 2] = active[i / 2];
-        }
-        speaker::load(sine, active, active_count);
-        speaker::send();
-    } else {
-        // speaker::load(sine, active, active_count);
-        // speaker::send();
-    }
+    // TODO: introduce other instruments/oscillators
+    speaker::load(sine, active);
 }
 
 
 void speaker::loop()
 {
-    playback_func();
+    speaker::send();
     // // static int sound_mode = 0;
 
     // // speaker::load(sine[sound_mode]);

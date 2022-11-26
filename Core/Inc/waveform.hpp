@@ -100,11 +100,17 @@
 typedef enum { NOTE_FREQ_TABLE(enum_element) NUM_OF_NOTES } Notes;
 #undef enum_element
 
+#define note2midi(n)   (n + 21)
+#define midi2note(n)   (n - 21)
+#define note2button(n) (n - C4)
+#define button2note(n) (n + C4)
+
 #define init_element(a, b) freq[a] = b;
 typedef struct {
     float t;
     uint32_t wav_val;
 } WavInfo;
+
 
 // class Waveform
 // {
