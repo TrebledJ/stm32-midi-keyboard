@@ -19,6 +19,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -63,7 +64,6 @@ static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_USART1_UART_Init(void);
-static void MX_USB_OTG_HS_USB_Init(void);
 static void MX_DAC_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_SPI2_Init(void);
@@ -107,11 +107,11 @@ int main(void)
     MX_DMA_Init();
     MX_ADC1_Init();
     MX_USART1_UART_Init();
-    MX_USB_OTG_HS_USB_Init();
     MX_DAC_Init();
     MX_TIM3_Init();
     MX_SPI2_Init();
     MX_TIM8_Init();
+    MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 2 */
 
     //  HAL_ADC_Start(&hadc1);
@@ -438,25 +438,6 @@ static void MX_USART1_UART_Init(void)
 }
 
 /**
- * @brief USB_OTG_HS Initialization Function
- * @param None
- * @retval None
- */
-static void MX_USB_OTG_HS_USB_Init(void)
-{
-    /* USER CODE BEGIN USB_OTG_HS_Init 0 */
-
-    /* USER CODE END USB_OTG_HS_Init 0 */
-
-    /* USER CODE BEGIN USB_OTG_HS_Init 1 */
-
-    /* USER CODE END USB_OTG_HS_Init 1 */
-    /* USER CODE BEGIN USB_OTG_HS_Init 2 */
-
-    /* USER CODE END USB_OTG_HS_Init 2 */
-}
-
-/**
  * Enable DMA controller clock
  */
 static void MX_DMA_Init(void)
@@ -496,7 +477,7 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(GPIOC, row0_Pin | LED1_Pin | LED3_Pin | row6_Pin | row5_Pin | row4_Pin, GPIO_PIN_SET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0 | GPIO_PIN_1 | USB_TRIG_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0 | GPIO_PIN_1, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2 | GPIO_PIN_3, GPIO_PIN_RESET);
@@ -520,10 +501,8 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
     /*Configure GPIO pins : row0_Pin PC0 PC1 LED1_Pin
-                             LED3_Pin USB_TRIG_Pin row6_Pin row5_Pin
-                             row4_Pin */
-    GPIO_InitStruct.Pin =
-        row0_Pin | GPIO_PIN_0 | GPIO_PIN_1 | LED1_Pin | LED3_Pin | USB_TRIG_Pin | row6_Pin | row5_Pin | row4_Pin;
+                             LED3_Pin row6_Pin row5_Pin row4_Pin */
+    GPIO_InitStruct.Pin   = row0_Pin | GPIO_PIN_0 | GPIO_PIN_1 | LED1_Pin | LED3_Pin | row6_Pin | row5_Pin | row4_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -554,14 +533,6 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : USB_ID_Pin USB_DM_Pin USB_DP_Pin */
-    GPIO_InitStruct.Pin       = USB_ID_Pin | USB_DM_Pin | USB_DP_Pin;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF12_OTG_HS_FS;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /*Configure GPIO pin : row3_Pin */
