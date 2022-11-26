@@ -61,13 +61,13 @@ public:
     static void load(Ts (&arr)[N], bool active[N])
     {
         int active_count = 0;
-        for (int i = 0; i < N; i++)
+        for (size_t i = 0; i < N; i++)
             if (active[i])
                 active_count++;
 
         for (size_t i = 0; i < buffer_size; i++) {
             float sum = 0;
-            for (int i = 0; i < N; i++) {
+            for (size_t i = 0; i < N; i++) {
                 sum += active[i] * arr[i].tick();
             }
 

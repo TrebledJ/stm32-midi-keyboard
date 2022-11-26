@@ -1,6 +1,6 @@
 #include "keyboard.hpp"
 #include "speaker.hpp"
-#include "waveform.hpp"
+#include "utils/notes.hpp"
 
 #include <cstdlib>
 

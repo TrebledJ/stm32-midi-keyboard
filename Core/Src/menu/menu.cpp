@@ -211,7 +211,6 @@ void SettingsPage::update(const urect& bounds)
         prev_select_index = select_index;
         draw(bounds);
     } else {
-        extern LCD_ lcd;
         size_t col2 = bounds.x + CHAR_WIDTH * 12;
         size_t w2   = (bounds.w - CHAR_WIDTH * 12) * 3 / 5;
         size_t y    = bounds.y;

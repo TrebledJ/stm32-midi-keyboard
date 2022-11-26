@@ -7,7 +7,6 @@
 #include "profile.hpp"
 #include "speaker.hpp"
 #include "volume.hpp"
-#include "waveform.hpp"
 extern "C" {
 #include "main.h"
 }

@@ -3,7 +3,7 @@
 #include "leaf.hpp"
 #include "main.h"
 #include "speaker.hpp"
-#include "waveform.hpp"
+#include "utils/notes.hpp"
 
 #define MEM_SIZE 40000
 char leaf_memory[MEM_SIZE];
@@ -16,20 +16,18 @@ leaf::midi::poly midi_poly;
 inline constexpr int NUM_SINES_CH = 2;
 leaf::osc::cycle sine_ch[NUM_SINES_CH];
 extern LCD<> lcd;
-float freq[88];
 // float chord[] = {440.0, 554.37, 659.25};
 float chord[] = {440, 660};
 
 
 void speaker::init()
 {
-    NOTE_FREQ_TABLE(init_element);
     leaf::init(21000, leaf_memory, MEM_SIZE, &random_number);
     midi_poly.init(4);
 
     for (int i = 0; i < NUM_SINES; i++) {
         sine[i].init();
-        sine[i].setFreq(freq[button2note(i)]);
+        sine[i].setFreq(notes::get_freq(button2note(i)));
         sine[i].setPhase(0);
     }
     for (int i = 0; i < NUM_SINES_CH; i++) {
