@@ -50,9 +50,9 @@ void app_run()
         // lcd.draw_stringf(0, 0, "%d %d %d", rx_buf[0], rx_buf[1], rx_buf[2]);
 
         // Print button states.
-        for (int i = 0; i < 8; i++)
-            for (int j = 0; j < 8; j++)
-                lcd.draw_stringf(0 + 3 * j, 3 + i, "%d", buttons::is_btn_pressed(static_cast<ButtonName>(i * 8 + j)));
+        // for (int i = 0; i < 8; i++)
+        //     for (int j = 0; j < 8; j++)
+        //         lcd.draw_stringf(0 + 3 * j, 3 + i, "%d", buttons::is_btn_pressed(static_cast<ButtonName>(i * 8 + j)));
 
         // Tick everything.
         metronome.tick();
