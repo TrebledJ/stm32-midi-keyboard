@@ -67,8 +67,8 @@ public:
 
         for (size_t i = 0; i < buffer_size; i++) {
             float sum = 0;
-            for (size_t i = 0; i < N; i++) {
-                sum += active[i] * arr[i].tick();
+            for (size_t j = 0; j < N; j++) {
+                sum += active[j] * arr[j].tick();
             }
 
             instance().curr_buffer[i] = scale(sum / active_count);
