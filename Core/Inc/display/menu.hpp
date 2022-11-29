@@ -59,53 +59,6 @@ private:
     void record();
 };
 
-template <size_t MAX, typename T = uint16_t>
-struct clamped_int {
-    using type = T;
-    T data;
-
-    template <typename U>
-    clamped_int(U x = 0) : data{static_cast<T>(x)}
-    {
-    }
-
-    constexpr T& operator++() { return data = (data + 1 == MAX ? data : data + 1); }
-    constexpr T operator++(int)
-    {
-        T tmp = data;
-        ++(*this);
-        return tmp;
-    }
-    constexpr T& operator--() { return data = (data == 0 ? data : data - 1); }
-    constexpr T operator--(int)
-    {
-        T tmp = data;
-        --(*this);
-        return tmp;
-    }
-    constexpr T& operator()() { return data; }
-
-    constexpr clamped_int& operator=(int x)
-    {
-        data = x;
-        return *this;
-    }
-    operator int() { return data; }
-};
-
-#define clamped_int_bin_op(OP)                           \
-    template <size_t N, typename T, typename U>          \
-    constexpr bool operator OP(clamped_int<N, T> a, U b) \
-    {                                                    \
-        return a.data OP b;                              \
-    }
-
-clamped_int_bin_op(==);
-clamped_int_bin_op(!=);
-clamped_int_bin_op(<);
-clamped_int_bin_op(<=);
-clamped_int_bin_op(>);
-clamped_int_bin_op(>=);
 
 class HomePage
 {
