@@ -115,7 +115,8 @@ class MenuController
 public:
     MenuController(std::array<SongData, NUM_SONGS>& data) : song_page{data} {}
 
-    void draw(bool force = false);
+    void draw() { update(true); }
+    void update(bool force = false);
     void loop();
     void go_to_page(PageName page);
 

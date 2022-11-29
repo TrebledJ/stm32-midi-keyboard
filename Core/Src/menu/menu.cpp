@@ -238,7 +238,7 @@ void SettingsPage::draw(const urect& bounds, bool force)
 // ----- MenuController ----- //
 ////////////////////////////////
 
-void MenuController::draw(bool force)
+void MenuController::update(bool force)
 {
     switch (page) {
         case PageName::HOME: draw_delegate(home_page, force); break;
@@ -273,7 +273,7 @@ void MenuController::go_to_page(PageName page)
     if (this->page != page) {
         this->page = page;
         lcd.clear();
-        draw(true); // Force refresh.
+        draw(); // Force refresh.
         switch (page) {
             case PageName::HOME: home_page.reset_selection(); break;
             case PageName::SETTING: settings_page.reset_selection(); break;
