@@ -26,6 +26,6 @@ public:
         // Avoid noise by reducing bit-depth.
         val >>= 4;
 
-        return val / (Dial::MAX >> 4);
+        return 1.0 * val / (Dial::MAX >> 4);
     }
 };
