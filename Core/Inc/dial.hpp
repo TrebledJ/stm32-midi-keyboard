@@ -8,13 +8,14 @@ extern "C" {
 class Dial
 {
 public:
+    static constexpr uint32_t MAX = (1 << 12) - 1; // Max ADC value.
+
     Dial(ADC_HandleTypeDef* adc) : adc{adc} {}
 
     /**
      * @brief   Gets the value of the dial.
-     * @param   timeout Timeout in milliseconds.
      */
-    float get_value() { return test(); }
+    uint32_t get_value() const { return test(); }
 
     uint32_t test() const
     {
