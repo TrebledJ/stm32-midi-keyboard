@@ -49,6 +49,9 @@ void speaker::default_load(bool (&active)[NUM_KEYBOARD_KEYS])
 void speaker::loop()
 {
     speaker::send();
+
+    instance().adjusted_amplitude = amplitude * volume::get();
+
     // // static int sound_mode = 0;
 
     // // speaker::load(sine[sound_mode]);

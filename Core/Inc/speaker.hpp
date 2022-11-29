@@ -1,5 +1,7 @@
 #pragma once
 
+#include "volume.hpp"
+
 extern "C" {
 #include "main.h"
 }
@@ -15,6 +17,7 @@ class speaker
     static constexpr DAC_HandleTypeDef* dac   = &hdac;
 
     static constexpr uint16_t amplitude = ((1 << 12) - 1) / 16;
+    static constexpr uint16_t mid       = ((1 << 12) - 1) / 2;
     static constexpr size_t buffer_size = 1024;
 
 public:
@@ -29,8 +32,8 @@ public:
     static void init();
     static void loop();
 
-    // Scale a float value from [-1.0f, 1.0f] to [0, 2*amplitude].
-    static uint16_t scale(float val) { return val * amplitude + amplitude; }
+    // Scale a float value from [-1.0f, 1.0f] to [mid-amplitude, mid+amplitude].
+    static uint16_t scale(float val) { return val * instance().adjusted_amplitude + mid; }
 
     static void play()
     {
@@ -79,7 +82,8 @@ public:
     static void default_load(bool (&active)[NUM_KEYBOARD_KEYS]);
 
 private:
-    bool playing = false;
+    bool playing             = false;
+    float adjusted_amplitude = 1.0f;
 
     buffer_t buffer[2];
     uint16_t* curr_buffer;
