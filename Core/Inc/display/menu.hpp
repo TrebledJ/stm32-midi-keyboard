@@ -18,8 +18,7 @@ public:
     bool on_f2() { return (is_ch(v_index) && channel[to_ch(v_index)].on_f2()) || truef(record()); }
 
     void load(SongData& data);
-    void draw(const urect& bounds);
-    void update(const urect& bounds);
+    void draw(const urect& bounds, bool force = false);
 
 private:
     uint8_t song_index = 0;
@@ -75,8 +74,7 @@ public:
     void reset_selection() { index = 0; }
     PageName selected_page() const { return static_cast<PageName>(index.data); }
 
-    void draw(const urect& bounds);
-    void update(const urect& bounds);
+    void draw(const urect& bounds, bool force = false);
 
 private:
     clamped_int<3> index             = 0;
@@ -99,9 +97,7 @@ public:
     bool on_f1() { return false; }
     bool on_f2() { return false; }
 
-    void draw(const urect& bounds);
-
-    void update(const urect& bounds);
+    void draw(const urect& bounds, bool force = false);
 
 private:
     uint8_t select_index = DEFAULT;
@@ -119,18 +115,9 @@ class MenuController
 public:
     MenuController(std::array<SongData, NUM_SONGS>& data) : song_page{data} {}
 
-    void draw();
+    void draw(bool force = false);
     void loop();
     void go_to_page(PageName page);
-
-    template <typename T>
-    void draw_delegate(T& page);
-
-    template <typename T>
-    void update_delegate(T& page);
-
-    template <typename T>
-    void callback_delegate(T& page);
 
 private:
     PageName page;
@@ -138,19 +125,19 @@ private:
     HomePage home_page;
     SongPage song_page;
     SettingsPage settings_page;
+
+    template <typename T>
+    void draw_delegate(T& page, bool force);
+
+    template <typename T>
+    void callback_delegate(T& page);
 };
 
 
 template <typename T>
-void MenuController::draw_delegate(T& page)
+void MenuController::draw_delegate(T& page, bool force)
 {
-    page.draw({0, 0, LCD_WIDTH, LCD_HEIGHT});
-}
-
-template <typename T>
-void MenuController::update_delegate(T& page)
-{
-    page.update({0, 0, LCD_WIDTH, LCD_HEIGHT});
+    page.draw({0, 0, LCD_WIDTH, LCD_HEIGHT}, force);
 }
 
 template <typename T>
