@@ -33,7 +33,7 @@ public:
     static void loop();
 
     // Scale a float value from [-1.0f, 1.0f] to [mid-amplitude, mid+amplitude].
-    static uint16_t scale(float val) { return val * amplitude * volume::get() + mid; }
+    static uint16_t scale(float val) { return val * instance().adjusted_amplitude + mid; }
 
     static void play()
     {
@@ -82,7 +82,8 @@ public:
     static void default_load(bool (&active)[NUM_KEYBOARD_KEYS]);
 
 private:
-    bool playing = false;
+    bool playing             = false;
+    float adjusted_amplitude = 1.0f;
 
     buffer_t buffer[2];
     uint16_t* curr_buffer;
