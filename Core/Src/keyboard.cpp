@@ -10,7 +10,7 @@ void kb::update_midi()
 {
     uint32_t time_stamp = get_ticks() - m_start_record_time;
     uint8_t channel     = 1;
-    if (is_recording) {
+    if (m_is_recording) {
         for (int i = 0; i < NUM_KEYBOARD_KEYS; i++) {
             if (is_key_just_pressed(i)) {
                 m_midi_file.note_on(time_stamp, channel, note2midi(button2note(i)));
@@ -30,7 +30,7 @@ void kb::update_speaker()
         lcd.draw_stringf(5 + 5 * (i % 4), 10 + (i / 4), "%d  ", m_midi_file[i].time_stamp);
     }
 
-    if (is_playback) {
+    if (m_is_playback) {
         while (get_ticks() - m_start_play_time >= m_midi_file[m_playback_index].time_stamp) {
             uint16_t note  = note2button(midi2note(m_midi_file[m_playback_index].data_byte));
             m_active[note] = ((m_midi_file[m_playback_index].status_byte >> 4) & 1);
