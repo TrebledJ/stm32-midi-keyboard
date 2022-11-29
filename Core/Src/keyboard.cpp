@@ -23,13 +23,6 @@ void kb::update_midi()
 
 void kb::update_speaker()
 {
-    extern LCD_ lcd;
-    lcd.draw_stringf(0, 16, "%d %d %d %d     ", m_is_recording, m_is_playback, m_start_play_time, m_playback_index);
-    lcd.draw_stringf(0, 10, "%d  ", m_midi_file.size());
-    for (size_t i = 0; i < m_midi_file.size(); i++) {
-        lcd.draw_stringf(5 + 5 * (i % 4), 10 + (i / 4), "%d  ", m_midi_file[i].time_stamp);
-    }
-
     if (m_is_playback) {
         while (get_ticks() - m_start_play_time >= m_midi_file[m_playback_index].time_stamp) {
             uint16_t note  = note2button(midi2note(m_midi_file[m_playback_index].data_byte));

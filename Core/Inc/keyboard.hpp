@@ -16,7 +16,9 @@ public:
 
     static void loop()
     {
-        instance().poll_keys();
+        if (!is_playback()) {
+            instance().poll_keys();
+        }
         instance().update_midi();
         instance().update_speaker();
     }
