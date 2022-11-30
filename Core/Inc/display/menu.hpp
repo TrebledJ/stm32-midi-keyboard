@@ -22,7 +22,7 @@ struct settings {
         return s;
     }
 
-    void update();
+    static void update();
 
 private:
     settings(const settings&) = delete;

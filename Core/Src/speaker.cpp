@@ -25,6 +25,9 @@ void speaker::init()
     leaf::init(21000, leaf_memory, MEM_SIZE, &random_number);
     midi_poly.init(4);
 
+    for (int i = 0; i < NUM_SINES; i++) {
+        sine[i].init();
+    }
     init_freq(0);
     for (int i = 0; i < NUM_SINES_CH; i++) {
         sine_ch[i].init();
@@ -37,7 +40,6 @@ void speaker::init()
 void speaker::init_freq(int32_t transpose)
 {
     for (int i = 0; i < NUM_SINES; i++) {
-        sine[i].init();
         sine[i].setFreq(notes::get_freq(static_cast<Note>(button2note(i) + transpose)));
         sine[i].setPhase(0);
     }
