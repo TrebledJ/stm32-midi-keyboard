@@ -11,6 +11,7 @@ void settings::update()
     if (c.transpose != p.transpose) {
         // Update transpose.
         speaker::on_transpose(c.transpose);
+        p.transpose = c.transpose;
     }
 }
 
