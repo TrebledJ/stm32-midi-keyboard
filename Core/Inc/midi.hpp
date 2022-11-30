@@ -25,12 +25,19 @@ namespace midi
         uint8_t data_byte;
         uint8_t velocity;
     };
-
+    struct package {
+        message msg[MIDI_MAX_MESSAGES];
+        uint16_t m_size = 0;
+    };
+    union big_package {
+        midi::package pkg;
+        uint8_t buff[sizeof(pkg)];
+    };
     class file
     {
     public:
-        void reset() { m_size = 0; }
-        size_t size() const { return m_size; }
+        void reset() { m_pkg.m_size = 0; }
+        size_t size() const { return m_pkg.m_size; }
 
         void note_on(uint32_t t, uint8_t channel, uint8_t note, uint8_t vel = 90);
         void note_off(uint32_t t, uint8_t channel, uint8_t note, uint8_t vel = 90);
@@ -41,11 +48,10 @@ namespace midi
         // Save midi data to the given address.
         void save(uintptr_t addr) const;
 
-        message& operator[](size_t i) { return m_msg[i]; }
-        const message& operator[](size_t i) const { return m_msg[i]; }
+        message& operator[](size_t i) { return m_pkg.msg[i]; }
+        const message& operator[](size_t i) const { return m_pkg.msg[i]; }
 
     private:
-        message m_msg[MIDI_MAX_MESSAGES];
-        size_t m_size = 0;
+        package m_pkg;
     };
 } // namespace midi
