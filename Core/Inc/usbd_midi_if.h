@@ -20,7 +20,7 @@ extern "C" {
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 
-extern USBD_HandleTypeDef hUsbDeviceFS;
+extern USBD_HandleTypeDef hUsbDeviceHS;
 extern USBD_MIDI_ItfTypeDef USBD_MIDI_fops;
 
 /* Exported macro ------------------------------------------------------------*/

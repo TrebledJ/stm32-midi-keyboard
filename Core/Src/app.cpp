@@ -1,4 +1,5 @@
 #include "app.hpp"
+
 #include "buttons.hpp"
 #include "defines.hpp"
 #include "display/menu.hpp"
@@ -10,6 +11,7 @@
 extern "C" {
 #include "FLASH_SECTOR_F4.h"
 #include "main.h"
+#include "usbd_midi_if.h"
 }
 
 extern ADC_HandleTypeDef hadc1;
@@ -25,7 +27,7 @@ std::array<SongData, NUM_SONGS> songs = {
 MenuController display{songs};
 LCD<> lcd{&hspi2};
 
-#define FLASH_ADDR_START 0x0800C000
+#define FLASH_ADDR_START 0x080A0000
 uint8_t aa[3]     = {69, 123, 5};
 uint8_t rx_buf[3] = {0};
 
@@ -38,6 +40,7 @@ void app_init()
     speaker::init();
     Flash_Write_Bytes(FLASH_ADDR_START, aa, 3);
 }
+char buffer[] = "HEY";
 void app_run()
 {
     display.draw();
@@ -45,6 +48,12 @@ void app_run()
         kb::loop();
         speaker::loop();
         display.loop();
+        if (buttons::is_btn_just_pressed(BTN_W)) {
+            MIDI_note_on(30, 100);
+        }
+        if (buttons::is_btn_just_pressed(BTN_S)) {
+            MIDI_note_off(30, 100);
+        }
 
         // Flash_Read_Bytes(FLASH_ADDR_START, rx_buf, 3);
         // lcd.draw_stringf(0, 0, "%d %d %d", rx_buf[0], rx_buf[1], rx_buf[2]);

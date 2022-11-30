@@ -96,9 +96,9 @@ static int8_t MIDI_Send(uint8_t* buffer, uint32_t length)
 {
     uint8_t ret = USBD_OK;
 
-    USBD_MIDI_SetTxBuffer(&hUsbDeviceFS, buffer, length);
+    USBD_MIDI_SetTxBuffer(&hUsbDeviceHS, buffer, length);
 
-    ret = USBD_MIDI_TransmitPacket(&hUsbDeviceFS);
+    ret = USBD_MIDI_TransmitPacket(&hUsbDeviceHS);
 
     return (ret);
 }
