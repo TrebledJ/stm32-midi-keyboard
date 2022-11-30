@@ -5,6 +5,33 @@
 #include "keyboard.hpp"
 
 
+struct settings {
+    int32_t transpose = 0;
+
+    settings() = default;
+
+    static settings& curr()
+    {
+        static settings s;
+        return s;
+    }
+
+    static settings& prev()
+    {
+        static settings s;
+        return s;
+    }
+
+    void update();
+
+private:
+    settings(const settings&) = delete;
+    settings(settings&&)      = delete;
+    settings& operator=(const settings&) = delete;
+    settings& operator=(settings&&) = delete;
+};
+
+
 class SongPage
 {
 public:

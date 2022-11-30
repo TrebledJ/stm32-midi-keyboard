@@ -67,46 +67,48 @@ public:
 class SliderWidget
 {
 public:
-    SliderWidget(int32_t value = 0, int32_t inc = 1) : value{value}, inc{inc} {}
+    SliderWidget(int32_t value = 0, int32_t inc = 1) : m_value{value}, inc{inc} {}
+
+    int32_t value() const { return m_value; }
 
     void set_range(int32_t min, int32_t max)
     {
         this->min = min;
         this->max = max;
     }
-    void set_value(int32_t value) { this->value = value; }
+    void set_value(int32_t value) { m_value = value; }
     void set_inc(int32_t inc) { this->inc = inc; }
     void up()
     {
-        value += inc;
-        if (value > max)
-            value = max;
+        m_value += inc;
+        if (m_value > max)
+            m_value = max;
     }
     void down()
     {
-        value -= inc;
-        if (value < min)
-            value = min;
+        m_value -= inc;
+        if (m_value < min)
+            m_value = min;
     }
 
     void draw(const urect& bounds)
     {
         extern LCD_ lcd;
-        float prog = 1.0 * (value - min) / (max - min);
+        float prog = 1.0 * (m_value - min) / (max - min);
         lcd.draw_rect(bounds.x, bounds.y, bounds.w * prog, bounds.h, lcd.palette.foreground());
         lcd.draw_rect(bounds.x + bounds.w * prog, bounds.y, bounds.w * (1 - prog), bounds.h, WHITE);
     }
 
     void update(const urect& bounds)
     {
-        if (prev_value != value) {
-            prev_value = value;
+        if (prev_value != m_value) {
+            prev_value = m_value;
             draw(bounds);
         }
     }
 
-    // private:
-    int32_t value = 50;
+private:
+    int32_t m_value = 50;
     int32_t prev_value;
     int32_t inc = 1;
     int32_t min = 0;

@@ -81,6 +81,8 @@ public:
     // Load using the currently selected oscillators.
     static void default_load(bool (&active)[NUM_KEYBOARD_KEYS]);
 
+    static void on_transpose(int32_t transpose);
+
 private:
     bool playing             = false;
     float adjusted_amplitude = 1.0f;
@@ -110,4 +112,6 @@ private:
 
         instance().swap_buffer();
     }
+
+    static void init_freq(int32_t transpose);
 };

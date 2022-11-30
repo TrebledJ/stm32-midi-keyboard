@@ -1,3 +1,4 @@
+#include "display/menu.hpp"
 #include "keyboard.hpp"
 #include "lcd/lcd.hpp"
 #include "speaker.hpp"
@@ -13,9 +14,9 @@ void kb::update_midi()
     if (m_is_recording) {
         for (int i = 0; i < NUM_KEYBOARD_KEYS; i++) {
             if (is_key_just_pressed(i)) {
-                m_midi_file.note_on(time_stamp, channel, note2midi(button2note(i)));
+                m_midi_file.note_on(time_stamp, channel, note2midi(button2note(i)) + settings::curr().transpose);
             } else if (is_key_just_released(i)) {
-                m_midi_file.note_off(time_stamp, channel, note2midi(button2note(i)));
+                m_midi_file.note_off(time_stamp, channel, note2midi(button2note(i)) + settings::curr().transpose);
             }
         }
     }

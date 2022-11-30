@@ -1,6 +1,20 @@
 #include "display/menu.hpp"
 #include "speaker.hpp"
 
+
+// int32_t settings::transpose = 0;
+
+void settings::update()
+{
+    settings& c = curr();
+    settings& p = prev();
+    if (c.transpose != p.transpose) {
+        // Update transpose.
+        speaker::on_transpose(c.transpose);
+    }
+}
+
+
 //////////////////////////
 // ----- HomePage ----- //
 //////////////////////////
@@ -207,6 +221,8 @@ void SettingsPage::draw(const urect& bounds)
 
 void SettingsPage::update(const urect& bounds)
 {
+    settings::curr().transpose = transpose.value();
+
     if (prev_select_index != select_index) {
         prev_select_index = select_index;
         draw(bounds);

@@ -25,17 +25,22 @@ void speaker::init()
     leaf::init(21000, leaf_memory, MEM_SIZE, &random_number);
     midi_poly.init(4);
 
-    for (int i = 0; i < NUM_SINES; i++) {
-        sine[i].init();
-        sine[i].setFreq(notes::get_freq(button2note(i)));
-        sine[i].setPhase(0);
-    }
+    init_freq(0);
     for (int i = 0; i < NUM_SINES_CH; i++) {
         sine_ch[i].init();
         sine_ch[i].setFreq(chord[i]);
     }
 
     speaker::play();
+}
+
+void speaker::init_freq(int32_t transpose)
+{
+    for (int i = 0; i < NUM_SINES; i++) {
+        sine[i].init();
+        sine[i].setFreq(notes::get_freq(static_cast<Note>(button2note(i) + transpose)));
+        sine[i].setPhase(0);
+    }
 }
 
 
@@ -117,3 +122,5 @@ void speaker::loop()
     // });
     // lcd.draw_string(0, 0, "elapsed: %d %d %d", elapsed, elapsed_send, elapsed_loop);
 }
+
+void speaker::on_transpose(int32_t transpose) { init_freq(transpose); }
