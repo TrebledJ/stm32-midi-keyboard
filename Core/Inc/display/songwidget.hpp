@@ -78,51 +78,32 @@ public:
         solo.set_state(data.is_solo());
     }
 
-    void draw(const urect& bounds)
+    void draw(const urect& bounds, bool force = false)
     {
         uint16_t togglesz = bounds.h;
         uint16_t restw    = (bounds.w - 2 * togglesz) / 2;
 
-        with_fg_if(select_index == VOLUME, BLUE, DARKGREY)
-        {
-            volume.draw(urect(bounds.x, bounds.y + 4, restw - 20, bounds.h - 10));
-        }
+        bool force_subdraw = force;
 
-        instrument.draw(urect(bounds.x + restw, bounds.y, restw - 10, bounds.h));
-        mute.draw(urect(bounds.x + restw * 2, bounds.y, togglesz, togglesz));
-        solo.draw(urect(bounds.x + restw * 2 + togglesz, bounds.y, togglesz, togglesz));
-    }
-
-    void update(const urect& bounds)
-    {
-        uint16_t togglesz = bounds.h;
-        uint16_t restw    = (bounds.w - 2 * togglesz) / 2;
         if (prev_index != select_index) {
             prev_index = select_index;
 
-            with_fg_if(select_index == VOLUME, BLUE, DARKGREY)
-            {
-                volume.draw(urect(bounds.x, bounds.y + 4, restw - 20, bounds.h - 10));
-            }
-
-            with_bg_if(select_index == INSTRUMENT, BLUE)
-            {
-                instrument.draw(urect(bounds.x + restw, bounds.y, restw - 10, bounds.h));
-            }
-
-        } else {
-            with_fg_if(select_index == VOLUME, BLUE, DARKGREY)
-            {
-                volume.update(urect(bounds.x, bounds.y + 4, restw - 20, bounds.h - 10));
-            }
-
-            with_bg_if(select_index == INSTRUMENT, BLUE)
-            {
-                instrument.update(urect(bounds.x + restw, bounds.y, restw - 10, bounds.h));
-            }
+            // If index has been updated, force the child widgets to redraw.
+            force_subdraw = true;
         }
-        mute.update(urect(bounds.x + restw * 2, bounds.y, togglesz, togglesz));
-        solo.update(urect(bounds.x + restw * 2 + togglesz, bounds.y, togglesz, togglesz));
+
+        with_fg_if(select_index == VOLUME, BLUE, DARKGREY)
+        {
+            volume.draw(urect(bounds.x, bounds.y + 4, restw - 20, bounds.h - 10), force_subdraw);
+        }
+
+        with_bg_if(select_index == INSTRUMENT, BLUE)
+        {
+            instrument.draw(urect(bounds.x + restw, bounds.y, restw - 10, bounds.h), force_subdraw);
+        }
+
+        mute.draw(urect(bounds.x + restw * 2, bounds.y, togglesz, togglesz), force);
+        solo.draw(urect(bounds.x + restw * 2 + togglesz, bounds.y, togglesz, togglesz), force);
     }
 
 private:
