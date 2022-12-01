@@ -9,11 +9,26 @@
 class ComboSelectWidget
 {
 public:
+    using handler = std::function<void(uint8_t)>;
+
     ComboSelectWidget(const stringview_t* options, uint8_t max) : options{options}, max{max} {}
 
-    void set_index(uint8_t index) { this->curr = (index >= max ? max - 1 : index); }
-    void select_prev() { curr = (curr == 0 ? max - 1 : curr - 1); }
-    void select_next() { curr = (curr + 1 == max ? 0 : curr + 1); }
+    void on_value_changed(handler&& h) { m_on_value_changed = h; }
+    void set_index(uint8_t index)
+    {
+        this->curr = (index >= max ? max - 1 : index);
+        update();
+    }
+    void select_prev()
+    {
+        curr = (curr == 0 ? max - 1 : curr - 1);
+        update();
+    }
+    void select_next()
+    {
+        curr = (curr + 1 == max ? 0 : curr + 1);
+        update();
+    }
 
     void draw(const urect& bounds, bool force = false)
     {
@@ -29,19 +44,39 @@ private:
     uint8_t prev;
     uint8_t curr;
     uint8_t max;
+
+    handler m_on_value_changed;
+
+    void update()
+    {
+        if (prev != curr && m_on_value_changed) {
+            m_on_value_changed(curr);
+        }
+    }
 };
 
 
 class ToggleWidget
 {
 public:
-    bool state;
-    bool prev_state;
+    using handler = std::function<void(bool)>;
 
     ToggleWidget(bool state = false) : state{state} {}
 
-    void toggle() { state = !state; }
-    void set_state(bool state) { this->state = state; }
+    void on_value_changed(handler&& h) { m_on_value_changed = h; }
+    void toggle()
+    {
+        state = !state;
+        if (m_on_value_changed)
+            m_on_value_changed(state);
+    }
+    void set_state(bool state)
+    {
+        if (this->state != state) {
+            this->state = state;
+            m_on_value_changed(state);
+        }
+    }
 
     void draw(const urect& bounds, bool force = false)
     {
@@ -52,6 +87,12 @@ public:
                   : lcd.draw_rect(bounds.x + 1, bounds.y + 1, bounds.w - 2, bounds.h - 2, RED);
         }
     }
+
+private:
+    bool state;
+    bool prev_state;
+
+    handler m_on_value_changed;
 };
 
 
@@ -75,7 +116,6 @@ public:
     {
         if (m_value != value) {
             m_value = value;
-
             if (m_on_value_changed)
                 m_on_value_changed(m_value);
         }
