@@ -1,20 +1,5 @@
 #include "display/menu.hpp"
-#include "speaker.hpp"
-
-
-// int32_t settings::transpose = 0;
-
-void settings::update()
-{
-    settings& c = curr();
-    settings& p = prev();
-    if (c.transpose != p.transpose) {
-        // Update transpose.
-        speaker::on_transpose(c.transpose);
-        p.transpose = c.transpose;
-    }
-}
-
+#include "settings.hpp"
 
 //////////////////////////
 // ----- HomePage ----- //

@@ -1,5 +1,9 @@
 #pragma once
 
+#include "activesoundarray.hpp"
+#include "buttons.hpp"
+#include "leaf.hpp"
+#include "utils/notes.hpp"
 #include "volume.hpp"
 
 extern "C" {
@@ -43,14 +47,13 @@ public:
 
     static void stop()
     {
+        instance().sines.reset();
         instance().playing = false;
         HAL_TIM_Base_Stop(timer);
     }
 
-    template <size_t N>
-    void set_active_keys(bool (&active)[N])
-    {
-    }
+    static void note_on(Note note, uint8_t vel);
+    static void note_off(Note note);
 
     template <typename... Ts>
     static void load(Ts&... ss)
@@ -81,8 +84,6 @@ public:
     // Load using the currently selected oscillators.
     static void default_load(bool (&active)[NUM_KEYBOARD_KEYS]);
 
-    static void on_transpose(int32_t transpose);
-
 private:
     bool playing             = false;
     float adjusted_amplitude = 1.0f;
@@ -90,6 +91,8 @@ private:
     buffer_t buffer[2];
     uint16_t* curr_buffer;
     uint16_t* next_buffer;
+
+    ActiveSoundArray<leaf::osc::cycle> sines;
 
     speaker()
     {
@@ -112,6 +115,4 @@ private:
 
         instance().swap_buffer();
     }
-
-    static void init_freq(int32_t transpose);
 };

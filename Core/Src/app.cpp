@@ -5,8 +5,10 @@
 #include "lcd/lcd.hpp"
 #include "metronome.hpp"
 #include "profile.hpp"
+#include "settings.hpp"
 #include "speaker.hpp"
 #include "volume.hpp"
+
 extern "C" {
 #include "FLASH_SECTOR_F4.h"
 #include "main.h"

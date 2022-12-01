@@ -11,10 +11,11 @@ char leaf_memory[MEM_SIZE];
 float random_number() { return 0.5; }
 
 inline constexpr int NUM_SINES = 29;
-leaf::osc::cycle sine[NUM_SINES];
+// leaf::osc::cycle sine[NUM_SINES];
 leaf::midi::poly midi_poly;
 inline constexpr int NUM_SINES_CH = 2;
 leaf::osc::cycle sine_ch[NUM_SINES_CH];
+
 extern LCD<> lcd;
 // float chord[] = {440.0, 554.37, 659.25};
 float chord[] = {440, 660};
@@ -25,10 +26,8 @@ void speaker::init()
     leaf::init(21000, leaf_memory, MEM_SIZE, &random_number);
     midi_poly.init(4);
 
-    for (int i = 0; i < NUM_SINES; i++) {
-        sine[i].init();
-    }
-    init_freq(0);
+    instance().sines.init();
+
     for (int i = 0; i < NUM_SINES_CH; i++) {
         sine_ch[i].init();
         sine_ch[i].setFreq(chord[i]);
@@ -37,19 +36,18 @@ void speaker::init()
     speaker::play();
 }
 
-void speaker::init_freq(int32_t transpose)
-{
-    for (int i = 0; i < NUM_SINES; i++) {
-        sine[i].setFreq(notes::get_freq(static_cast<Note>(button2note(i) + transpose)));
-        sine[i].setPhase(0);
-    }
-}
+void speaker::note_on(Note note, uint8_t vel) { instance().sines.note_on(note, vel); }
+
+void speaker::note_off(Note note) { instance().sines.note_off(note); }
 
 
 void speaker::default_load(bool (&active)[NUM_KEYBOARD_KEYS])
 {
     // TODO: introduce other instruments/oscillators
-    speaker::load(sine, active);
+    // speaker::load(sine, active);
+    for (size_t i = 0; i < buffer_size; i++) {
+        instance().curr_buffer[i] = instance().sines.tick();
+    }
 }
 
 
@@ -124,5 +122,3 @@ void speaker::loop()
     // });
     // lcd.draw_string(0, 0, "elapsed: %d %d %d", elapsed, elapsed_send, elapsed_loop);
 }
-
-void speaker::on_transpose(int32_t transpose) { init_freq(transpose); }
