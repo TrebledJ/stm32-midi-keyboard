@@ -1,4 +1,5 @@
 #include "keyboard.hpp"
+
 #include "lcd/lcd.hpp"
 #include "speaker.hpp"
 #include "utils/notes.hpp"
@@ -41,12 +42,11 @@ void kb::update_speaker()
 void kb::_toggle_playback()
 {
     m_is_playback = !m_is_playback;
+    m_midi_file.load(FLASH_ADDR_START);
     reset();
-    if (m_is_playback) {
-        m_is_recording    = 0;
-        m_playback_index  = 0;
-        m_start_play_time = get_ticks();
-    }
+    m_is_recording    = 0;
+    m_playback_index  = 0;
+    m_start_play_time = get_ticks();
 }
 
 void kb::_toggle_record()
@@ -56,5 +56,9 @@ void kb::_toggle_record()
         m_is_playback = 0;
         m_midi_file.reset();
         m_start_record_time = get_ticks();
+        gpio_reset(LED1);
+    } else {
+        m_midi_file.save(FLASH_ADDR_START);
+        gpio_set(LED1);
     }
 }
