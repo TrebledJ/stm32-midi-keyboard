@@ -44,7 +44,7 @@ public:
             if (used[i] && notes[i] == note) {
                 used[i] = false;
                 m_num_active--;
-                // break;
+                break;
             }
         }
     }
@@ -70,10 +70,11 @@ public:
     }
 
 
+    int m_num_active = 0;
+    bool used[MAX_OSC];
+
 private:
     T banks[MAX_OSC];
     Note notes[MAX_OSC];
     uint8_t vels[MAX_OSC];
-    bool used[MAX_OSC];
-    int m_num_active = 0;
 };

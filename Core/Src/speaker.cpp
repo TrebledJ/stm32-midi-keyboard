@@ -1,8 +1,9 @@
+#include "speaker.hpp"
+
 #include "buttons.hpp"
 #include "lcd/lcd.hpp"
 #include "leaf.hpp"
 #include "main.h"
-#include "speaker.hpp"
 #include "utils/notes.hpp"
 
 #define MEM_SIZE 40000
@@ -54,7 +55,7 @@ void speaker::default_load(bool (&active)[NUM_KEYBOARD_KEYS])
 void speaker::loop()
 {
     for (size_t i = 0; i < buffer_size; i++) {
-        instance().curr_buffer[i] = instance().sines.tick();
+        instance().curr_buffer[i] = scale(instance().sines.tick());
     }
     speaker::send();
 
