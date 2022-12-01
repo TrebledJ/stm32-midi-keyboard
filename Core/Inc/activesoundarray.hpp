@@ -29,6 +29,7 @@ public:
                 used[i]  = true;
                 notes[i] = note;
                 vels[i]  = vel;
+                break;
             }
         }
     }
@@ -62,7 +63,7 @@ public:
         float sum = 0;
         for (int i = 0; i < MAX_OSC; i++) {
             if (used[i])
-                sum += banks[i].tick() * (vels[i] / 127);
+                sum += banks[i].tick() * vels[i] / 127;
         }
         return sum / m_num_active;
     }
