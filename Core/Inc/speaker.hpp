@@ -81,11 +81,6 @@ public:
         }
     }
 
-    // Load using the currently selected oscillators.
-    static void default_load(bool (&active)[NUM_KEYBOARD_KEYS]);
-
-    ActiveSoundArray<leaf::osc::cycle> sines;
-    
 private:
     bool playing             = false;
     float adjusted_amplitude = 1.0f;
@@ -94,6 +89,7 @@ private:
     uint16_t* curr_buffer;
     uint16_t* next_buffer;
 
+    ActiveSoundArray<leaf::osc::cycle> sines;
 
     speaker()
     {

@@ -31,8 +31,6 @@ void kb::update_speaker()
             uint8_t vel  = m_midi_file[m_playback_index].velocity;
             bool note_on = ((m_midi_file[m_playback_index].status_byte >> 4) & 1);
 
-            // uint16_t note  = note2button(midi2note(m_midi_file[m_playback_index].data_byte));
-            // m_active[note] = ((m_midi_file[m_playback_index].status_byte >> 4) & 1);
             if (note_on) {
                 speaker::note_on(note, vel);
             } else {
@@ -47,7 +45,6 @@ void kb::update_speaker()
             }
         }
     }
-    // speaker::default_load(m_active);
 
     // Handle keypress.
     for (int i = 0; i < NUM_KEYBOARD_KEYS; i++) {
