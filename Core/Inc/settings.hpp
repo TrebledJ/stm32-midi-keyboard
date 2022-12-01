@@ -25,6 +25,8 @@ struct settings {
     static void load(const settings& s) { curr() = s; }
     static void update();
 
+    static void set_transpose(int32_t transpose) { curr().transpose = transpose; }
+
 private:
     settings(const settings&) = default;
     settings(settings&&)      = delete;

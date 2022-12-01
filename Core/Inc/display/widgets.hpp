@@ -3,6 +3,8 @@
 #include "display/display_utils.hpp"
 #include "utils/shapes.hpp"
 
+#include <functional>
+
 
 class ComboSelectWidget
 {
@@ -56,28 +58,42 @@ public:
 class SliderWidget
 {
 public:
+    using handler = std::function<void(int32_t)>;
+
     SliderWidget(int32_t value = 0, int32_t inc = 1) : m_value{value}, inc{inc} {}
 
     int32_t value() const { return m_value; }
+
+    void on_value_changed(handler&& h) { m_on_value_changed = h; }
 
     void set_range(int32_t min, int32_t max)
     {
         this->min = min;
         this->max = max;
     }
-    void set_value(int32_t value) { m_value = value; }
+    void set_value(int32_t value)
+    {
+        if (m_value != value) {
+            m_value = value;
+            m_on_value_changed(m_value);
+        }
+    }
     void set_inc(int32_t inc) { this->inc = inc; }
     void up()
     {
-        m_value += inc;
-        if (m_value > max)
-            m_value = max;
+        if (m_value == max)
+            return;
+
+        m_value = std::min(m_value + inc, max);
+        m_on_value_changed(m_value);
     }
     void down()
     {
-        m_value -= inc;
-        if (m_value < min)
-            m_value = min;
+        if (m_value == min)
+            return;
+
+        m_value = std::max(m_value - inc, min);
+        m_on_value_changed(m_value);
     }
 
     void draw(const urect& bounds, bool force = false)
@@ -98,4 +114,6 @@ private:
     int32_t inc = 1;
     int32_t min = 0;
     int32_t max = 100;
+
+    handler m_on_value_changed;
 };

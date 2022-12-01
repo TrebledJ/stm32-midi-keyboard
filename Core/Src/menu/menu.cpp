@@ -150,6 +150,8 @@ SettingsPage::SettingsPage()
     volume.set_range(0, 100);
     transpose.set_value(0);
     transpose.set_range(-12, 12);
+
+    transpose.on_value_changed(settings::set_transpose);
 }
 
 bool SettingsPage::on_w()
