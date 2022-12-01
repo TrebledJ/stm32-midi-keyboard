@@ -61,7 +61,7 @@ void SongPage::draw(const urect& bounds, bool force)
     }
 
     if (prev_v_index != v_index) {
-        prev_v_index          = v_index;
+        // prev_v_index          = v_index;
         redraw_header         = true;
         redraw_selected_index = true;
     }
@@ -108,6 +108,8 @@ void SongPage::draw(const urect& bounds, bool force)
                                          force);
         }
     }
+
+    prev_v_index = v_index;
 }
 
 void SongPage::load_prev_song()
