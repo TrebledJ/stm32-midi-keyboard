@@ -28,8 +28,7 @@ MenuController display{songs};
 LCD<> lcd{&hspi2};
 
 #define FLASH_ADDR_START 0x0800C000
-uint8_t aa[3]     = {69, 123, 5};
-uint8_t rx_buf[3] = {0};
+uint8_t aa[3] = {'A', 'B', 'C'};
 
 void app_init()
 {
@@ -49,14 +48,7 @@ void app_run()
         display.loop();
         settings::update();
 
-        // Flash_Read_Bytes(FLASH_ADDR_START, rx_buf, 3);
-        // lcd.draw_stringf(0, 0, "%d %d %d", rx_buf[0], rx_buf[1], rx_buf[2]);
-
-        // Print button states.
-        // for (int i = 0; i < 8; i++)
-        //     for (int j = 0; j < 8; j++)
-        //         lcd.draw_stringf(0 + 3 * j, 3 + i, "%d", buttons::is_btn_pressed(static_cast<ButtonName>(i * 8 +
-        //         j)));
+        HAL_UART_Transmit_IT(&huart1, aa, sizeof(aa));
 
         // Tick everything.
         metronome.tick();
