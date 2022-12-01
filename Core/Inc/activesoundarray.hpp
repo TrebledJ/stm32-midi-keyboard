@@ -44,7 +44,7 @@ public:
             if (used[i] && notes[i] == note) {
                 used[i] = false;
                 m_num_active--;
-                break;
+                // break;
             }
         }
     }

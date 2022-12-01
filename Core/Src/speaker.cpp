@@ -45,14 +45,17 @@ void speaker::default_load(bool (&active)[NUM_KEYBOARD_KEYS])
 {
     // TODO: introduce other instruments/oscillators
     // speaker::load(sine, active);
-    for (size_t i = 0; i < buffer_size; i++) {
-        instance().curr_buffer[i] = instance().sines.tick();
-    }
+    // for (size_t i = 0; i < buffer_size; i++) {
+    //     instance().curr_buffer[i] = instance().sines.tick();
+    // }
 }
 
 
 void speaker::loop()
 {
+    for (size_t i = 0; i < buffer_size; i++) {
+        instance().curr_buffer[i] = instance().sines.tick();
+    }
     speaker::send();
 
     instance().adjusted_amplitude = amplitude * volume::get();
