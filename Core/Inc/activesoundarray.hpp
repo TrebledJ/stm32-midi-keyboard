@@ -29,6 +29,7 @@ public:
                 used[i]  = true;
                 notes[i] = note;
                 vels[i]  = vel;
+                m_num_active++;
                 break;
             }
         }
