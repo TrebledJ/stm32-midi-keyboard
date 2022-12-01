@@ -75,7 +75,9 @@ public:
     {
         if (m_value != value) {
             m_value = value;
-            m_on_value_changed(m_value);
+
+            if (m_on_value_changed)
+                m_on_value_changed(m_value);
         }
     }
     void set_inc(int32_t inc) { this->inc = inc; }
@@ -85,7 +87,8 @@ public:
             return;
 
         m_value = std::min(m_value + inc, max);
-        m_on_value_changed(m_value);
+        if (m_on_value_changed)
+            m_on_value_changed(m_value);
     }
     void down()
     {
@@ -93,7 +96,8 @@ public:
             return;
 
         m_value = std::max(m_value - inc, min);
-        m_on_value_changed(m_value);
+        if (m_on_value_changed)
+            m_on_value_changed(m_value);
     }
 
     void draw(const urect& bounds, bool force = false)
