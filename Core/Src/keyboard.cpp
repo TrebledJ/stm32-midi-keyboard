@@ -59,6 +59,7 @@ void kb::_toggle_record()
         gpio_reset(LED1);
     } else {
         m_midi_file.save(FLASH_ADDR_START);
+        m_midi_file.export_midi(); // TODO: export at other time
         gpio_set(LED1);
     }
 }

@@ -27,7 +27,7 @@ MenuController display{songs};
 LCD<> lcd{&hspi2};
 
 #define FLASH_ADDR_START 0x0800C000
-uint8_t aa[3] = {'A', 'B', 'C'};
+uint8_t aa[4] = {'A', 'B', 'C', '\n'};
 
 void app_init()
 {
@@ -36,7 +36,7 @@ void app_init()
     lcd.clear();
     // display.init();
     speaker::init();
-    Flash_Write_Bytes(FLASH_ADDR_START, aa, 3);
+    // Flash_Write_Bytes(FLASH_ADDR_START, aa, 3);
 }
 void app_run()
 {
@@ -45,7 +45,7 @@ void app_run()
         kb::loop();
         speaker::loop();
         display.loop();
-        HAL_UART_Transmit_IT(&huart1, aa, sizeof(aa));
+        // HAL_UART_Transmit_IT(&huart1, aa, sizeof(aa));
         // Tick everything.
         metronome.tick();
         buttons::tick();
