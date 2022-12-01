@@ -1,3 +1,5 @@
+#pragma once
+
 #include "utils/magic_enum.hpp"
 
 //+21
