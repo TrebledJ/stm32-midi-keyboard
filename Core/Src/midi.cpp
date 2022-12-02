@@ -1,9 +1,12 @@
 #include "midi.hpp"
+
+#include "lcd/lcd.hpp"
 extern "C" {
 #include "FLASH_SECTOR_F4.h"
 #include "main.h"
 }
 extern UART_HandleTypeDef huart1;
+extern LCD_ lcd;
 namespace midi
 {
     void file::note_on(uint32_t t, uint8_t channel, uint8_t note)
@@ -13,6 +16,7 @@ namespace midi
         m.time_stamp  = t;
         m.status_byte = (NOTE_ON << 4) + channel;
         m.data_byte   = note;
+        lcd.draw_stringf(0, 6, "time_stamp:%d", t);
     }
 
     void file::note_off(uint32_t t, uint8_t channel, uint8_t note)
@@ -22,6 +26,7 @@ namespace midi
         m.time_stamp  = t;
         m.status_byte = (NOTE_OFF << 4) + channel;
         m.data_byte   = note;
+        lcd.draw_stringf(20, 6, "%d", t);
     }
 
     void file::load(uintptr_t addr)

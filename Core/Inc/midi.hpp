@@ -25,15 +25,11 @@ namespace midi
         uint8_t data_byte;
     };
     struct package {
-        uint8_t start_byte = 'e';
-        uint16_t m_size    = 0;
-        uint8_t volume     = 100;
-        uint8_t tempo      = 120;
+        uint8_t start_byte  = 101;
+        uint16_t m_size     = 0;
+        uint8_t midi_volume = 100;
+        uint8_t tempo       = 120;
         message msg[MIDI_MAX_MESSAGES];
-    };
-    union big_package {
-        midi::package pkg;
-        uint8_t buff[sizeof(pkg)];
     };
     class file
     {
