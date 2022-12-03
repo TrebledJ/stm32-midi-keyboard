@@ -8,6 +8,7 @@ track = 0   # the only track
 time = 0    # start at the beginning
 
 os.system('ls /dev/ | grep "tty.usbserial"')
+print("Welcome to midi file generator, press ctrl+c to save the midi file!")
 name = input('/dev/tty.usbserial-')
 file_name = input('Midi output name:')
 # COM_PORT = '/dev/tty.usbserial-14230'   
@@ -43,23 +44,26 @@ try:
                 mf.addTrackName(track, 0, "Sample Track")
                 mf.addTempo(track, 0, tempo)
                 for i in range (size):
-                    if(data[i*8+6] == 0 and data[i*8+7] == 0 and data[i*8+8] == 0):
-                        time = data[i*8+9]
-                    elif(data[i*8+6] == 0 and data[i*8+7] == 0):
-                        time = data[i*8+8] + data[i*8+9]*256
-                    elif(data[i*8+6] == 0):
-                        time = data[i*8+7] + data[i*8+8]*256 + data[i*8+9]*256*256
+                    if(i*8+13 < len(data)):
+                        if(data[i*8+6] == 0 and data[i*8+7] == 0 and data[i*8+8] == 0):
+                            time = data[i*8+9]
+                        elif(data[i*8+6] == 0 and data[i*8+7] == 0):
+                            time = data[i*8+8] + data[i*8+9]*256
+                        elif(data[i*8+6] == 0):
+                            time = data[i*8+7] + data[i*8+8]*256 + data[i*8+9]*256*256
+                        else:
+                            time = data[i*8+6] + data[i*8+7]*256 + data[i*8+8]*256*256+ data[i*8+9]*256*256*256
+                        channel = data[i*8+12] & 15
+                        pitch = data[i*8+13]
+                        if(data[i*8+12] & 16):
+                            note_on_time[pitch-21] = time
+                            print("on:",time)
+                        else:
+                            print("off:",time)
+                            print(track," ", channel," ", pitch," ", int(note_on_time[pitch-21])," ", int(time - note_on_time[pitch-21])," ", volume)
+                            mf.addNote(track, channel, pitch, int(note_on_time[pitch-21]), int(time - note_on_time[pitch-21]), volume)
                     else:
-                        time = data[i*8+6] + data[i*8+7]*256 + data[i*8+8]*256*256+ data[i*8+9]*256*256*256
-                    channel = data[i*8+12] & 15
-                    pitch = data[i*8+13]
-                    if(data[i*8+12] & 16):
-                        note_on_time[pitch-21] = time
-                        print("on:",time)
-                    else:
-                        print("off:",time)
-                        print(track," ", channel," ", pitch," ", int(note_on_time[pitch-21])," ", int(time - note_on_time[pitch-21])," ", volume)
-                        mf.addNote(track, channel, pitch, int(note_on_time[pitch-21]), int(time - note_on_time[pitch-21]), volume)
+                        print("Error: array out of bound, please try send again")
 
                            
 except KeyboardInterrupt:
