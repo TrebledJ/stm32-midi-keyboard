@@ -35,7 +35,7 @@ public:
         extern LCD_ lcd;
         if (force || prev != curr) {
             prev = curr;
-            lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT, "%-10s", options[curr].data());
+            lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT, "%-20s", options[curr].data());
         }
     }
 

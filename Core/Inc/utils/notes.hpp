@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utils/magic_enum.hpp"
+#include "utils/tinyvector.hpp"
 
 //+21
 #define NOTE_FREQ_TABLE(X) \
@@ -95,16 +96,80 @@
 
 
 #define X(a, b) a,
-enum Note { NOTE_FREQ_TABLE(X) };
+enum class Note { NOTE_FREQ_TABLE(X) };
 #undef X
 
 inline constexpr int NUM_NOTES = magic_enum::enum_count<Note>();
+
+inline constexpr Note operator+(Note n, int rhs) { return static_cast<Note>(static_cast<int>(n) + rhs); }
+inline constexpr Note operator+(Note n, int32_t rhs) { return static_cast<Note>(static_cast<int>(n) + rhs); }
+
+
+#define note2midi(n)   (static_cast<uint8_t>(n + 21))
+#define midi2note(n)   (static_cast<Note>(n - 21))
+#define note2button(n) (static_cast<ButtonName>(n - static_cast<int>(C4)))
+#define button2note(n) (static_cast<Note>(Note::C4 + n))
+
+
+enum DiatonicNote {
+    A,
+    Bb,
+    B,
+    C,
+    Db,
+    D,
+    Eb,
+    E,
+    F,
+    Gb,
+    G,
+    Ab,
+};
+
+using chord = fsvector<Note, 4>;
+
+inline DiatonicNote diatonic_note_of(Note n) { return static_cast<DiatonicNote>(static_cast<int>(n) % 12); }
+
+inline chord major_triad(Note base) { return {base, base + 4, base + 7}; }
+inline chord minor_triad(Note base) { return {base, base + 3, base + 7}; }
+inline chord open_major_triad(Note base) { return {base, base + 7, base + 16}; }
+inline chord open_minor_triad(Note base) { return {base, base + 7, base + 15}; }
+
+enum class Interval { P1, m2, M2, m3, M3, P4, TT, P5, m6, M6, m7, M7, P8 };
+
+inline Note operator+(Note n, Interval i) { return static_cast<Note>(n + static_cast<int>(i)); }
+
+enum class ScaleDegree { NONE, MAJOR, MINOR };
+inline constexpr ScaleDegree degrees[] = {
+    ScaleDegree::MAJOR, // 1st
+    ScaleDegree::NONE,
+    ScaleDegree::MINOR, // 2nd
+    ScaleDegree::NONE,
+    ScaleDegree::MINOR, // 3rd
+    ScaleDegree::MAJOR, // 4th
+    ScaleDegree::NONE,
+    ScaleDegree::MAJOR, // 5th
+    ScaleDegree::NONE,
+    ScaleDegree::MINOR, // 6th
+    ScaleDegree::NONE,
+    ScaleDegree::MINOR, // 7th
+    ScaleDegree::MAJOR, // 8th
+};
+
+inline ScaleDegree get_scale_degree(Note base, DiatonicNote key)
+{
+    return degrees[(diatonic_note_of(base) - key + 12) % 12];
+}
 
 
 class notes
 {
 public:
-    static float get_freq(Note note) { return freq[note]; }
+    static float get_freq(Note note) { return freq[static_cast<int>(note)]; }
+    static const stringview_t& get_note_name(Note note) { return NOTE_NAMES[static_cast<int>(note)]; }
+    static const stringview_t& get_diatonic_name(Note note) { return DIATONIC_NAMES[static_cast<int>(note)]; }
+
+    static constexpr auto DIATONIC_NAMES = magic_enum::enum_names<DiatonicNote>();
 
 private:
     static constexpr float freq[NUM_NOTES] = {
@@ -112,10 +177,6 @@ private:
         NOTE_FREQ_TABLE(X)
 #undef X
     };
+
+    static constexpr auto NOTE_NAMES = magic_enum::enum_names<Note>();
 };
-
-
-#define note2midi(n)   (n + 21)
-#define midi2note(n)   (static_cast<Note>(n - 21))
-#define note2button(n) (static_cast<ButtonName>(n - C4))
-#define button2note(n) (static_cast<Note>(n + C4))

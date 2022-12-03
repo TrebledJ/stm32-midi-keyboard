@@ -29,6 +29,18 @@ void speaker::note_off(Note note) { instance().sines.note_off(note); }
 
 void speaker::loop()
 {
+    extern LCD_ lcd;
+    int count = 0;
+    for (int i = 0; i < instance().sines.MAX_OSC; i++) {
+        if (instance().sines.used[i]) {
+            lcd.draw_stringf(0 + 4 * count, 15, "%-3s", notes::get_note_name(instance().sines.notes[i]).data());
+            count++;
+        }
+    }
+    if (count == 0) {
+        lcd.draw_stringf(0, 15, "%-40s", "");
+    }
+
     // TODO: introduce other instruments/oscillators
     for (size_t i = 0; i < buffer_size; i++) {
         instance().curr_buffer[i] = scale(instance().sines.tick());

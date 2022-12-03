@@ -14,10 +14,15 @@ void kb::update_midi()
     uint8_t channel     = 1;
     if (m_is_recording) {
         for (int i = 0; i < NUM_KEYBOARD_KEYS; i++) {
+            Note note = static_cast<Note>(button2note(i) + settings::curr().transpose);
             if (is_key_just_pressed(i)) {
-                m_midi_file.note_on(time_stamp, channel, note2midi(button2note(i)) + settings::curr().transpose);
+                for (auto note : autochord::autonotes(note, settings::curr().autochord)) {
+                    m_midi_file.note_on(time_stamp, channel, note2midi(note));
+                }
             } else if (is_key_just_released(i)) {
-                m_midi_file.note_off(time_stamp, channel, note2midi(button2note(i)) + settings::curr().transpose);
+                for (auto note : autochord::autonotes(note, settings::curr().autochord)) {
+                    m_midi_file.note_off(time_stamp, channel, note2midi(note));
+                }
             }
         }
     }
@@ -52,9 +57,13 @@ void kb::update_speaker()
         if (is_key_just_pressed(i)) {
             // TODO: get key press velocity.
             uint8_t vel = 90;
-            speaker::note_on(note, vel);
+            for (auto note : autochord::autonotes(note, settings::curr().autochord)) {
+                speaker::note_on(note, vel);
+            }
         } else if (is_key_just_released(i)) {
-            speaker::note_off(note);
+            for (auto note : autochord::autonotes(note, settings::curr().autochord)) {
+                speaker::note_off(note);
+            }
         }
     }
 }

@@ -1,3 +1,4 @@
+#include "autochord.hpp"
 #include "display/menu.hpp"
 #include "settings.hpp"
 
@@ -25,7 +26,7 @@ void HomePage::draw(const urect& bounds, bool force)
         }
     }
 
-    size_t row = 18;
+    size_t row = 19;
     if (kb::is_recording()) {
         lcd.draw_string(0, row, "recording...    ");
     } else if (kb::is_playback()) {
@@ -144,6 +145,8 @@ void SongPage::record()
 ////////////////////////////////
 
 SettingsPage::SettingsPage()
+    : autochord{AUTOCHORD_OPTIONS.data(), AUTOCHORD_OPTIONS.size()}
+    , key{notes::DIATONIC_NAMES.data(), notes::DIATONIC_NAMES.size()}
 {
     volume.set_value(50);
     volume.set_inc(10);
@@ -151,7 +154,11 @@ SettingsPage::SettingsPage()
     transpose.set_value(0);
     transpose.set_range(-12, 12);
 
+    key.set_index(3);
+
     transpose.on_value_changed(settings::set_transpose);
+    autochord.on_value_changed(settings::set_autochord);
+    key.on_value_changed(settings::set_key);
 }
 
 bool SettingsPage::on_w()
@@ -177,6 +184,8 @@ bool SettingsPage::on_a()
     switch (select_index) {
         case VOLUME: return truef(volume.down());
         case TRANSPOSE: return truef(transpose.down());
+        case AUTO_CHORD: return truef(autochord.select_prev());
+        case KEY: return truef(key.select_prev());
         default: return false;
     }
 }
@@ -186,6 +195,8 @@ bool SettingsPage::on_d()
     switch (select_index) {
         case VOLUME: return truef(volume.up());
         case TRANSPOSE: return truef(transpose.up());
+        case AUTO_CHORD: return truef(autochord.select_next());
+        case KEY: return truef(key.select_next());
         default: return false;
     }
 }
@@ -206,35 +217,28 @@ void SettingsPage::draw(const urect& bounds, bool force)
     size_t y    = bounds.y;
 
     // Header row.
-    if (force) {
+    if (force_subdraw) {
         with_bg_if(select_index == DEFAULT, BLUE)
         {
             lcd.draw_string(bounds.x / CHAR_WIDTH, y / CHAR_HEIGHT, "Settings");
         }
     }
 
-    // Volume row.
-    y += CHAR_HEIGHT;
-    if (force) {
-        with_bg_if(select_index == VOLUME, BLUE) { lcd.draw_string(bounds.x / CHAR_WIDTH, y / CHAR_HEIGHT, "Volume:"); }
-    }
-    with_fg_if(select_index == VOLUME, BLUE, DARKGREY)
-    {
-        volume.draw(urect(col2, y + 4, w2, CHAR_HEIGHT - 8), force_subdraw);
-    }
-
-    // Transpose row.
-    y += CHAR_HEIGHT;
-    if (force) {
-        with_bg_if(select_index == TRANSPOSE, BLUE)
-        {
-            lcd.draw_string(bounds.x / CHAR_WIDTH, y / CHAR_HEIGHT, "Transpose:");
+    auto subdraw = [=, this](size_t& y, auto& ctrl, uint8_t select, const char* label) {
+        y += CHAR_HEIGHT;
+        if (force) {
+            with_bg_if(select_index == select, BLUE) { lcd.draw_string(bounds.x / CHAR_WIDTH, y / CHAR_HEIGHT, label); }
         }
-    }
-    with_fg_if(select_index == TRANSPOSE, BLUE, DARKGREY)
-    {
-        transpose.draw(urect(col2, y + 4, w2, CHAR_HEIGHT - 8), force_subdraw);
-    }
+        with_fg_if(select_index == select, BLUE, DARKGREY)
+        {
+            ctrl.draw(urect(col2, y + 4, w2, CHAR_HEIGHT - 8), force_subdraw);
+        }
+    };
+
+    subdraw(y, volume, VOLUME, "Volume:");
+    subdraw(y, transpose, TRANSPOSE, "Transpose:");
+    subdraw(y, autochord, AUTO_CHORD, "Auto-Chord:");
+    subdraw(y, key, KEY, "Key:");
 }
 
 
@@ -279,7 +283,7 @@ void MenuController::go_to_page(PageName page)
         lcd.clear();
         draw(); // Force refresh.
         switch (page) {
-            case PageName::HOME: home_page.reset_selection(); break;
+            // case PageName::HOME: home_page.reset_selection(); break;
             case PageName::SETTING: settings_page.reset_selection(); break;
             default: break;
         }

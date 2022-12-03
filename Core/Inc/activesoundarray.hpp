@@ -69,12 +69,12 @@ public:
         return sum / m_num_active;
     }
 
-
-    int m_num_active = 0;
+    Note notes[MAX_OSC];
     bool used[MAX_OSC];
 
 private:
     T banks[MAX_OSC];
-    Note notes[MAX_OSC];
     uint8_t vels[MAX_OSC];
+
+    int m_num_active = 0;
 };
