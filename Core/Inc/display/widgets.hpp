@@ -147,8 +147,13 @@ public:
             prev_value = m_value;
 
             float prog = 1.0 * (m_value - min) / (max - min);
-            lcd.draw_rect(bounds.x, bounds.y, bounds.w * prog, bounds.h, lcd.palette.foreground());
-            lcd.draw_rect(bounds.x + bounds.w * prog, bounds.y, bounds.w * (1 - prog), bounds.h, WHITE);
+
+            uint32_t text_x           = (bounds.x + bounds.w * 0.8) / CHAR_WIDTH;
+            uint32_t slider_width_pad = (text_x * CHAR_WIDTH - bounds.x) - 4;
+
+            lcd.draw_rect(bounds.x, bounds.y, slider_width_pad * prog, bounds.h, lcd.palette.foreground());
+            lcd.draw_rect(bounds.x + slider_width_pad * prog, bounds.y, slider_width_pad * (1 - prog), bounds.h, WHITE);
+            lcd.draw_stringf(text_x, bounds.y / CHAR_HEIGHT, "%-3ld", m_value);
         }
     }
 
