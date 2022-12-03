@@ -239,7 +239,7 @@ void SettingsPage::draw(const urect& bounds, bool force)
 
     auto subdraw = [=, this](size_t& y, auto& ctrl, uint8_t select, const char* label) {
         y += CHAR_HEIGHT;
-        if (force) {
+        if (force_subdraw) {
             with_bg_if(select_index == select, BLUE) { lcd.draw_string(bounds.x / CHAR_WIDTH, y / CHAR_HEIGHT, label); }
         }
         with_fg_if(select_index == select, BLUE, DARKGREY)
