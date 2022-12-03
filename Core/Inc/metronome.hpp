@@ -8,7 +8,7 @@ extern "C" {
 class Metronome
 {
 public:
-    Metronome(TIM_TypeDef* timer, uint32_t bpm = 80, uint16_t div = 4) : timer{timer}
+    Metronome(TIM_HandleTypeDef* timer, uint32_t bpm = 80, uint16_t div = 4) : timer{timer}
     {
         set_tempo(bpm);
         set_division(div);
@@ -16,11 +16,24 @@ public:
 
     void init()
     {
-        timer->ARR  = 1000; // set the timer1 auto-reload counter
-        timer->PSC  = 84;   // set the timer1 prescaler value
-        timer->CCR1 = 500;  // set the compare value of timer1 channel1
-        //  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1); // too noisy
+        timer->Instance->ARR  = 1000; // set the timer1 auto-reload counter
+        timer->Instance->PSC  = 84;   // set the timer1 prescaler value
+        timer->Instance->CCR1 = 500;  // set the compare value of timer1 channel1
     }
+
+    void start()
+    {
+        HAL_TIM_PWM_Start(timer, TIM_CHANNEL_1);
+        is_running = true;
+    }
+
+    void stop()
+    {
+        HAL_TIM_PWM_Stop(timer, TIM_CHANNEL_1);
+        is_running = false;
+    }
+
+    void toggle() { (is_running ? stop() : start()); }
 
     void set_tempo(uint32_t bpm) { interval = 60000 / bpm; }
     void set_division(uint16_t div) { division = div; }
@@ -34,7 +47,7 @@ public:
         } else if (HAL_GetTick() - last_ticks > interval - beep_interval) {
             last_ticks = HAL_GetTick();
             is_beeping = true;
-            if (count == division) {
+            if (count + 1 == division) {
                 beeper_strong();
                 count = 0;
             } else {
@@ -46,12 +59,13 @@ public:
     }
 
 private:
-    TIM_TypeDef* timer;         // Timer object.
+    TIM_HandleTypeDef* timer;   // Timer object.
     uint32_t interval;          // Interval between beats, in ms.
     uint32_t beep_interval = 5; // The interval to beep on each beat, in ms.
     uint16_t division;          // Set the number of divisions (beats) per bar.
 
     // Internal parameters to track metronome.
+    bool is_running     = false;
     uint16_t count      = 0;     // Which beat we're currently at.
     bool is_beeping     = false; // Whether beeper is currently on.
     uint32_t last_ticks = 0;     // Keeps track of the last update.

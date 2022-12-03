@@ -82,6 +82,8 @@ enum ButtonState {
 
 class buttons
 {
+    static constexpr uint32_t BTN_DOUBLE_THRESHOLD = 200;
+
 public:
     static buttons& instance()
     {
@@ -98,6 +100,7 @@ public:
     static void wait_key(int key);
 
     static bool is_btn_pressed(ButtonName btn) { return (instance().btn_matrix >> btn) & 1; }
+    static bool is_btn_double_pressed(ButtonName btn) { return (instance().btn_double >> btn) & 1; }
     static bool is_btn_released(ButtonName btn) { return instance().btn_matrix & instance().btn_edge & (1ULL << btn); }
     static bool is_btn_just_pressed(ButtonName btn)
     {
@@ -107,6 +110,8 @@ public:
 private:
     uint64_t btn_matrix; // Current state of each button (1=pressed, 0=released).
     uint64_t btn_edge;   // Edge-state of each button (1=edge, 0=flat).
+    uint64_t btn_double; // Double-pressed state (1=double pressed, 0=not).
+    uint32_t last_pressed[29];
     uint8_t delta_t_pressed[29];
     ButtonState key_state[29];
     uint8_t delta_t_released[29];

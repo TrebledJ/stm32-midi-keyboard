@@ -2,6 +2,7 @@
 #include "lcd/lcd.hpp"
 #include "leaf.hpp"
 #include "main.h"
+#include "profile.hpp"
 #include "speaker.hpp"
 #include "utils/notes.hpp"
 
@@ -45,7 +46,13 @@ void speaker::loop()
     for (size_t i = 0; i < buffer_size; i++) {
         instance().curr_buffer[i] = scale(instance().sines.tick());
     }
-    speaker::send();
+
+    static uint32_t prev_wait_time = 0;
+    timeit(wait_time, speaker::send(););
+    if (fabs(wait_time - prev_wait_time) > 3) {
+        lcd.draw_stringf(57, 19, "%3ld", wait_time);
+        prev_wait_time = wait_time;
+    }
 
     instance().adjusted_amplitude = amplitude * volume::get();
 

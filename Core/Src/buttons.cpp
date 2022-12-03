@@ -28,20 +28,27 @@ static const uint16_t btn_col_pin[] = {btn_table(col_pin)};
 
 void buttons::detect_key_matrix()
 {
-    uint64_t result = 0;
+    uint64_t result     = 0;
+    uint64_t dbl_result = 0;
+    uint32_t t          = get_ticks();
     btn_table(row_set);
     for (int row = 0; row < 8; row++) {
         HAL_Delay(1); // TODO: shorten this duration somehow? Wastes a bit too much processing power. >.>
         HAL_GPIO_WritePin(btn_row_port[row], btn_row_pin[row], GPIO_PIN_RESET);
         for (int col = 0; col < 8; col++) {
+            uint32_t index = row * 8 + col;
             if (!HAL_GPIO_ReadPin(btn_col_port[col], btn_col_pin[col])) {
-                result |= 1ULL << (row * 8 + col);
+                result |= 1ULL << index;
+                dbl_result |= (((btn_matrix >> index) & 1) == 0 && (t - last_pressed[index] < BTN_DOUBLE_THRESHOLD))
+                              << index;
+                last_pressed[index] = t;
             }
         }
         HAL_GPIO_WritePin(btn_row_port[row], btn_row_pin[row], GPIO_PIN_SET);
     }
     btn_edge   = btn_matrix ^ result; // Different => edge => 1. Same => flat => 0.
     btn_matrix = result;
+    btn_double = dbl_result;
 }
 
 void buttons::wait_key(int key)
@@ -69,7 +76,6 @@ void buttons::update_velocity()
         if (key_up && key_down && key_state[index] == PRESSING) { //(xx)
             delta_t_pressed[index] -= get_ticks();
             key_state[index] = ALL_PRESSED;
-            // TODO: send a play signal
         }
         if (key_down && !key_up && key_state[index] == ALL_PRESSED) { //(0x)
             delta_t_released[index] = get_ticks();
@@ -78,7 +84,6 @@ void buttons::update_velocity()
         if (!key_down && !key_up && key_state[index] == RELEASING) { //(00)
             delta_t_released[index] -= get_ticks();
             key_state[index] = ALL_RELEASED;
-            // TODO: send a stop signal
         }
     }
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "defines.hpp"
 #include "utils/magic_enum.hpp"
 #include "utils/tinyvector.hpp"
 

@@ -174,7 +174,7 @@ SettingsPage::SettingsPage()
     key.on_value_changed(settings::set_key);
 }
 
-bool SettingsPage::on_w()
+bool SettingsPage::on_w(ButtonEvent)
 {
     if (select_index > 0) {
         select_index -= 1;
@@ -183,7 +183,7 @@ bool SettingsPage::on_w()
     return false;
 }
 
-bool SettingsPage::on_s()
+bool SettingsPage::on_s(ButtonEvent)
 {
     if (select_index + 1 < max_index) {
         select_index += 1;
@@ -192,7 +192,7 @@ bool SettingsPage::on_s()
     return false;
 }
 
-bool SettingsPage::on_a()
+bool SettingsPage::on_a(ButtonEvent)
 {
     switch (select_index) {
         case VOLUME: return truef(volume.down());
@@ -203,7 +203,7 @@ bool SettingsPage::on_a()
     }
 }
 
-bool SettingsPage::on_d()
+bool SettingsPage::on_d(ButtonEvent)
 {
     switch (select_index) {
         case VOLUME: return truef(volume.up());

@@ -3,6 +3,14 @@
 #include "buttons.hpp"
 #include "display/songwidget.hpp"
 #include "keyboard.hpp"
+#include "metronome.hpp"
+
+
+struct ButtonEvent {
+    bool double_pressed;
+};
+
+inline ButtonEvent make_event(ButtonName button) { return ButtonEvent{buttons::is_btn_double_pressed(button)}; }
 
 
 class SongPage
@@ -10,12 +18,15 @@ class SongPage
 public:
     SongPage(std::array<SongData, NUM_SONGS>& data) : song_data{data} { load(data[0]); }
 
-    bool on_w() { return (is_ch(v_index) && channel[to_ch(v_index)].on_w()) || select_prev_v_index(); }
-    bool on_s() { return (is_ch(v_index) && channel[to_ch(v_index)].on_s()) || truef(select_next_v_index()); }
-    bool on_a() { return (is_ch(v_index) && channel[to_ch(v_index)].on_a()) || truef(load_prev_song()); }
-    bool on_d() { return (is_ch(v_index) && channel[to_ch(v_index)].on_d()) || truef(load_next_song()); }
-    bool on_f1() { return (is_ch(v_index) && channel[to_ch(v_index)].on_f1()) || truef(playpause()); }
-    bool on_f2() { return (is_ch(v_index) && channel[to_ch(v_index)].on_f2()) || truef(record()); }
+    bool on_w(ButtonEvent) { return (is_ch(v_index) && channel[to_ch(v_index)].on_w()) || select_prev_v_index(); }
+    bool on_s(ButtonEvent)
+    {
+        return (is_ch(v_index) && channel[to_ch(v_index)].on_s()) || truef(select_next_v_index());
+    }
+    bool on_a(ButtonEvent) { return (is_ch(v_index) && channel[to_ch(v_index)].on_a()) || truef(load_prev_song()); }
+    bool on_d(ButtonEvent) { return (is_ch(v_index) && channel[to_ch(v_index)].on_d()) || truef(load_next_song()); }
+    bool on_f1(ButtonEvent) { return (is_ch(v_index) && channel[to_ch(v_index)].on_f1()) || truef(playpause()); }
+    bool on_f2(ButtonEvent) { return (is_ch(v_index) && channel[to_ch(v_index)].on_f2()) || truef(record()); }
 
     void load(SongData& data);
     void draw(const urect& bounds, bool force = false);
@@ -64,12 +75,16 @@ class HomePage
 public:
     HomePage() {}
 
-    bool on_w() { return truef(--index); }
-    bool on_s() { return truef(++index); }
-    bool on_a() { return false; }
-    bool on_d() { return index != 0; }
-    bool on_f1() { return truef(kb::toggle_playback()); }
-    bool on_f2() { return truef(kb::toggle_record()); }
+    bool on_w(ButtonEvent) { return truef(--index); }
+    bool on_s(ButtonEvent) { return truef(++index); }
+    bool on_a(ButtonEvent)
+    {
+        extern Metronome metronome;
+        return truef(metronome.toggle());
+    }
+    bool on_d(ButtonEvent) { return index != 0; }
+    bool on_f1(ButtonEvent) { return truef(kb::toggle_playback()); }
+    bool on_f2(ButtonEvent) { return truef(kb::toggle_record()); }
 
     void reset_selection() { index = 0; }
     PageName selected_page() const { return static_cast<PageName>(index.data); }
@@ -90,12 +105,12 @@ public:
 
     void reset_selection() { select_index = 0; }
 
-    bool on_w();
-    bool on_s();
-    bool on_a();
-    bool on_d();
-    bool on_f1() { return false; }
-    bool on_f2() { return false; }
+    bool on_w(ButtonEvent);
+    bool on_s(ButtonEvent);
+    bool on_a(ButtonEvent);
+    bool on_d(ButtonEvent);
+    bool on_f1(ButtonEvent) { return false; }
+    bool on_f2(ButtonEvent) { return false; }
 
     void draw(const urect& bounds, bool force = false);
 
@@ -147,21 +162,21 @@ template <typename T>
 void MenuController::callback_delegate(T& page)
 {
     if (buttons::is_btn_just_pressed(BTN_Bottom)) {
-        page.on_f2();
+        page.on_f2(make_event(BTN_Bottom));
     }
     if (buttons::is_btn_just_pressed(BTN_Top)) {
-        page.on_f1();
+        page.on_f1(make_event(BTN_Top));
     }
     if (buttons::is_btn_just_pressed(BTN_W)) {
-        page.on_w() || truef(go_to_page(PageName::HOME));
+        page.on_w(make_event(BTN_W)) || truef(go_to_page(PageName::HOME));
     }
     if (buttons::is_btn_just_pressed(BTN_A)) {
-        page.on_a();
+        page.on_a(make_event(BTN_A));
     }
     if (buttons::is_btn_just_pressed(BTN_S)) {
-        page.on_s();
+        page.on_s(make_event(BTN_S));
     }
     if (buttons::is_btn_just_pressed(BTN_D)) {
-        page.on_d() && this->page == PageName::HOME&& truef(go_to_page(home_page.selected_page()));
+        page.on_d(make_event(BTN_D)) && (this->page == PageName::HOME) && truef(go_to_page(home_page.selected_page()));
     }
 }
