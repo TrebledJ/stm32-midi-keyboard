@@ -84,7 +84,7 @@ void SongPage::draw(const urect& bounds, bool force)
             {
                 lcd.draw_stringf(bounds.x / CHAR_WIDTH, y / CHAR_HEIGHT, "Channel %d:", i + 1);
             }
-            channel[i].draw(urect(bounds.x + CHAR_WIDTH * 12, y, bounds.w - CHAR_WIDTH * 12, CHAR_HEIGHT));
+            channel[i].draw(urect(bounds.x + CHAR_WIDTH * 12, y, bounds.w - CHAR_WIDTH * 12, CHAR_HEIGHT), true);
         }
     } else if (redraw_selected_index) {
         // Redraw only selected index.
@@ -97,6 +97,19 @@ void SongPage::draw(const urect& bounds, bool force)
                              "Channel %d:", to_ch(prev_v_index) + 1);
         }
 
+        if (is_ch(v_index)) {
+            with_bg_if(channel[to_ch(v_index)].selection() == ChannelWidget::DEFAULT, BLUE)
+            {
+                lcd.draw_stringf(bounds.x / CHAR_WIDTH, y / CHAR_HEIGHT + to_ch(v_index),
+                                 "Channel %d:", to_ch(v_index) + 1);
+            }
+
+            channel[to_ch(v_index)].draw(urect(bounds.x + CHAR_WIDTH * 12, y + CHAR_HEIGHT * to_ch(v_index),
+                                               bounds.w - CHAR_WIDTH * 12, CHAR_HEIGHT),
+                                         force);
+        }
+    } else {
+        y += CHAR_HEIGHT; // Skip header.
         if (is_ch(v_index)) {
             with_bg_if(channel[to_ch(v_index)].selection() == ChannelWidget::DEFAULT, BLUE)
             {
