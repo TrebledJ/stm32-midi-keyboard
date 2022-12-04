@@ -164,17 +164,20 @@ void SongPage::record()
 
 SettingsPage::SettingsPage()
     : autochord{AUTOCHORD_OPTIONS.data(), AUTOCHORD_OPTIONS.size()}
+    , instrument{INSTRUMENT_NAMES.data(), INSTRUMENT_NAMES.size()}
     , key{notes::DIATONIC_NAMES.data(), notes::DIATONIC_NAMES.size()}
 {
-    volume.set_value(50);
-    volume.set_inc(10);
-    volume.set_range(0, 100);
+    // volume.set_value(50);
+    // volume.set_inc(10);
+    // volume.set_range(0, 100);
 
     transpose.set_value(0);
     transpose.set_range(-12, 12);
     transpose.on_value_changed(settings::set_transpose);
 
     autochord.on_value_changed(settings::set_autochord);
+
+    instrument.on_value_changed(settings::set_instrument);
 
     key.set_index(3); // Init to C.
     key.on_value_changed(settings::set_key);
@@ -209,9 +212,10 @@ bool SettingsPage::on_s(ButtonEvent)
 bool SettingsPage::on_a(ButtonEvent)
 {
     switch (select_index) {
-        case VOLUME: return truef(volume.down());
+        // case VOLUME: return truef(volume.down());
         case TRANSPOSE: return truef(transpose.down());
         case AUTO_CHORD: return truef(autochord.select_prev());
+        case INSTRUMENT: return truef(instrument.select_prev());
         case KEY: return truef(key.select_prev());
         case METRONOME_DIV: return truef(metronome_div.down());
         default: return false;
@@ -221,9 +225,10 @@ bool SettingsPage::on_a(ButtonEvent)
 bool SettingsPage::on_d(ButtonEvent)
 {
     switch (select_index) {
-        case VOLUME: return truef(volume.up());
+        // case VOLUME: return truef(volume.up());
         case TRANSPOSE: return truef(transpose.up());
         case AUTO_CHORD: return truef(autochord.select_next());
+        case INSTRUMENT: return truef(instrument.select_next());
         case KEY: return truef(key.select_next());
         case METRONOME_DIV: return truef(metronome_div.up());
         default: return false;
@@ -265,9 +270,10 @@ void SettingsPage::draw(const urect& bounds, bool force)
         }
     };
 
-    subdraw(y, volume, VOLUME, "Volume:");
+    // subdraw(y, volume, VOLUME, "Volume:");
     subdraw(y, transpose, TRANSPOSE, "Transpose:");
     subdraw(y, autochord, AUTO_CHORD, "Auto-Chord:");
+    subdraw(y, instrument, INSTRUMENT, "Instrument:");
     subdraw(y, key, KEY, "Key:");
     subdraw(y, metronome_div, METRONOME_DIV, "Met. Div.:");
 }

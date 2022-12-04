@@ -107,9 +107,10 @@ class SettingsPage
 public:
     enum Selection {
         // DEFAULT,
-        VOLUME,
+        // VOLUME,
         TRANSPOSE,
         AUTO_CHORD,
+        INSTRUMENT,
         KEY,
         METRONOME_DIV,
         NUM_SELECTION
@@ -132,9 +133,10 @@ private:
     uint8_t select_index = DEFAULT;
     uint8_t max_index    = NUM_SELECTION;
 
-    SliderWidget volume;
+    // SliderWidget volume;
     SliderWidget transpose;
     ComboSelectWidget autochord;
+    ComboSelectWidget instrument;
     ComboSelectWidget key;
     SliderWidget metronome_div;
 

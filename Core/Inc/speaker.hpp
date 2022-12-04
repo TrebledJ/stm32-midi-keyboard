@@ -3,6 +3,7 @@
 #include "activesoundarray.hpp"
 #include "buttons.hpp"
 #include "leaf.hpp"
+#include "settings.hpp"
 #include "utils/notes.hpp"
 #include "volume.hpp"
 
@@ -90,6 +91,9 @@ private:
     uint16_t* next_buffer;
 
     ActiveSoundArray<leaf::osc::cycle> sines;
+    ActiveSoundArray<leaf::osc::square> squares;
+    ActiveSoundArray<leaf::osc::triangle> triangles;
+    ActiveSoundArray<leaf::osc::sawtooth> sawtooths; // Sawtooths? Sawteeth? Meh, whatever.
 
     speaker()
     {
@@ -98,6 +102,9 @@ private:
     }
 
     void swap_buffer() { std::swap(curr_buffer, next_buffer); }
+
+    template <typename F>
+    void instrument_visitor(F&& f);
 
     // Blocks until DAC can send, then sends the buffer over DMA.
     static void send()
@@ -113,3 +120,16 @@ private:
         instance().swap_buffer();
     }
 };
+
+
+template <typename F>
+inline void speaker::instrument_visitor(F&& f)
+{
+    switch (settings::curr().instrument) {
+        case SINE: f(instance().sines); break;
+        case SQUARE: f(instance().squares); break;
+        case TRIANGLE: f(instance().triangles); break;
+        case SAWTOOTH: f(instance().sawtooths); break;
+        default: break;
+    }
+}

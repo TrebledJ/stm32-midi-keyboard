@@ -19,7 +19,9 @@ inline constexpr int NUM_CHANNELS = 4;
 
 enum Instrument {
     SINE,
-    PIANO,
+    TRIANGLE,
+    SQUARE,
+    SAWTOOTH,
 };
 
 enum class PageName {
