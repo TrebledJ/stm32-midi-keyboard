@@ -18,8 +18,8 @@ public:
 
     static void init()
     {
-        instance().m_midi_file.load(FLASH_ADDR_START);
-        instance().m_midi_file.export_midi();
+        // instance().m_song_file.load(FLASH_ADDR_START);
+        // instance().m_song_file.export_midi();
     }
 
     static void loop()
@@ -47,7 +47,8 @@ private:
     uint32_t m_start_play_time   = 0;
     uint32_t m_playback_index    = 0;
 
-    midi::file m_midi_file;
+    midi::file m_song_file;
+    midi::file m_record_file;
 
     bool raw_is_key_pressed(int b) const
     {

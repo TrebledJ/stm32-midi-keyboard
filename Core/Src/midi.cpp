@@ -41,7 +41,7 @@ namespace midi
     {
         // TODO
         static uint8_t end = '\n';
-        HAL_UART_Transmit(&huart1, reinterpret_cast<uint8_t*>(&m_pkg), sizeof(m_pkg), 100);
+        HAL_UART_Transmit(&huart1, const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>(&m_pkg)), sizeof(m_pkg), 100);
         HAL_UART_Transmit(&huart1, &end, 1, 100);
     }
 
@@ -49,6 +49,45 @@ namespace midi
     {
         // TODO
         Flash_Write_Bytes(addr, reinterpret_cast<uint8_t*>(&m_pkg), sizeof(m_pkg));
+    }
+
+    void file::erase(uint8_t channel)
+    {
+        int write_i = 0;
+        for (int i = 0; i < m_pkg.size; i++) {
+            if ((m_pkg.msg[i].status_byte & 0xF) != channel)
+                m_pkg.msg[write_i++] = m_pkg.msg[i];
+        }
+        m_pkg.size = write_i;
+    }
+
+    void file::merge(const file& other)
+    {
+        message msg[MIDI_MAX_MESSAGES];
+
+        // Copy first array.
+        for (int i = 0; i < m_pkg.size; i++) {
+            msg[i] = m_pkg.msg[i];
+        }
+
+        uint32_t new_size = m_pkg.size + other.m_pkg.size;
+        int a = 0, b = 0;
+        int i = 0;
+        for (; a < m_pkg.size && b < other.m_pkg.size; i++) {
+            if (msg[a].time_stamp < other.m_pkg.msg[b].time_stamp) {
+                m_pkg.msg[i] = msg[a++];
+            } else {
+                m_pkg.msg[i] = other.m_pkg.msg[b++];
+            }
+        }
+        if (a < m_pkg.size) {
+            for (; i < new_size; i++)
+                m_pkg.msg[i] = msg[a++];
+        } else {
+            for (; i < new_size; i++)
+                m_pkg.msg[i] = other.m_pkg.msg[b++];
+        }
+        m_pkg.size = new_size;
     }
 
 } // namespace midi

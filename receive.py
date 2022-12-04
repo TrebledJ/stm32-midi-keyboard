@@ -146,7 +146,7 @@ def main(ser):
                         note_on_time[pitch-21]), int(time - note_on_time[pitch-21]), volume)
 
         if data.endswith(b'\n'):
-            return
+            return midi
 
 
 print('port:', COM_PORT)

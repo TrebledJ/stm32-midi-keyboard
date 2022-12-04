@@ -65,8 +65,8 @@ public:
 
     bool on_f2()
     {
-        solo.toggle();
-        return true;
+        // return truef(solo.toggle());
+        return false;
     }
 
     void load(ChannelData& data)
@@ -103,7 +103,7 @@ public:
         }
 
         mute.draw(urect(bounds.x + restw * 2, bounds.y, togglesz, togglesz), force);
-        solo.draw(urect(bounds.x + restw * 2 + togglesz, bounds.y, togglesz, togglesz), force);
+        // solo.draw(urect(bounds.x + restw * 2 + togglesz, bounds.y, togglesz, togglesz), force);
     }
 
 private:

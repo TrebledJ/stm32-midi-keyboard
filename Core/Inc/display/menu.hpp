@@ -4,6 +4,7 @@
 #include "display/songwidget.hpp"
 #include "keyboard.hpp"
 #include "metronome.hpp"
+#include "settings.hpp"
 
 
 struct ButtonEvent {
@@ -53,7 +54,11 @@ public:
     bool on_a(ButtonEvent) { return (is_ch(v_index) && channel[to_ch(v_index)].on_a()) || truef(load_prev_song()); }
     bool on_d(ButtonEvent) { return (is_ch(v_index) && channel[to_ch(v_index)].on_d()) || truef(load_next_song()); }
     bool on_f1(ButtonEvent) { return (is_ch(v_index) && channel[to_ch(v_index)].on_f1()) || truef(playpause()); }
-    bool on_f2(ButtonEvent) { return (is_ch(v_index) && channel[to_ch(v_index)].on_f2()) || truef(record()); }
+    // bool on_f2(ButtonEvent) { return (is_ch(v_index) && channel[to_ch(v_index)].on_f2()) || truef(record()); }
+    bool on_f2(ButtonEvent)
+    {
+        return (is_ch(v_index) && truef(settings::set_channel(to_ch(v_index)))) || truef(record());
+    }
 
     void load(SongData& data);
     void draw(const urect& bounds, bool force = false);
