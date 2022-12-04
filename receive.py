@@ -73,7 +73,7 @@ def select_port():
 
 print("Welcome to midi file generator!")
 
-default_output_file = 'sample'
+default_output_file = 'samples/sample'
 BAUD_RATE = 115200
 COM_PORT = select_port()
 
