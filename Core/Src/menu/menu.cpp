@@ -20,7 +20,7 @@ void HomePage::draw(const urect& bounds, bool force)
         prev_index                            = index.data;
         static constexpr const char* LABELS[] = {"Song Menu", "Settings Menu", "Export Menu"};
         for (size_t i = 1; i < NUM_PAGES; i++) {
-            with_bg_if(index == i, BLUE)
+            with_bg_if(index == i - 1, BLUE)
             {
                 lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + i + 1, "%s", LABELS[i - 1]);
             }

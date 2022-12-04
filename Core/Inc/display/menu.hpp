@@ -26,18 +26,18 @@ public:
         extern Metronome metronome;
         return truef(metronome.toggle());
     }
-    bool on_d(ButtonEvent) { return index != 0; }
+    bool on_d(ButtonEvent) { return true; }
     bool on_f1(ButtonEvent) { return truef(kb::toggle_playback()); }
     bool on_f2(ButtonEvent) { return truef(kb::toggle_record()); }
 
     void reset_selection() { index = 0; }
-    PageName selected_page() const { return static_cast<PageName>(index.data); }
+    PageName selected_page() const { return static_cast<PageName>(index.data + 1); }
 
     void draw(const urect& bounds, bool force = false);
 
 private:
-    clamped_int<magic_enum::enum_count<PageName>()> index = 0;
-    decltype(index)::type prev_index                      = 0;
+    clamped_int<magic_enum::enum_count<PageName>() - 1> index = 0;
+    decltype(index)::type prev_index                          = 0;
 };
 
 
