@@ -32,8 +32,9 @@ void kb::update_speaker()
 {
     if (m_is_playback) {
         while (get_ticks() - m_start_play_time >= m_midi_file[m_playback_index].time_stamp) {
-            Note note    = midi2note(m_midi_file[m_playback_index].data_byte);
-            uint8_t vel  = m_midi_file[m_playback_index].velocity;
+            Note note = midi2note(m_midi_file[m_playback_index].data_byte);
+            // uint8_t vel  = m_midi_file[m_playback_index].velocity;
+            uint8_t vel  = 90;
             bool note_on = ((m_midi_file[m_playback_index].status_byte >> 4) & 1);
 
             if (note_on) {

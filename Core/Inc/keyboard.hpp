@@ -8,10 +8,18 @@
 class kb
 {
 public:
+    static constexpr uintptr_t FLASH_ADDR_START = 0x080C0000;
+
     static kb& instance()
     {
         static kb k;
         return k;
+    }
+
+    static void init()
+    {
+        instance().m_midi_file.load(FLASH_ADDR_START);
+        instance().m_midi_file.export_midi();
     }
 
     static void loop()
@@ -73,5 +81,3 @@ private:
     void _toggle_playback();
     void _toggle_record();
 };
-
-#define FLASH_ADDR_START 0x080C0000
