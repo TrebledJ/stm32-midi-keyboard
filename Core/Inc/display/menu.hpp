@@ -100,7 +100,15 @@ private:
 class SettingsPage
 {
 public:
-    enum Selection { DEFAULT, VOLUME, TRANSPOSE, AUTO_CHORD, KEY, METRONOME_DIV, NUM_SELECTION };
+    enum Selection {
+        // DEFAULT,
+        VOLUME,
+        TRANSPOSE,
+        AUTO_CHORD,
+        KEY,
+        METRONOME_DIV,
+        NUM_SELECTION
+    };
 
     SettingsPage();
 

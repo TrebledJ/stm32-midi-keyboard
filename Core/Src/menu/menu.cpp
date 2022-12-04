@@ -12,17 +12,19 @@ void HomePage::draw(const urect& bounds, bool force)
 
     if (force) {
         lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + 0, "Home");
+        lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + 1,
+                        "------------------------------------------------------------");
     }
 
     if (force || prev_index != index.data) {
         prev_index = index.data;
         with_bg_if(index == 1, BLUE)
         {
-            lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + 1, "Song Menu");
+            lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + 2, "Song Menu");
         }
         with_bg_if(index == 2, BLUE)
         {
-            lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + 2, "Settings Menu");
+            lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + 3, "Settings Menu");
         }
     }
 
@@ -74,8 +76,12 @@ void SongPage::draw(const urect& bounds, bool force)
             lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT, "Song %d", song_index + 1);
         }
     }
+    if (force) {
+        lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + 1,
+                        "------------------------------------------------------------");
+    }
 
-    size_t y = bounds.y;
+    size_t y = bounds.y + CHAR_HEIGHT;
 
     if (redraw_all) {
         for (int i = 0; i < NUM_CHANNELS; i++) {
@@ -241,12 +247,18 @@ void SettingsPage::draw(const urect& bounds, bool force)
     size_t y    = bounds.y;
 
     // Header row.
-    if (force_subdraw) {
-        with_bg_if(select_index == DEFAULT, BLUE)
-        {
-            lcd.draw_string(bounds.x / CHAR_WIDTH, y / CHAR_HEIGHT, "Settings");
-        }
+    // if (force_subdraw) {
+    //     with_bg_if(select_index == DEFAULT, BLUE)
+    //     {
+    //     }
+    // }
+    if (force) {
+        lcd.draw_string(bounds.x / CHAR_WIDTH, y / CHAR_HEIGHT + 0, "Settings");
+        lcd.draw_string(bounds.x / CHAR_WIDTH, y / CHAR_HEIGHT + 1,
+                        "------------------------------------------------------------");
     }
+
+    y += CHAR_HEIGHT;
 
     auto subdraw = [=, this](size_t& y, auto& ctrl, uint8_t select, const char* label) {
         y += CHAR_HEIGHT;
@@ -321,11 +333,11 @@ void MenuController::draw_header(const urect& bounds, bool force)
     lcd.draw_stringf(54, 0, "M: %d/%d", metronome.count() + 1, metronome.division());
     // }
 
-    if (settings::prev().curr_song != settings::curr().curr_song) {
+    if (force || settings::prev().curr_song != settings::curr().curr_song) {
         lcd.draw_stringf(10, 0, "Song: %d/%d", settings::curr().curr_song, NUM_SONGS);
     }
 
-    if (settings::prev().curr_channel != settings::curr().curr_channel) {
+    if (force || settings::prev().curr_channel != settings::curr().curr_channel) {
         lcd.draw_stringf(20, 0, "Ch: %d/%d", settings::curr().curr_channel, NUM_CHANNELS);
     }
 }
