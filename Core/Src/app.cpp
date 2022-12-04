@@ -41,6 +41,7 @@ void app_init()
     kb::init();
     // Flash_Write_Bytes(FLASH_ADDR_START, aa, 3);
 }
+
 void app_run()
 {
     display.draw();
