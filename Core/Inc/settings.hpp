@@ -8,9 +8,11 @@
 
 
 struct settings {
-    int32_t transpose   = 0;
-    AutoChord autochord = AUTOCHORD_NONE;
-    DiatonicNote key    = C;
+    int32_t transpose    = 0;
+    AutoChord autochord  = AUTOCHORD_NONE;
+    DiatonicNote key     = C;
+    uint8_t curr_channel = 0;
+    uint8_t curr_song    = 0;
 
 
     settings() = default;

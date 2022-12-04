@@ -146,8 +146,10 @@ private:
     SongPage song_page;
     SettingsPage settings_page;
 
+    void draw_header(const urect& bounds, bool force = false);
+
     template <typename T>
-    void draw_delegate(T& page, bool force);
+    void draw_delegate(T& page, const urect& bounds, bool force);
 
     template <typename T>
     void callback_delegate(T& page);
@@ -155,9 +157,9 @@ private:
 
 
 template <typename T>
-void MenuController::draw_delegate(T& page, bool force)
+void MenuController::draw_delegate(T& page, const urect& bounds, bool force)
 {
-    page.draw({0, 0, LCD_WIDTH, LCD_HEIGHT}, force);
+    page.draw(bounds, force);
 }
 
 template <typename T>

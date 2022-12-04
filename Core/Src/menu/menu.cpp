@@ -273,10 +273,12 @@ void SettingsPage::draw(const urect& bounds, bool force)
 
 void MenuController::update(bool force)
 {
+    draw_header({0, 0, LCD_WIDTH, 2 * CHAR_HEIGHT}, force);
+    urect bounds = {0, 2 * CHAR_HEIGHT, LCD_WIDTH, LCD_HEIGHT};
     switch (page) {
-        case PageName::HOME: draw_delegate(home_page, force); break;
-        case PageName::SONG: draw_delegate(song_page, force); break;
-        case PageName::SETTING: draw_delegate(settings_page, force); break;
+        case PageName::HOME: draw_delegate(home_page, bounds, force); break;
+        case PageName::SONG: draw_delegate(song_page, bounds, force); break;
+        case PageName::SETTING: draw_delegate(settings_page, bounds, force); break;
         default: break;
     }
 }
@@ -284,20 +286,12 @@ void MenuController::update(bool force)
 void MenuController::loop()
 {
     switch (page) {
-        case PageName::HOME:
-            callback_delegate(home_page);
-            draw_delegate(home_page, false);
-            break;
-        case PageName::SONG:
-            callback_delegate(song_page);
-            draw_delegate(song_page, false);
-            break;
-        case PageName::SETTING:
-            callback_delegate(settings_page);
-            draw_delegate(settings_page, false);
-            break;
+        case PageName::HOME: callback_delegate(home_page); break;
+        case PageName::SONG: callback_delegate(song_page); break;
+        case PageName::SETTING: callback_delegate(settings_page); break;
         default: break;
     }
+    update(false);
 }
 
 void MenuController::go_to_page(PageName page)
@@ -312,5 +306,26 @@ void MenuController::go_to_page(PageName page)
             case PageName::SETTING: settings_page.reset_selection(); break;
             default: break;
         }
+    }
+}
+
+void MenuController::draw_header(const urect& bounds, bool force)
+{
+    extern LCD_ lcd;
+    if (force) {
+        lcd.draw_string(0, 1, "------------------------------------------------------------");
+    }
+
+    extern Metronome metronome;
+    // if (metronome.count()) {
+    lcd.draw_stringf(54, 0, "M: %d/%d", metronome.count() + 1, metronome.division());
+    // }
+
+    if (settings::prev().curr_song != settings::curr().curr_song) {
+        lcd.draw_stringf(10, 0, "Song: %d/%d", settings::curr().curr_song, NUM_SONGS);
+    }
+
+    if (settings::prev().curr_channel != settings::curr().curr_channel) {
+        lcd.draw_stringf(20, 0, "Ch: %d/%d", settings::curr().curr_channel, NUM_CHANNELS);
     }
 }
