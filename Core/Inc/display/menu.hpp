@@ -189,12 +189,19 @@ private:
     ExportPage export_page;
 
     void draw_header(const urect& bounds, bool force = false);
+    void draw_footer(const urect& bounds, bool force = false);
 
     template <typename T>
     void draw_delegate(T& page, const urect& bounds, bool force);
 
     template <typename T>
     void callback_delegate(T& page);
+
+
+    enum GeneralState { IDLE, PLAYING, RECORDING };
+
+    GeneralState get_current_general_state() const;
+    GeneralState prev_general_state, curr_general_state;
 };
 
 

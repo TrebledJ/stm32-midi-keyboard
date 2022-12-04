@@ -40,19 +40,25 @@ void speaker::note_off(Note note)
 }
 
 
-void speaker::loop()
+void print_usage(auto& x)
 {
     extern LCD_ lcd;
     int count = 0;
-    for (int i = 0; i < instance().sines.MAX_OSC; i++) {
-        if (instance().sines.used[i]) {
-            lcd.draw_stringf(0 + 4 * count, 15, "%-3s", notes::get_note_name(instance().sines.notes[i]).data());
+    for (int i = 0; i < x.MAX_OSC; i++) {
+        if (x.used[i]) {
+            lcd.draw_stringf(0 + 4 * count, 15, "%-3s", notes::get_note_name(x.notes[i]).data());
             count++;
         }
     }
     if (count == 0) {
-        lcd.draw_stringf(0, 15, "%-40s", "");
+        lcd.draw_stringf(0, 15, "%-40s", " ");
     }
+}
+
+void speaker::loop()
+{
+    extern LCD_ lcd;
+    instance().instrument_visitor([](auto& x) { print_usage(x); });
 
     instance().instrument_visitor([](auto& x) { instance().load(x); });
 

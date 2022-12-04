@@ -26,16 +26,8 @@ void HomePage::draw(const urect& bounds, bool force)
             }
         }
     }
-
-    size_t row = 19;
-    if (kb::is_recording()) {
-        lcd.draw_string(0, row, "recording...    ");
-    } else if (kb::is_playback()) {
-        lcd.draw_string(0, row, "playing...    ");
-    } else {
-        lcd.draw_string(0, row, "idle            ");
-    }
 }
+
 
 //////////////////////////
 // ----- SongPage ----- //
@@ -353,6 +345,7 @@ void ExportPage::draw(const urect& bounds, bool force)
 void MenuController::update(bool force)
 {
     draw_header({0, 0, LCD_WIDTH, 2 * CHAR_HEIGHT}, force);
+    draw_footer({0, LCD_HEIGHT - 2 * CHAR_HEIGHT, LCD_WIDTH, 2 * CHAR_HEIGHT}, force);
     urect bounds = {0, 2 * CHAR_HEIGHT, LCD_WIDTH, LCD_HEIGHT};
     switch (page) {
         case PageName::HOME: draw_delegate(home_page, bounds, force); break;
@@ -409,5 +402,29 @@ void MenuController::draw_header(const urect& bounds, bool force)
 
     if (force || settings::prev().channel != settings::curr().channel) {
         lcd.draw_stringf(15, 0, "Channel: %d/%d", settings::curr().channel + 1, NUM_CHANNELS);
+    }
+}
+
+void MenuController::draw_footer(const urect& bounds, bool force)
+{
+    extern LCD_ lcd;
+    curr_general_state = get_current_general_state();
+    if (force || prev_general_state != curr_general_state) {
+        prev_general_state                    = curr_general_state;
+        static constexpr const char* labels[] = {"idle", "playing...", "recording..."};
+        static constexpr color_t colors[]     = {YELLOW, GREEN, RED};
+        lcd.draw_rect(1, 306, 12, 12, colors[curr_general_state]);
+        lcd.draw_stringf(2, 19, "%-15s", labels[curr_general_state]);
+    }
+}
+
+MenuController::GeneralState MenuController::get_current_general_state() const
+{
+    if (kb::is_recording()) {
+        return RECORDING;
+    } else if (kb::is_playback()) {
+        return PLAYING;
+    } else {
+        return IDLE;
     }
 }
