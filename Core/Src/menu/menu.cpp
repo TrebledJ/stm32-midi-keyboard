@@ -408,6 +408,6 @@ void MenuController::draw_header(const urect& bounds, bool force)
     }
 
     if (force || settings::prev().channel != settings::curr().channel) {
-        lcd.draw_stringf(15, 0, "Ch: %d/%d", settings::curr().channel + 1, NUM_CHANNELS);
+        lcd.draw_stringf(15, 0, "Channel: %d/%d", settings::curr().channel + 1, NUM_CHANNELS);
     }
 }
