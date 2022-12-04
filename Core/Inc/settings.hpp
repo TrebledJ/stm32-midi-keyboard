@@ -8,11 +8,11 @@
 
 
 struct settings {
-    int32_t transpose    = 0;
-    AutoChord autochord  = AUTOCHORD_NONE;
-    DiatonicNote key     = C;
-    uint8_t curr_channel = 0;
-    uint8_t curr_song    = 0;
+    int32_t transpose   = 0;
+    AutoChord autochord = AUTOCHORD_NONE;
+    DiatonicNote key    = C;
+    uint8_t channel     = 0;
+    uint8_t song        = 0;
 
 
     settings() = default;
@@ -35,6 +35,8 @@ struct settings {
     static void set_transpose(int32_t transpose) { curr().transpose = transpose; }
     static void set_autochord(uint8_t autochord) { curr().autochord = static_cast<AutoChord>(autochord); }
     static void set_key(uint8_t key) { curr().key = static_cast<DiatonicNote>(key); }
+    static void set_song(uint8_t song) { curr().song = song; }
+    static void set_channel(uint8_t channel) { curr().channel = channel; }
 
 private:
     settings(const settings&) = default;

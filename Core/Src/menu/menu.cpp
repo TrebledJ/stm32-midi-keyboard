@@ -333,11 +333,11 @@ void MenuController::draw_header(const urect& bounds, bool force)
     lcd.draw_stringf(54, 0, "M: %d/%d", metronome.count() + 1, metronome.division());
     // }
 
-    if (force || settings::prev().curr_song != settings::curr().curr_song) {
-        lcd.draw_stringf(10, 0, "Song: %d/%d", settings::curr().curr_song, NUM_SONGS);
+    if (force || settings::prev().song != settings::curr().song) {
+        lcd.draw_stringf(0, 0, "Song: %d/%d", settings::curr().song + 1, NUM_SONGS);
     }
 
-    if (force || settings::prev().curr_channel != settings::curr().curr_channel) {
-        lcd.draw_stringf(20, 0, "Ch: %d/%d", settings::curr().curr_channel, NUM_CHANNELS);
+    if (force || settings::prev().channel != settings::curr().channel) {
+        lcd.draw_stringf(15, 0, "Ch: %d/%d", settings::curr().channel + 1, NUM_CHANNELS);
     }
 }
