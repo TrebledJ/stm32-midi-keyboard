@@ -164,14 +164,23 @@ SettingsPage::SettingsPage()
     volume.set_value(50);
     volume.set_inc(10);
     volume.set_range(0, 100);
+
     transpose.set_value(0);
     transpose.set_range(-12, 12);
-
-    key.set_index(3);
-
     transpose.on_value_changed(settings::set_transpose);
+
     autochord.on_value_changed(settings::set_autochord);
+
+    key.set_index(3); // Init to C.
     key.on_value_changed(settings::set_key);
+
+    metronome_div.set_value(4);
+    metronome_div.set_range(2, 8);
+
+    metronome_div.on_value_changed([](int32_t div) {
+        extern Metronome metronome;
+        metronome.set_division(div);
+    });
 }
 
 bool SettingsPage::on_w(ButtonEvent)
@@ -199,6 +208,7 @@ bool SettingsPage::on_a(ButtonEvent)
         case TRANSPOSE: return truef(transpose.down());
         case AUTO_CHORD: return truef(autochord.select_prev());
         case KEY: return truef(key.select_prev());
+        case METRONOME_DIV: return truef(metronome_div.down());
         default: return false;
     }
 }
@@ -210,6 +220,7 @@ bool SettingsPage::on_d(ButtonEvent)
         case TRANSPOSE: return truef(transpose.up());
         case AUTO_CHORD: return truef(autochord.select_next());
         case KEY: return truef(key.select_next());
+        case METRONOME_DIV: return truef(metronome_div.up());
         default: return false;
     }
 }
@@ -252,6 +263,7 @@ void SettingsPage::draw(const urect& bounds, bool force)
     subdraw(y, transpose, TRANSPOSE, "Transpose:");
     subdraw(y, autochord, AUTO_CHORD, "Auto-Chord:");
     subdraw(y, key, KEY, "Key:");
+    subdraw(y, metronome_div, METRONOME_DIV, "Met. Div.:");
 }
 
 

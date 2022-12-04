@@ -25,6 +25,7 @@ public:
     {
         HAL_TIM_PWM_Start(timer, TIM_CHANNEL_1);
         is_running = true;
+        count      = 0;
     }
 
     void stop()
@@ -47,13 +48,15 @@ public:
         } else if (HAL_GetTick() - last_ticks > interval - beep_interval) {
             last_ticks = HAL_GetTick();
             is_beeping = true;
-            if (count + 1 == division) {
+
+            if (count == 0) {
                 beeper_strong();
-                count = 0;
             } else {
                 beeper_weak();
-                count++;
             }
+            count = (count + 1 == division ? 0 : count + 1);
+
+
             gpio_toggle(LED2);
         }
     }
