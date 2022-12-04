@@ -1,6 +1,5 @@
 import serial
 import sys
-import os
 import numpy
 from midiutil import MIDIFile
 import glob
