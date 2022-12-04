@@ -312,11 +312,11 @@ void ExportPage::draw(const urect& bounds, bool force)
 {
     extern LCD_ lcd;
 
-    bool force_subdraw = force;
+    // bool force_subdraw = force;
 
     if (prev_select_index != select_index) {
         prev_select_index = select_index;
-        force_subdraw     = true;
+        // force_subdraw     = true;
     }
 
     // size_t col2 = bounds.x + CHAR_WIDTH * 12;
