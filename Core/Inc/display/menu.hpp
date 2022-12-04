@@ -36,8 +36,8 @@ public:
     void draw(const urect& bounds, bool force = false);
 
 private:
-    clamped_int<3> index             = 0;
-    decltype(index)::type prev_index = 0;
+    clamped_int<magic_enum::enum_count<PageName>()> index = 0;
+    decltype(index)::type prev_index                      = 0;
 };
 
 
@@ -142,6 +142,32 @@ private:
 };
 
 
+class ExportPage
+{
+public:
+    enum Selection { EXPORT, NUM_SELECTION };
+
+    ExportPage();
+
+    void reset_selection() { select_index = 0; }
+
+    bool on_w(ButtonEvent);
+    bool on_s(ButtonEvent);
+    bool on_a(ButtonEvent);
+    bool on_d(ButtonEvent);
+    bool on_f1(ButtonEvent) { return false; }
+    bool on_f2(ButtonEvent) { return false; }
+
+    void draw(const urect& bounds, bool force = false);
+
+private:
+    uint8_t select_index = DEFAULT;
+    uint8_t max_index    = NUM_SELECTION;
+
+    uint8_t prev_select_index = 0;
+};
+
+
 class MenuController
 {
 public:
@@ -158,6 +184,7 @@ private:
     HomePage home_page;
     SongPage song_page;
     SettingsPage settings_page;
+    ExportPage export_page;
 
     void draw_header(const urect& bounds, bool force = false);
 

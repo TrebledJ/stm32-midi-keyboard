@@ -91,7 +91,7 @@ void kb::_toggle_record()
     } else {
         m_song_file.merge(m_record_file);
         m_song_file.save(FLASH_ADDR_START);
-        m_song_file.export_midi(); // TODO: export at other time
+        // m_song_file.export_midi();
         gpio_set(LED1);
     }
 }

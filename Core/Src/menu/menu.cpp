@@ -17,14 +17,13 @@ void HomePage::draw(const urect& bounds, bool force)
     }
 
     if (force || prev_index != index.data) {
-        prev_index = index.data;
-        with_bg_if(index == 1, BLUE)
-        {
-            lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + 2, "Song Menu");
-        }
-        with_bg_if(index == 2, BLUE)
-        {
-            lcd.draw_string(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + 3, "Settings Menu");
+        prev_index                            = index.data;
+        static constexpr const char* LABELS[] = {"Song Menu", "Settings Menu", "Export Menu"};
+        for (size_t i = 1; i < NUM_PAGES; i++) {
+            with_bg_if(index == i, BLUE)
+            {
+                lcd.draw_stringf(bounds.x / CHAR_WIDTH, bounds.y / CHAR_HEIGHT + i + 1, "%s", LABELS[i - 1]);
+            }
         }
     }
 
@@ -247,11 +246,6 @@ void SettingsPage::draw(const urect& bounds, bool force)
     size_t y    = bounds.y;
 
     // Header row.
-    // if (force_subdraw) {
-    //     with_bg_if(select_index == DEFAULT, BLUE)
-    //     {
-    //     }
-    // }
     if (force) {
         lcd.draw_string(bounds.x / CHAR_WIDTH, y / CHAR_HEIGHT + 0, "Settings");
         lcd.draw_string(bounds.x / CHAR_WIDTH, y / CHAR_HEIGHT + 1,
@@ -280,6 +274,73 @@ void SettingsPage::draw(const urect& bounds, bool force)
 
 
 ////////////////////////////////
+// ----- ExportPage ----- //
+////////////////////////////////
+
+ExportPage::ExportPage() {}
+
+bool ExportPage::on_w(ButtonEvent)
+{
+    if (select_index > 0) {
+        select_index -= 1;
+        return true;
+    }
+    return false;
+}
+
+bool ExportPage::on_s(ButtonEvent)
+{
+    if (select_index + 1 < max_index) {
+        select_index += 1;
+        return true;
+    }
+    return false;
+}
+
+bool ExportPage::on_a(ButtonEvent) { return false; }
+
+bool ExportPage::on_d(ButtonEvent)
+{
+    if (select_index == 0) {
+        kb::export_midi();
+        return true;
+    }
+    return false;
+}
+
+void ExportPage::draw(const urect& bounds, bool force)
+{
+    extern LCD_ lcd;
+
+    bool force_subdraw = force;
+
+    if (prev_select_index != select_index) {
+        prev_select_index = select_index;
+        force_subdraw     = true;
+    }
+
+    // size_t col2 = bounds.x + CHAR_WIDTH * 12;
+    // size_t w2   = (bounds.w - CHAR_WIDTH * 12) * 3 / 5;
+    size_t y = bounds.y;
+
+    // Header row.
+    if (force) {
+        lcd.draw_string(bounds.x / CHAR_WIDTH, y / CHAR_HEIGHT + 0, "Export");
+        lcd.draw_string(bounds.x / CHAR_WIDTH, y / CHAR_HEIGHT + 1,
+                        "------------------------------------------------------------");
+    }
+
+    y += CHAR_HEIGHT;
+    if (force) {
+        with_bg_if(select_index == EXPORT, BLUE)
+        {
+            lcd.draw_string(bounds.x / CHAR_WIDTH, y / CHAR_HEIGHT + 1, "Export (TTL)");
+        }
+    }
+}
+
+
+////////////////////////////////
 // ----- MenuController ----- //
 ////////////////////////////////
 
@@ -291,6 +352,7 @@ void MenuController::update(bool force)
         case PageName::HOME: draw_delegate(home_page, bounds, force); break;
         case PageName::SONG: draw_delegate(song_page, bounds, force); break;
         case PageName::SETTING: draw_delegate(settings_page, bounds, force); break;
+        case PageName::EXPORT: draw_delegate(export_page, bounds, force); break;
         default: break;
     }
 }
@@ -301,6 +363,7 @@ void MenuController::loop()
         case PageName::HOME: callback_delegate(home_page); break;
         case PageName::SONG: callback_delegate(song_page); break;
         case PageName::SETTING: callback_delegate(settings_page); break;
+        case PageName::EXPORT: callback_delegate(export_page); break;
         default: break;
     }
     update(false);
@@ -316,6 +379,7 @@ void MenuController::go_to_page(PageName page)
         switch (page) {
             // case PageName::HOME: home_page.reset_selection(); break;
             case PageName::SETTING: settings_page.reset_selection(); break;
+            case PageName::EXPORT: export_page.reset_selection(); break;
             default: break;
         }
     }

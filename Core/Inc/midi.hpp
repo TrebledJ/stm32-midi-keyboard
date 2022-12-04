@@ -27,7 +27,7 @@ namespace midi
         uint8_t status_byte;
         uint8_t data_byte;
 
-        // uint8_t channel() const { return status_byte & 0xF; }
+        uint8_t channel() const { return status_byte & 0xF; }
     };
 
     struct package {

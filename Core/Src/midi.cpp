@@ -55,7 +55,7 @@ namespace midi
     {
         int write_i = 0;
         for (int i = 0; i < m_pkg.size; i++) {
-            if ((m_pkg.msg[i].status_byte & 0xF) != channel)
+            if (m_pkg.msg[i].channel() != channel)
                 m_pkg.msg[write_i++] = m_pkg.msg[i];
         }
         m_pkg.size = write_i;
@@ -66,13 +66,13 @@ namespace midi
         message msg[MIDI_MAX_MESSAGES];
 
         // Copy first array.
-        for (int i = 0; i < m_pkg.size; i++) {
+        for (uint16_t i = 0; i < m_pkg.size; i++) {
             msg[i] = m_pkg.msg[i];
         }
 
         uint32_t new_size = m_pkg.size + other.m_pkg.size;
         int a = 0, b = 0;
-        int i = 0;
+        uint32_t i = 0;
         for (; a < m_pkg.size && b < other.m_pkg.size; i++) {
             if (msg[a].time_stamp < other.m_pkg.msg[b].time_stamp) {
                 m_pkg.msg[i] = msg[a++];

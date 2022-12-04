@@ -25,10 +25,12 @@ enum Instrument {
 enum class PageName {
     HOME,
     SONG,
-    // EXPORT,
     SETTING,
+    EXPORT,
     // EFFECTS,
 };
+
+inline constexpr size_t NUM_PAGES = magic_enum::enum_count<PageName>();
 
 enum Effect {
     DEFAULT,       // Play normally.

@@ -22,6 +22,8 @@ public:
         // instance().m_song_file.export_midi();
     }
 
+    static void export_midi() { instance().m_song_file.export_midi(); }
+
     static void loop()
     {
         if (!is_playback()) {
