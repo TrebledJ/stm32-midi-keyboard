@@ -28,7 +28,7 @@ public:
                 banks[i].setPhase(0);
                 used[i]  = true;
                 notes[i] = note;
-                vels[i]  = vel;
+                vels[i]  = (vel > 127 ? 127 : vel);
                 m_num_active++;
                 break;
             }
