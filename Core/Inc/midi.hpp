@@ -23,29 +23,34 @@ namespace midi
         uint32_t time_stamp;
         uint8_t status_byte;
         uint8_t data_byte;
-        uint8_t velocity;
     };
-
+    struct package {
+        uint8_t start_byte  = 101;
+        uint16_t m_size     = 0;
+        uint8_t midi_volume = 100;
+        uint8_t tempo       = 120;
+        message msg[MIDI_MAX_MESSAGES];
+    };
     class file
     {
     public:
-        void reset() { m_size = 0; }
-        size_t size() const { return m_size; }
+        void reset() { m_pkg.m_size = 0; }
+        size_t size() const { return m_pkg.m_size; }
 
-        void note_on(uint32_t t, uint8_t channel, uint8_t note, uint8_t vel = 90);
-        void note_off(uint32_t t, uint8_t channel, uint8_t note, uint8_t vel = 90);
+        void note_on(uint32_t t, uint8_t channel, uint8_t note);
+        void note_off(uint32_t t, uint8_t channel, uint8_t note);
 
         // Load midi data from the given address.
         void load(uintptr_t addr);
+        void export_midi();
 
         // Save midi data to the given address.
         void save(uintptr_t addr) const;
 
-        message& operator[](size_t i) { return m_msg[i]; }
-        const message& operator[](size_t i) const { return m_msg[i]; }
+        message& operator[](size_t i) { return m_pkg.msg[i]; }
+        const message& operator[](size_t i) const { return m_pkg.msg[i]; }
 
     private:
-        message m_msg[MIDI_MAX_MESSAGES];
-        size_t m_size = 0;
+        package m_pkg;
     };
 } // namespace midi

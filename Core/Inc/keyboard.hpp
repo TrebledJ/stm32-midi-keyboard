@@ -73,3 +73,5 @@ private:
     void _toggle_playback();
     void _toggle_record();
 };
+
+#define FLASH_ADDR_START 0x080C0000
