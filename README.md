@@ -13,6 +13,7 @@ Midi keyboard project for ELEC3300, a course on embedded systems, implemented us
 * Record and playback music (supports multiple channels!)
 * Load/store MIDI in flash memory
 * Send MIDI signals through USB (UART)
+    * Receiving is handled by a script (receive.py)
 * Extra fanciful features:
     * Transpose: shift pitches up/down on the diatonic scale
     * Auto-Chord: quality-of-life function to play octaves, triads, and open triads by just pressing the root key
