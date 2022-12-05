@@ -1,7 +1,22 @@
 # stm32-midi-keyboard
-Midi keyboard project for ELEC3300, a course on embedded systems, implemented using STM32 with C++20.
+Midi keyboard project for ELEC3300, a course on embedded systems, implemented using STM32 (F4) with C++20.
 
 ![Picture of the keyboard.](/docs/thumbnail.jpg)
+
+## Features
+
+* 2+ octaves (29) piano keys to flexibly play various melodies
+    * Supports multi-press, so that we aren't stuck with boring one-note tunes and can play chords
+* Volume control, so that we don’t disturb our neighbours
+* Metronome, in case the user can’t keep track of tempo
+* TFT display and menu selection
+* Record and playback music (supports multiple channels!)
+* Load/store MIDI in flash memory
+* Send MIDI signals through USB (UART)
+* Extra fanciful features:
+    * Transpose: shift pitches up/down on the diatonic scale
+    * Auto-Chord: quality-of-life function to play octaves, triads, and open triads by just pressing the root key
+    * Instruments: supports playback of sine, triangle, square, and sawtooth signals
 
 ## Development 
 ### Environment
