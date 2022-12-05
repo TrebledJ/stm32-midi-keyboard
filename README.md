@@ -1,6 +1,8 @@
 # stm32-midi-keyboard
 Midi keyboard project for ELEC3300, a course on embedded systems, implemented using STM32 with C++20.
 
+![Picture of the keyboard.](/docs/thumbnail.jpg)
+
 ## Development 
 ### Environment
 Download all of the following before continuing. Preferably, use a package manager to install these.
