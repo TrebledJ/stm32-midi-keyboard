@@ -114,9 +114,10 @@ int main(void)
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
 
-#define SAMPLE_RATE 42000
+#define SAMPLE_RATE 14000
 #define BUFFER_SIZE 1024
-#define FREQUENCY   440
+// #define FREQUENCY   440
+#define VOLUME      1.0 // 0 - 1.
 
     uint16_t buffers[2][BUFFER_SIZE];
     uint8_t curr = 0;
@@ -126,13 +127,29 @@ int main(void)
     HAL_TIM_Base_Start(&htim8);
 
     // Optimisation: precompute.
-    float two_pi_f_over_sr = 2 * M_PI * FREQUENCY / SAMPLE_RATE;
+    // float two_pi_f_over_sr = 2 * M_PI * FREQUENCY / SAMPLE_RATE;
+    float C4 = 2 * M_PI * 261.63 / SAMPLE_RATE;
+    float G4 = 2 * M_PI * 392.00 / SAMPLE_RATE;
+    float Eb4 = 2 * M_PI * 311.125 / SAMPLE_RATE;
+    float Eb5 = 2 * M_PI * 622.25 / SAMPLE_RATE;
+    float Bb5 = 2 * M_PI * 987.77 / SAMPLE_RATE;
+    float amp = VOLUME * 2047 / 4;
 
     while (1) {
         // Prep the buffer.
         uint16_t* buffer = buffers[curr];
         for (int i = 0; i < BUFFER_SIZE; i++, t++) {
-            buffer[i] = 128 * sin(two_pi_f_over_sr * t) + 2047;
+            float x = 0
+                + sin(C4 * t) // C
+                // + sin(2 * M_PI * 311.13 / SAMPLE_RATE * t) // Eb
+                + sin(G4 * t) // G
+                // + sin(2 * M_PI * 493.88 / SAMPLE_RATE * t) // B
+                + sin(Eb4 * t) // Eb
+                // + sin(Bb5 * t) // B
+                ;
+            // x /= 3;
+            // buffer[i] = VOLUME * 2047 * x + 2047;
+            buffer[i] = amp * x + 2047;
         }
 
         // Wait for DAC to be ready.
@@ -249,9 +266,9 @@ static void MX_TIM8_Init(void)
 
     /* USER CODE END TIM8_Init 1 */
     htim8.Instance               = TIM8;
-    htim8.Init.Prescaler         = 4000 - 1;
+    htim8.Init.Prescaler         = 0;
     htim8.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim8.Init.Period            = 0;
+    htim8.Init.Period            = 12000 - 1;
     htim8.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim8.Init.RepetitionCounter = 0;
     htim8.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
