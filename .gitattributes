@@ -1,0 +1,4 @@
+Core/Inc/leaf/** -linguist-detectable
+Core/Src/leaf/** -linguist-detectable
+Core/Src/Startup/** -linguist-detectable
+Drivers/** -linguist-detectable
